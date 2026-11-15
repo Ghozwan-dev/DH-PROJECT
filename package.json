@@ -1,0 +1,23 @@
+{
+  "name": "darul-hikmah-absensi",
+  "version": "1.0.0",
+  "description": "Aplikasi Absensi Santri Pondok Pesantren Islam Darul Hikmah",
+  "main": "server.js",
+  "scripts": {
+    "web": "node server.js",
+    "start": "node server.js",
+    "dev": "node server.js",
+    "preview": "node server.js",
+    "build": "node server.js",
+    "flutter:web": "flutter run -d chrome",
+    "flutter:run": "flutter run"
+  },
+  "keywords": [
+    "flutter",
+    "darul-hikmah",
+    "absensi",
+    "mobile"
+  ],
+  "author": "",
+  "license": "ISC"
+}
