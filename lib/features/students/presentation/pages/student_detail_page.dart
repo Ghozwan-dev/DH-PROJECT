@@ -4,6 +4,7 @@ import '../../../../core/widgets/feedback_banner.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../data/models/student_model.dart';
 import '../../data/services/student_service.dart';
+import '../widgets/student_avatar_picker_sheet.dart';
 import 'student_form_page.dart';
 
 /// Halaman Detail Santri Darul Hikmah (Sesuai Butir D & E):
@@ -55,137 +56,12 @@ class _StudentDetailPageState extends State<StudentDetailPage> {
     if (!_isAdmin) return; // Keamanan ganda: Hanya Admin
 
     final isMale = _currentStudent.isMale;
-    final malePresets = [
-      'assets/images/santri_ahmad.png',
-      'assets/images/santri_rizky.png',
-      'assets/images/santri_putra_2.png',
-      'assets/images/santri_putra_3.png',
-    ];
-    final femalePresets = [
-      'assets/images/santri_aisyah.png',
-      'assets/images/santri_putri_2.png',
-      'assets/images/santri_putri_3.png',
-    ];
-
-    final presets = isMale ? malePresets : femalePresets;
-
-    showModalBottomSheet(
+    StudentAvatarPickerSheet.show(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Ubah Foto Profil Santri (${isMale ? 'Putra' : 'Putri'})',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded, size: 20),
-                      onPressed: () => Navigator.pop(ctx),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Pilih dari foto santri ${isMale ? 'putra' : 'putri'} atau upload foto kustom:',
-                  style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
-                ),
-                const SizedBox(height: 16),
-
-                // Presets Grid
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children: presets.map((path) {
-                    final isCurrent = _currentStudent.avatarAsset == path;
-                    return InkWell(
-                      onTap: () {
-                        Navigator.pop(ctx);
-                        _applyAvatar(path);
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        width: 68,
-                        height: 68,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isCurrent ? AppColors.primary : Colors.grey.shade300,
-                            width: isCurrent ? 3 : 1.5,
-                          ),
-                          boxShadow: [
-                            if (isCurrent)
-                              BoxShadow(
-                                color: AppColors.primary.withOpacity(0.3),
-                                blurRadius: 8,
-                              ),
-                          ],
-                        ),
-                        child: ClipOval(
-                          child: Image.asset(
-                            path,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(Icons.person, color: AppColors.primary),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-
-                const SizedBox(height: 20),
-                const Divider(),
-                const SizedBox(height: 10),
-
-                // Tombol Upload Foto Galeri
-                OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    final altPath = isMale ? 'assets/images/santri_rizky.png' : 'assets/images/santri_putri_2.png';
-                    _applyAvatar(altPath);
-                  },
-                  icon: const Icon(Icons.photo_library_outlined, size: 18, color: AppColors.primary),
-                  label: const Text(
-                    'Pilih dari Galeri Perangkat',
-                    style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.primary),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    minimumSize: const Size.fromHeight(44),
-                  ),
-                ),
-                const SizedBox(height: 10),
-              ],
-            ),
-          ),
-        );
-      },
+      isMale: isMale,
+      currentAvatar: _currentStudent.avatarAsset,
+      title: 'Ubah Foto Profil Santri (${isMale ? 'Putra' : 'Putri'})',
+      onSelected: _applyAvatar,
     );
   }
 

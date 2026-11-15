@@ -12,6 +12,7 @@ class ScheduleCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onTakeAttendance;
 
   const ScheduleCard({
     Key? key,
@@ -20,6 +21,7 @@ class ScheduleCard extends StatelessWidget {
     required this.onTap,
     this.onEdit,
     this.onDelete,
+    this.onTakeAttendance,
   }) : super(key: key);
 
   @override
@@ -219,6 +221,45 @@ class ScheduleCard extends StatelessWidget {
                   ),
                 ],
               ),
+
+              // Tombol Isi Absensi Santri (Sesuai Butir 1, 2, 3)
+              if (onTakeAttendance != null) ...[
+                const SizedBox(height: 10),
+                InkWell(
+                  onTap: onTakeAttendance,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary,
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.2),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.fact_check_rounded, size: 15, color: Colors.white),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Isi Absensi Santri (Kelas ${schedule.className})',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

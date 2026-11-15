@@ -152,6 +152,10 @@ class StudentModel {
     };
   }
 
+  Map<String, dynamic> toJson() => toMap();
+
+  factory StudentModel.fromJson(Map<String, dynamic> json) => StudentModel.fromMap(json);
+
   factory StudentModel.fromMap(Map<String, dynamic> map) {
     return StudentModel(
       id: map['id']?.toString() ?? '',

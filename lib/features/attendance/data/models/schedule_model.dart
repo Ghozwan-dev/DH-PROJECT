@@ -116,6 +116,10 @@ class ScheduleModel {
     };
   }
 
+  Map<String, dynamic> toJson() => toMap();
+
+  factory ScheduleModel.fromJson(Map<String, dynamic> json) => ScheduleModel.fromMap(json);
+
   factory ScheduleModel.fromMap(Map<String, dynamic> map) {
     return ScheduleModel(
       id: map['id']?.toString() ?? '',

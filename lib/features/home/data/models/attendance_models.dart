@@ -52,6 +52,30 @@ class AttendanceSummaryModel {
       filter: filter ?? this.filter,
     );
   }
+  Map<String, dynamic> toMap() {
+    return {
+      'presentCount': presentCount,
+      'permissionCount': permissionCount,
+      'absentCount': absentCount,
+      'filter': filter.name,
+    };
+  }
+
+  Map<String, dynamic> toJson() => toMap();
+
+  factory AttendanceSummaryModel.fromJson(Map<String, dynamic> json) => AttendanceSummaryModel.fromMap(json);
+
+  factory AttendanceSummaryModel.fromMap(Map<String, dynamic> map) {
+    return AttendanceSummaryModel(
+      presentCount: int.tryParse(map['presentCount']?.toString() ?? '0') ?? 0,
+      permissionCount: int.tryParse(map['permissionCount']?.toString() ?? '0') ?? 0,
+      absentCount: int.tryParse(map['absentCount']?.toString() ?? '0') ?? 0,
+      filter: AttendanceFilter.values.firstWhere(
+        (f) => f.name == map['filter']?.toString(),
+        orElse: () => AttendanceFilter.today,
+      ),
+    );
+  }
 }
 
 /// Model Aktivitas Terakhir (Butir 6)
@@ -75,4 +99,37 @@ class AttendanceActivityModel {
     this.avatarAsset,
     this.isFemale = false,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'studentName': studentName,
+      'className': className,
+      'status': status.name,
+      'time': time,
+      'timeLabel': timeLabel,
+      'avatarAsset': avatarAsset,
+      'isFemale': isFemale,
+    };
+  }
+
+  Map<String, dynamic> toJson() => toMap();
+
+  factory AttendanceActivityModel.fromJson(Map<String, dynamic> json) => AttendanceActivityModel.fromMap(json);
+
+  factory AttendanceActivityModel.fromMap(Map<String, dynamic> map) {
+    return AttendanceActivityModel(
+      id: map['id']?.toString() ?? '',
+      studentName: map['studentName']?.toString() ?? '',
+      className: map['className']?.toString() ?? '',
+      status: AttendanceStatus.values.firstWhere(
+        (s) => s.name == map['status']?.toString(),
+        orElse: () => AttendanceStatus.hadir,
+      ),
+      time: map['time']?.toString() ?? '',
+      timeLabel: map['timeLabel']?.toString() ?? 'Hari Ini',
+      avatarAsset: map['avatarAsset']?.toString(),
+      isFemale: map['isFemale'] as bool? ?? false,
+    );
+  }
 }

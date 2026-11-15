@@ -9,6 +9,9 @@ import '../widgets/schedule_filter.dart';
 import '../widgets/schedule_summary_card.dart';
 import 'schedule_detail_page.dart';
 import 'schedule_form_page.dart';
+import 'attendance_form_page.dart';
+import '../widgets/attendance_history_view.dart';
+import '../../data/services/lesson_attendance_service.dart';
 
 /// Halaman Manajemen Jadwal Pelajaran Pondok Pesantren Islam Darul Hikmah (Sesuai Butir C, D, E, G, I)
 /// - Admin: Melihat seluruh jadwal, menambah, mengedit, dan menghapus jadwal
@@ -18,11 +21,13 @@ import 'schedule_form_page.dart';
 class ScheduleManagementPage extends StatefulWidget {
   final UserModel? currentUser;
   final UserRole? userRole;
+  final int initialTabIndex;
 
   const ScheduleManagementPage({
     Key? key,
     this.currentUser,
     this.userRole,
+    this.initialTabIndex = 0,
   }) : super(key: key);
 
   @override
@@ -31,8 +36,10 @@ class ScheduleManagementPage extends StatefulWidget {
 
 class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
   final _scheduleService = ScheduleService();
+  final _attendanceService = LessonAttendanceService();
   final _searchController = TextEditingController();
 
+  late int _currentTabIndex; // 0: Jadwal Pelajaran & Isi Absensi, 1: Riwayat Absensi
   String _searchQuery = '';
   String _selectedDay = 'Semua';
   String _selectedClass = 'Semua';
@@ -40,6 +47,7 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
   @override
   void initState() {
     super.initState();
+    _currentTabIndex = _isAdmin ? widget.initialTabIndex : 0;
     _scheduleService.addListener(_onServiceUpdate);
   }
 
@@ -157,6 +165,33 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
     );
   }
 
+  Future<void> _navigateToAttendance(ScheduleModel schedule) async {
+    // Validasi Hak Akses Guru (Sesuai Butir 2 & 5)
+    if (!_isAdmin && !_attendanceService.canManageSchedule(user: _user, schedule: schedule)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Akses ditolak: Anda hanya dapat mengisi absensi pada jadwal yang ditugaskan kepada Anda.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => AttendanceFormPage(
+          currentUser: _user,
+          schedule: schedule,
+        ),
+      ),
+    );
+
+    if (result == true && mounted) {
+      setState(() {});
+    }
+  }
+
   void _resetFilters() {
     setState(() {
       _searchQuery = '';
@@ -191,9 +226,11 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
           tooltip: 'Kembali ke Dashboard',
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Manajemen Jadwal',
-          style: TextStyle(
+        title: Text(
+          _currentTabIndex == 0
+              ? (_isAdmin ? 'Manajemen Jadwal & Absensi' : 'Jadwal Mengajar Santri')
+              : 'Riwayat Absensi Santri',
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
@@ -202,8 +239,8 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
         ),
         centerTitle: false,
         actions: [
-          // Tombol Tambah Jadwal KHUSUS Admin (Sesuai Permintaan & Butir C & E)
-          if (_isAdmin)
+          // Tombol Tambah Jadwal KHUSUS Admin pada Tab Jadwal (Sesuai Permintaan & Butir C & E)
+          if (_isAdmin && _currentTabIndex == 0)
             Padding(
               padding: const EdgeInsets.only(right: 12.0),
               child: ElevatedButton.icon(
@@ -242,84 +279,98 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
                     // 1. Header Informasi Halaman
                     _buildPageHeader(),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
 
-                    // 2. Ringkasan Statistik Jadwal
-                    ScheduleSummaryCards(
-                      totalSchedules: totalSchedules,
-                      totalClasses: totalClasses,
-                      totalTeachers: totalTeachers,
-                    ),
+                    // 2. Tab Switcher Antara Jadwal dan Riwayat Absensi (Khusus Admin)
+                    if (_isAdmin) ...[
+                      _buildTabSwitcher(),
+                      const SizedBox(height: 16),
+                    ],
 
-                    const SizedBox(height: 16),
+                    if (_isAdmin && _currentTabIndex == 1) ...[
+                      // Tampilan Riwayat Absensi Santri (Khusus Admin)
+                      if (_user != null)
+                        AttendanceHistoryView(currentUser: _user!)
+                      else
+                        const SizedBox.shrink(),
+                    ] else ...[
+                      // 3. Ringkasan Statistik Jadwal
+                      ScheduleSummaryCards(
+                        totalSchedules: totalSchedules,
+                        totalClasses: totalClasses,
+                        totalTeachers: totalTeachers,
+                      ),
 
-                    // 3. Bilah Pencarian & Filter Jadwal
-                    ScheduleFilterBar(
-                      searchController: _searchController,
-                      selectedDay: _selectedDay,
-                      selectedClass: _selectedClass,
-                      dayOptions: ScheduleService.dayOptions,
-                      classOptions: ['Semua', ...ScheduleService.classOptions],
-                      onSearchChanged: (val) {
-                        setState(() {
-                          _searchQuery = val;
-                        });
-                      },
-                      onDayChanged: (val) {
-                        setState(() {
-                          _selectedDay = val;
-                        });
-                      },
-                      onClassChanged: (val) {
-                        setState(() {
-                          _selectedClass = val;
-                        });
-                      },
-                    ),
+                      const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
+                      // 4. Bilah Pencarian & Filter Jadwal
+                      ScheduleFilterBar(
+                        searchController: _searchController,
+                        selectedDay: _selectedDay,
+                        selectedClass: _selectedClass,
+                        dayOptions: ScheduleService.dayOptions,
+                        classOptions: ['Semua', ...ScheduleService.classOptions],
+                        onSearchChanged: (val) {
+                          setState(() {
+                            _searchQuery = val;
+                          });
+                        },
+                        onDayChanged: (val) {
+                          setState(() {
+                            _selectedDay = val;
+                          });
+                        },
+                        onClassChanged: (val) {
+                          setState(() {
+                            _selectedClass = val;
+                          });
+                        },
+                      ),
 
-                    // 4. Daftar Kartu Jadwal Pelajaran Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Daftar Jadwal (${filteredSchedules.length})',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        if (_searchQuery.isNotEmpty || _selectedDay != 'Semua' || _selectedClass != 'Semua')
-                          TextButton(
-                            onPressed: _resetFilters,
-                            style: TextButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      const SizedBox(height: 16),
+
+                      // 5. Daftar Kartu Jadwal Pelajaran Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Daftar Jadwal (${filteredSchedules.length})',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.textPrimary,
                             ),
-                            child: const Text(
-                              'Reset',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
+                          ),
+                          if (_searchQuery.isNotEmpty || _selectedDay != 'Semua' || _selectedClass != 'Semua')
+                            TextButton(
+                              onPressed: _resetFilters,
+                              style: TextButton.styleFrom(
+                                padding: EdgeInsets.zero,
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: const Text(
+                                'Reset',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    ),
+                        ],
+                      ),
 
-                    const SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
-                    // 4. Daftar Kartu Jadwal Pelajaran
-                    if (filteredSchedules.isEmpty)
-                      _buildEmptyState()
-                    else if (isWideScreen)
-                      _buildWideScheduleGrid(filteredSchedules)
-                    else
-                      _buildMobileScheduleList(filteredSchedules),
+                      // 6. Daftar Kartu Jadwal Pelajaran
+                      if (filteredSchedules.isEmpty)
+                        _buildEmptyState()
+                      else if (isWideScreen)
+                        _buildWideScheduleGrid(filteredSchedules)
+                      else
+                        _buildMobileScheduleList(filteredSchedules),
+                    ],
 
                     const SizedBox(height: 32),
                   ],
@@ -332,10 +383,93 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
     );
   }
 
+  Widget _buildTabSwitcher() {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderLight),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => setState(() => _currentTabIndex = 0),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                decoration: BoxDecoration(
+                  color: _currentTabIndex == 0 ? AppColors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.calendar_month_rounded,
+                      size: 16,
+                      color: _currentTabIndex == 0 ? Colors.white : AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Absensi Santri',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: _currentTabIndex == 0 ? Colors.white : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: InkWell(
+              onTap: () => setState(() => _currentTabIndex = 1),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                decoration: BoxDecoration(
+                  color: _currentTabIndex == 1 ? AppColors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                alignment: Alignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.history_rounded,
+                      size: 16,
+                      color: _currentTabIndex == 1 ? Colors.white : AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Riwayat Absensi',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: _currentTabIndex == 1 ? Colors.white : AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPageHeader() {
+    final title = _isAdmin ? 'Manajemen Jadwal & Absensi' : 'Jadwal Mengajar Santri';
     final desc = _isAdmin
         ? 'Kelola jadwal mata pelajaran, alokasi kelas, dan penugasan guru pengampu di Pondok Pesantren Islam Darul Hikmah.'
-        : 'Jadwal pelajaran yang ditugaskan kepada Anda (${_user?.name ?? 'Guru Pengampu'}) di Pondok Pesantren Islam Darul Hikmah.';
+        : 'Jadwal pelajaran yang ditugaskan kepada Anda (${_user?.name ?? 'Guru Pengampu'}) di Pondok Pesantren Islam Darul Hikmah. Pilih jadwal untuk mengisi atau mengedit absensi.';
 
     return Container(
       width: double.infinity,
@@ -374,8 +508,8 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      'Manajemen Jadwal',
+                    Text(
+                      title,
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
@@ -461,9 +595,10 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
           child: ScheduleCard(
             schedule: schedule,
             isAdmin: _isAdmin,
-            onTap: () => _navigateToDetail(schedule),
+            onTap: () => _navigateToAttendance(schedule),
             onEdit: _isAdmin ? () => _navigateToEdit(schedule) : null,
             onDelete: _isAdmin ? () => _confirmDeleteSchedule(schedule) : null,
+            onTakeAttendance: () => _navigateToAttendance(schedule),
           ),
         );
       }).toList(),
@@ -483,6 +618,7 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
             onTap: () => _navigateToDetail(schedule),
             onEdit: _isAdmin ? () => _navigateToEdit(schedule) : null,
             onDelete: _isAdmin ? () => _confirmDeleteSchedule(schedule) : null,
+            onTakeAttendance: () => _navigateToAttendance(schedule),
           ),
         );
       }).toList(),

@@ -1032,7 +1032,7 @@
 
     /* ================= MODUL DATA SANTRI & JADWAL PELAJARAN STYLES ================= */
     #pageStudentList, #pageStudentDetail, #pageStudentForm,
-    #pageScheduleList, #pageScheduleDetail, #pageScheduleForm {
+    #pageScheduleList, #pageScheduleDetail, #pageScheduleForm, #pageAttendanceForm {
       transform: translateX(100%);
       opacity: 0;
       pointer-events: none;
@@ -1045,7 +1045,7 @@
       overflow-x: hidden;
     }
     #pageStudentList.active, #pageStudentDetail.active, #pageStudentForm.active,
-    #pageScheduleList.active, #pageScheduleDetail.active, #pageScheduleForm.active {
+    #pageScheduleList.active, #pageScheduleDetail.active, #pageScheduleForm.active, #pageAttendanceForm.active {
       transform: translateX(0);
       opacity: 1;
       pointer-events: auto;
@@ -1055,6 +1055,9 @@
     }
     #pageScheduleForm, #pageStudentForm {
       z-index: 27;
+    }
+    #pageAttendanceForm {
+      z-index: 28;
     }
 
     .device-shell.on-students .status-bar,
@@ -1612,6 +1615,9 @@
       justify-content: center;
       padding: 24px;
     }
+    .modal-overlay.active {
+      display: flex;
+    }
     .modal-card {
       background: #FFFFFF;
       border-radius: 16px;
@@ -1915,6 +1921,415 @@
       align-items: flex-start;
     }
 
+  
+    /* ================= MODUL ABSENSI SANTRI PER MAPEL STYLES ================= */
+    .sch-nav-tabs {
+      display: flex;
+      gap: 6px;
+      background: #E2E8F0;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+    .sch-nav-tab {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #64748B;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .sch-nav-tab:hover {
+      color: var(--primary);
+    }
+    .sch-nav-tab.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .sch-btn-attendance {
+      width: 100%;
+      margin-top: 10px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .sch-btn-attendance:hover {
+      background: #0B532C;
+    }
+    .sch-btn-attendance:active {
+      transform: scale(0.99);
+    }
+
+    /* 5-Column Attendance Metric Cards */
+    .att-recap-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .att-recap-card {
+      background: #FFFFFF;
+      border-radius: 10px;
+      padding: 8px 4px;
+      text-align: center;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+    }
+    .att-recap-card.hadir { border-top: 3px solid #16A34A; }
+    .att-recap-card.izin { border-top: 3px solid #2563EB; }
+    .att-recap-card.sakit { border-top: 3px solid #D97706; }
+    .att-recap-card.alfa { border-top: 3px solid #DC2626; }
+
+    .att-recap-val {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .att-recap-card.hadir .att-recap-val { color: #16A34A; }
+    .att-recap-card.izin .att-recap-val { color: #2563EB; }
+    .att-recap-card.sakit .att-recap-val { color: #D97706; }
+    .att-recap-card.alfa .att-recap-val { color: #DC2626; }
+
+    .att-recap-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Attendance History Card */
+    .att-history-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 14px 15px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 11px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .att-history-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+    }
+    .att-history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .att-history-subject {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .att-history-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .att-pills-row {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .att-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .att-pill.h { background: #DCFCE7; color: #16A34A; }
+    .att-pill.i { background: #DBEAFE; color: #2563EB; }
+    .att-pill.s { background: #FEF3C7; color: #D97706; }
+    .att-pill.a { background: #FEE2E2; color: #DC2626; }
+
+    .att-history-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 9px;
+    }
+    .att-btn-edit {
+      background: #F1F5F9;
+      color: #334155;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .att-btn-edit:hover {
+      background: #E2E8F0;
+    }
+    .att-btn-del {
+      background: #FEE2E2;
+      color: #DC2626;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .att-btn-del:hover {
+      background: #FECACA;
+    }
+
+    /* Attendance Form Page Styles */
+    .att-info-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .att-info-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .att-info-subject {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .att-info-teacher {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .att-info-period-badge {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .att-info-divider {
+      height: 1px;
+      background: #F1F5F9;
+      margin: 10px 0;
+    }
+    .att-date-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .att-quick-bar {
+      background: #FFFFFF;
+      border-radius: 12px;
+      padding: 10px 14px;
+      border: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .att-quick-btn {
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .att-quick-btn.hadir { color: #16A34A; border-color: #86EFAC; background: #DCFCE7; }
+    .att-quick-btn.izin { color: #2563EB; border-color: #93C5FD; background: #DBEAFE; }
+    .att-quick-btn.sakit { color: #D97706; border-color: #FDE68A; background: #FEF3C7; }
+
+    /* Student Attendance Card */
+    .att-student-card {
+      background: #FFFFFF;
+      border-radius: 12px;
+      padding: 12px 14px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+      transition: all 0.2s ease;
+    }
+    .att-student-card.unassigned-warning {
+      background: #FFF7F7 !important;
+      border: 1.5px solid #DC2626 !important;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.12) !important;
+    }
+    .att-student-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .att-student-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .att-student-avatar-fallback {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .att-student-avatar-fallback.putra { background: #E0F2FE; color: #0284C7; }
+    .att-student-avatar-fallback.putri { background: #FCE7F3; color: #DB2777; }
+
+    .att-student-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .att-student-nis {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .att-status-chips {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .att-chip {
+      flex: 1;
+      min-width: 54px;
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .att-chip:hover {
+      background: #F8FAFC;
+    }
+    .att-chip.active-hadir {
+      background: #DCFCE7;
+      color: #16A34A;
+      border-color: #16A34A;
+      box-shadow: 0 0 0 1px #16A34A;
+    }
+    .att-chip.active-izin {
+      background: #DBEAFE;
+      color: #2563EB;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 1px #2563EB;
+    }
+    .att-chip.active-sakit {
+      background: #FEF3C7;
+      color: #D97706;
+      border-color: #D97706;
+      box-shadow: 0 0 0 1px #D97706;
+    }
+    .att-chip.active-alfa {
+      background: #FEE2E2;
+      color: #DC2626;
+      border-color: #DC2626;
+      box-shadow: 0 0 0 1px #DC2626;
+    }
+
+    .att-notes-input {
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .att-notes-input:focus {
+      background: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    /* Sticky Bottom Bar */
+    .att-bottom-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      padding: 10px 16px;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 10;
+      box-shadow: 0 -3px 10px rgba(0,0,0,0.03);
+    }
+    .att-bottom-stats {
+      display: flex;
+      gap: 8px;
+      font-size: 11.5px;
+    }
+    .att-mini-stat {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .att-mini-stat.hadir { background: #DCFCE7; color: #16A34A; }
+    .att-mini-stat.izin { background: #DBEAFE; color: #2563EB; }
+    .att-mini-stat.sakit { background: #FEF3C7; color: #D97706; }
+    .att-mini-stat.alfa { background: #FEE2E2; color: #DC2626; }
+
   </style>
 </head>
 <body>
@@ -2193,7 +2608,7 @@
               <span class="menu-card-label">Data Santri</span>
             </div>
             <!-- Absensi -->
-            <div class="menu-card" onclick="openMenuModal('Absensi', 'absensi')">
+            <div class="menu-card" onclick="openAttendanceSubmenuModal()">
               <div class="menu-icon-wrap">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><circle cx="8" cy="14" r="1"/><circle cx="12" cy="14" r="1"/><circle cx="16" cy="14" r="1"/><circle cx="8" cy="18" r="1"/><circle cx="12" cy="18" r="1"/></svg>
               </div>
@@ -2749,6 +3164,21 @@
               </div>
             </div>
 
+            <!-- Segmented Tab Switcher Antara Jadwal dan Riwayat Absensi -->
+            <div class="sch-nav-tabs">
+              <button class="sch-nav-tab active" id="tabScheduleListBtn" onclick="switchScheduleMainTab('schedule')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+                <span>Absensi Santri</span>
+              </button>
+              <button class="sch-nav-tab" id="tabAttendanceHistoryBtn" onclick="switchScheduleMainTab('attendance')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+                <span>Riwayat & Rekap Absensi</span>
+              </button>
+            </div>
+
+            <!-- Tab 1: Manajemen Jadwal -->
+            <div id="schTabScheduleSection">
+
             <!-- Summary 3 Cards -->
             <div class="sch-summary-grid">
               <div class="sch-stat-card">
@@ -2793,6 +3223,139 @@
             <!-- Schedule List Container -->
             <div id="schListContainer">
               <!-- Dynamically populated -->
+            </div>
+            </div> <!-- End #schTabScheduleSection -->
+
+            <!-- Tab 2: Riwayat & Rekap Absensi Santri -->
+            <div id="schTabAttendanceSection" style="display:none;">
+              <!-- 1. Header Ringkasan Riwayat Sesi & Santri Tercatat (Butir 2) -->
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+                <div style="background:#FFFFFF; border-radius:12px; padding:12px 14px; border:1px solid #E2E8F0; display:flex; align-items:center; gap:10px;">
+                  <div style="width:36px; height:36px; border-radius:10px; background:#EFF6FF; color:#2563EB; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-size:18px; font-weight:800; color:var(--text-main);" id="attRecapSessions">0</div>
+                    <div style="font-size:11.5px; color:var(--text-secondary); font-weight:600;">Total Sesi</div>
+                  </div>
+                </div>
+                <div style="background:#FFFFFF; border-radius:12px; padding:12px 14px; border:1px solid #E2E8F0; display:flex; align-items:center; gap:10px;">
+                  <div style="width:36px; height:36px; border-radius:10px; background:#DCFCE7; color:#16A34A; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-size:18px; font-weight:800; color:var(--text-main);" id="attRecapStudents">0</div>
+                    <div style="font-size:11.5px; color:var(--text-secondary); font-weight:600;">Santri Tercatat</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Recap 5 Status (H, I, S, T: 0, A) -->
+              <div class="att-recap-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom:12px;">
+                <div class="att-recap-card hadir">
+                  <div class="att-recap-val" id="attRecapHadir">0</div>
+                  <div class="att-recap-lbl">Hadir</div>
+                </div>
+                <div class="att-recap-card izin">
+                  <div class="att-recap-val" id="attRecapIzin">0</div>
+                  <div class="att-recap-lbl">Izin</div>
+                </div>
+                <div class="att-recap-card sakit">
+                  <div class="att-recap-val" id="attRecapSakit">0</div>
+                  <div class="att-recap-lbl">Sakit</div>
+                </div>
+                <div class="att-recap-card terlambat" style="background:#FFF7ED; border:1px solid #FFEDD5;">
+                  <div class="att-recap-val" id="attRecapTerlambat" style="color:#EA580C;">0</div>
+                  <div class="att-recap-lbl" style="color:#C2410C;">Terlambat</div>
+                </div>
+                <div class="att-recap-card alfa">
+                  <div class="att-recap-val" id="attRecapAlfa">0</div>
+                  <div class="att-recap-lbl">Alfa</div>
+                </div>
+              </div>
+
+              <!-- 3. Kotak Pencarian Mata Pelajaran atau Nama Guru (Butir 2) -->
+              <div class="snt-search-box" style="margin-bottom:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="attHistorySearchInput" placeholder="Cari mata pelajaran atau nama guru..." oninput="renderAttendanceHistory()">
+                <button id="attHistoryClearSearch" onclick="clearAttendanceSearch()" style="display:none; background:none; border:none; color:var(--text-muted); cursor:pointer;">&times;</button>
+              </div>
+
+              <!-- 4. Filter Bar untuk Riwayat Absensi (Tanggal, Kelas, Mapel, Guru) -->
+              <div style="background:#FFFFFF; border-radius:12px; padding:12px; border:1px solid #E2E8F0; margin-bottom:12px;">
+                <div style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">Filter Riwayat Absensi</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Tanggal</label>
+                    <input type="date" id="attFilterDate" class="form-input" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceHistory()">
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Kelas</label>
+                    <select id="attFilterClass" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceHistory()">
+                      <option value="Semua">Semua Kelas</option>
+                      <option value="VII A">VII A</option>
+                      <option value="VII B">VII B</option>
+                      <option value="VIII A">VIII A</option>
+                      <option value="VIII B">VIII B</option>
+                      <option value="IX A">IX A</option>
+                      <option value="IX B">IX B</option>
+                      <option value="X A">X A</option>
+                      <option value="X B">X B</option>
+                      <option value="XI A">XI A</option>
+                      <option value="XI B">XI B</option>
+                      <option value="XII A">XII A</option>
+                      <option value="XII B">XII B</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Mata Pelajaran</label>
+                    <select id="attFilterSubject" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceHistory()">
+                      <option value="Semua">Semua Mapel</option>
+                      <option value="Fiqih">Fiqih</option>
+                      <option value="Al-Qur'an Hadits">Al-Qur'an Hadits</option>
+                      <option value="Bahasa Arab">Bahasa Arab</option>
+                      <option value="Akidah Akhlak">Akidah Akhlak</option>
+                      <option value="Sejarah Kebudayaan Islam (SKI)">SKI</option>
+                      <option value="Nahwu Shorof">Nahwu Shorof</option>
+                      <option value="Tahfidz Al-Qur'an">Tahfidz Al-Qur'an</option>
+                      <option value="Matematika">Matematika</option>
+                      <option value="Bahasa Inggris">Bahasa Inggris</option>
+                      <option value="IPA Terpadu">IPA Terpadu</option>
+                      <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                    </select>
+                  </div>
+                  <div id="attFilterTeacherWrapper">
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Guru Pengampu</label>
+                    <select id="attFilterTeacher" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceHistory()">
+                      <option value="Semua">Semua Guru</option>
+                      <option value="Ustadz Ahmad Fauzi">Ustadz Ahmad Fauzi</option>
+                      <option value="Ustadzah Halimah">Ustadzah Halimah</option>
+                      <option value="Ustadz Mansyur Hidayat">Ustadz Mansyur Hidayat</option>
+                      <option value="Ustadz Zulkifli">Ustadz Zulkifli</option>
+                      <option value="Ustadzah Nurul Azizah">Ustadzah Nurul Azizah</option>
+                      <option value="Ustadz Abdullah Said">Ustadz Abdullah Said</option>
+                      <option value="Ustadz Lukman Hakim">Ustadz Lukman Hakim</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                  <button type="button" onclick="resetAttendanceFilters()" style="background:none; border:none; color:var(--primary); font-size:11.5px; font-weight:700; cursor:pointer;">Reset Filter Absensi</button>
+                </div>
+              </div>
+
+              <!-- 5. Header Counter & Daftar Riwayat -->
+              <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0 10px 0;">
+                <span style="font-size:13.5px; font-weight:700; color:var(--text-main);" id="attHistoryCountLabel">Riwayat Sesi Absensi (0)</span>
+              </div>
+
+              <!-- Container Kartu Riwayat -->
+              <div id="attHistoryListContainer">
+                <!-- Dynamically populated -->
+              </div>
             </div>
           </div>
         </div>
@@ -2890,6 +3453,14 @@
                 <span class="snt-prop-lbl">Catatan Khusus</span>
                 <span class="snt-prop-val" id="schDetNotesVal">-</span>
               </div>
+            </div>
+
+            <!-- Tombol Aksi Langsung: Isi Absensi Santri -->
+            <div style="margin-top:14px; margin-bottom:10px;">
+              <button type="button" class="btn-primary" style="width:100%; background:#0E6838; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; font-size:13.5px; font-weight:700; margin:0;" onclick="backFromScheduleDetail(); openAttendanceForm(currentDetailScheduleId);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <span>Isi Absensi Santri</span>
+              </button>
             </div>
 
             <!-- Bottom Action Buttons (Khusus Admin) -->
@@ -3093,10 +3664,250 @@
           </div>
         </div>
 
+        <!-- ======================================================== -->
+        <!-- HALAMAN 9: INPUT / EDIT ABSENSI SANTRI PER MAPEL         -->
+        <!-- ======================================================== -->
+        <div class="screen-page" id="pageAttendanceForm">
+          <div class="sub-app-bar">
+            <div class="sub-app-bar-left">
+              <button class="btn-icon-back" onclick="backFromAttendanceForm()" title="Kembali">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="sub-app-bar-title" id="attFormTitle">Input Absensi Santri</span>
+            </div>
+            <div class="sub-app-bar-actions">
+              <span class="sch-card-class-badge" id="attFormClassHeaderBadge">VII A</span>
+            </div>
+          </div>
+
+          <div class="snt-content" style="padding-bottom:80px;">
+            <!-- Session Info Card -->
+            <div class="att-info-card">
+              <div class="att-info-top">
+                <div>
+                  <div class="att-info-subject" id="attFormSubject">Al-Qur'an Hadits</div>
+                  <div class="att-info-teacher" id="attFormTeacher">Ustadz Ahmad Fauzi</div>
+                </div>
+                <span class="att-info-period-badge" id="attFormPeriod">Jam Ke-1 (07:30 - 08:15)</span>
+              </div>
+              <div class="att-info-divider"></div>
+              <div class="att-date-row">
+                <label class="form-label" style="margin-bottom:0; font-size:12px; font-weight:700;">Tanggal Pertemuan:</label>
+                <input type="date" id="attFormDate" class="form-input" style="padding:6px 10px; width:auto; font-size:12.5px;" onchange="handleAttendanceDateChange()">
+              </div>
+            </div>
+
+            <!-- Banner Peringatan Santri Belum Memiliki Status (Butir 2) -->
+            <div id="attValidationBanner" style="display:none; margin-bottom:12px; padding:10px 14px; background:#FEF2F2; border:1px solid #FCA5A5; border-radius:10px; align-items:center; justify-content:space-between; gap:10px;">
+              <div style="display:flex; align-items:center; gap:8px; color:#991B1B; font-size:12.5px; font-weight:600;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span id="attValidationBannerText">Masih ada santri yang belum memiliki status kehadiran.</span>
+              </div>
+              <button type="button" onclick="scrollToFirstUnassignedStudent()" style="background:#DC2626; color:#FFF; border:none; border-radius:6px; padding:5px 12px; font-size:11.5px; font-weight:700; cursor:pointer; flex-shrink:0;">Tunjukkan</button>
+            </div>
+
+            <!-- Quick Action Toolbar -->
+            <div class="att-quick-bar">
+              <span style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Tandai Cepat:</span>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button type="button" class="att-quick-btn hadir" onclick="quickMarkAllStatus('hadir')">Semua Hadir</button>
+                <button type="button" class="att-quick-btn izin" onclick="quickMarkAllStatus('izin')">Semua Izin</button>
+                <button type="button" class="att-quick-btn sakit" onclick="quickMarkAllStatus('sakit')">Semua Sakit</button>
+              </div>
+            </div>
+
+            <!-- Students Attendance List -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:14px 0 8px 0;">
+              <span style="font-size:13px; font-weight:700; color:var(--text-main);" id="attStudentCountLabel">Daftar Santri (0)</span>
+              <span style="font-size:11.5px; color:var(--text-muted);">Pilih status per santri</span>
+            </div>
+
+            <div id="attStudentListContainer" class="att-student-list">
+              <!-- Dynamically generated student attendance cards -->
+            </div>
+          </div>
+
+          <!-- Sticky Bottom Summary and Save Bar -->
+          <div class="att-bottom-bar">
+            <div class="att-bottom-stats">
+              <span class="att-mini-stat hadir">H: <b id="attStatH">0</b></span>
+              <span class="att-mini-stat izin">I: <b id="attStatI">0</b></span>
+              <span class="att-mini-stat sakit">S: <b id="attStatS">0</b></span>
+              <span class="att-mini-stat alfa">A: <b id="attStatA">0</b></span>
+              <span class="att-mini-stat" id="attStatUnassignedWrap" style="display:none; background:#FEE2E2; color:#DC2626; border:1px solid #FCA5A5;">Belum: <b id="attStatU">0</b></span>
+            </div>
+            <button class="btn-primary" style="margin-bottom:0; padding:10px 18px; font-size:13px;" onclick="saveAttendanceForm()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Simpan Absensi</span>
+            </button>
+          </div>
+        </div>
+
     </div>
 
     <!-- Universal In-App Toast -->
     <div class="toast" id="appToast"></div>
+
+    <!-- Modal Konfirmasi Simpan Absensi Santri (Butir 1) -->
+    <div class="modal-overlay" id="attendanceConfirmModal" style="background:rgba(0,0,0,0.55); z-index:9999;" onclick="if(event.target === this) closeAttendanceConfirmModal()">
+      <div class="modal-card" style="max-width:340px; border-radius:16px; padding:20px; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#DCFCE7; display:flex; align-items:center; justify-content:center; color:#16A34A; flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+          </div>
+          <div>
+            <h3 style="font-size:16px; font-weight:800; color:var(--text-main); margin:0;">Konfirmasi Simpan</h3>
+            <p style="font-size:11.5px; color:var(--text-secondary); margin:0;" id="attConfirmSubtitle">Rincian kehadiran santri sesi ini</p>
+          </div>
+        </div>
+
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px; margin-bottom:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-weight:800; font-size:13.5px; color:var(--text-main); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #E2E8F0;">
+            <span>TOTAL SANTRI:</span>
+            <span id="attConfirmTotal" style="color:var(--primary); font-size:15px; font-weight:800;">0</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; font-weight:600;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#16A34A;"></span>Hadir:</span>
+              <span id="attConfirmHadir" style="color:#16A34A; font-weight:700;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#2563EB;"></span>Izin:</span>
+              <span id="attConfirmIzin" style="color:#2563EB; font-weight:700;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#D97706;"></span>Sakit:</span>
+              <span id="attConfirmSakit" style="color:#D97706; font-weight:700;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#DC2626;"></span>Alfa:</span>
+              <span id="attConfirmAlfa" style="color:#DC2626; font-weight:700;">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn-secondary" style="flex:1; margin-bottom:0; padding:11px; font-size:13px; font-weight:700; border-radius:10px;" onclick="closeAttendanceConfirmModal()">Kembali</button>
+          <button type="button" class="btn-primary" style="flex:1; margin-bottom:0; padding:11px; font-size:13px; font-weight:700; border-radius:10px;" onclick="executeConfirmedAttendanceSave()">Konfirmasi Simpan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Submenu Fitur Absensi Santri (Butir 5) -->
+    <div class="modal-overlay" id="attendanceSubmenuModal" style="background:rgba(0,0,0,0.55); z-index:9998;" onclick="if(event.target === this) closeAttendanceSubmenuModal()">
+      <div class="modal-card" style="max-width:360px; border-radius:20px; padding:20px; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:36px; height:36px; border-radius:10px; background:#DCFCE7; display:flex; align-items:center; justify-content:center; color:#16A34A; flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:var(--text-main); margin:0;">Menu Absensi</h3>
+              <p style="font-size:11.5px; color:var(--text-secondary); margin:0;" id="attSubmenuRoleSubtitle">Pilih submenu fitur absensi santri</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeAttendanceSubmenuModal()" style="border:none; background:#F1F5F9; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#64748B;">&times;</button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Submenu 1: Absensi Santri -->
+          <div class="att-submenu-item" onclick="closeAttendanceSubmenuModal(); openScheduleListPage(); switchScheduleMainTab('schedule');" style="display:flex; align-items:center; gap:12px; padding:12px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; cursor:pointer; transition:all 0.15s;">
+            <div style="width:40px; height:40px; border-radius:10px; background:#DCFCE7; display:flex; align-items:center; justify-content:center; color:#16A34A; flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13.5px; font-weight:700; color:var(--text-main);">Absensi Santri</div>
+              <div style="font-size:11.5px; color:var(--text-secondary);">Pilih jadwal pelajaran untuk input atau edit kehadiran</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+
+          <!-- Submenu 2: Riwayat Absensi (Khusus Admin) -->
+          <div class="att-submenu-item" id="attSubmenuHistoryCard" onclick="closeAttendanceSubmenuModal(); openScheduleListPage(); switchScheduleMainTab('attendance');" style="display:flex; align-items:center; gap:12px; padding:12px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; cursor:pointer; transition:all 0.15s;">
+            <div style="width:40px; height:40px; border-radius:10px; background:#FEF3C7; display:flex; align-items:center; justify-content:center; color:#D97706; flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13.5px; font-weight:700; color:var(--text-main);">Riwayat Absensi</div>
+              <div style="font-size:11.5px; color:var(--text-secondary);" id="attSubmenuHistoryDesc">Seluruh catatan sesi absensi santri yang sudah tersimpan</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- Modal Hasil Rincian Riwayat Absensi Santri (Butir 3) -->
+    <div class="modal-overlay" id="attendanceResultModal" style="background:rgba(0,0,0,0.55); z-index:9999;" onclick="if(event.target === this) closeAttendanceResultModal()">
+      <div class="modal-card" style="max-width:380px; width:92%; max-height:85vh; border-radius:18px; padding:0; display:flex; flex-direction:column; overflow:hidden; background:#FFFFFF; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <!-- Modal Header -->
+        <div style="padding:16px 18px; border-bottom:1px solid #E2E8F0; display:flex; align-items:center; justify-content:space-between; background:#FFFFFF; flex-shrink:0;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:38px; height:38px; border-radius:10px; background:#DCFCE7; color:#16A34A; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+            </div>
+            <div>
+              <div style="font-size:15px; font-weight:800; color:var(--text-main);">Hasil Rekapan Absensi Guru &amp; Santri</div>
+              <div style="font-size:11.5px; color:var(--text-secondary);">Rincian kehadiran santri sesi ini</div>
+            </div>
+          </div>
+          <button type="button" onclick="closeAttendanceResultModal()" style="border:none; background:#F1F5F9; border-radius:50%; width:30px; height:30px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#64748B;">&times;</button>
+        </div>
+
+        <!-- Modal Body (Scrollable) -->
+        <div style="padding:16px 18px; overflow-y:auto; flex:1;">
+          <!-- Session Header Card -->
+          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <div style="font-size:15px; font-weight:800; color:var(--text-main);" id="attResModalSubject">Fiqih</div>
+              <span class="sch-card-class-badge" id="attResModalClass">Kelas VII A</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-secondary); line-height:1.5;">
+              <div id="attResModalDateTimeVal">📅 15 Nov 2026 • Jam Ke-1 (07:30 - 08:15 WIB)</div>
+              <div id="attResModalTeacherVal">👤 Guru: Ustadz Ahmad Fauzi</div>
+            </div>
+          </div>
+
+          <!-- Presence Metric Breakdown -->
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:14px;">
+            <div style="background:#FFFFFF; border:1px solid #DCFCE7; border-top:3px solid #16A34A; border-radius:8px; padding:8px; text-align:center;">
+              <div style="font-size:16px; font-weight:800; color:#16A34A;" id="attResStatHadir">0</div>
+              <div style="font-size:11px; font-weight:600; color:#15803D;">Hadir</div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #DBEAFE; border-top:3px solid #2563EB; border-radius:8px; padding:8px; text-align:center;">
+              <div style="font-size:16px; font-weight:800; color:#2563EB;" id="attResStatIzin">0</div>
+              <div style="font-size:11px; font-weight:600; color:#1D4ED8;">Izin</div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #FEF3C7; border-top:3px solid #D97706; border-radius:8px; padding:8px; text-align:center;">
+              <div style="font-size:16px; font-weight:800; color:#D97706;" id="attResStatSakit">0</div>
+              <div style="font-size:11px; font-weight:600; color:#B45309;">Sakit</div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #FEE2E2; border-top:3px solid #DC2626; border-radius:8px; padding:8px; text-align:center;">
+              <div style="font-size:16px; font-weight:800; color:#DC2626;" id="attResStatAlfa">0</div>
+              <div style="font-size:11px; font-weight:600; color:#B91C1C;">Alfa</div>
+            </div>
+          </div>
+
+          <!-- Student List Header -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:12px; font-weight:700; color:var(--text-main); text-transform:uppercase;">Daftar Kehadiran Santri:</span>
+            <span style="font-size:11.5px; font-weight:600; color:var(--text-muted);" id="attResStudentCount">0 Santri</span>
+          </div>
+
+          <!-- Student List Items -->
+          <div id="attResStudentList"></div>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div style="padding:12px 18px; border-top:1px solid #E2E8F0; display:flex; gap:10px; background:#FFFFFF; flex-shrink:0;">
+          <button type="button" onclick="closeAttendanceResultModal()" style="flex:1; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:10px; font-size:13px; font-weight:700; color:var(--text-main); cursor:pointer;">Tutup</button>
+          <button type="button" id="attResModalEditBtn" onclick="editAttendanceFromResultModal()" style="flex:1.5; background:#0E6838; border:none; border-radius:10px; padding:10px; font-size:13px; font-weight:700; color:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 1-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span>Edit Absensi</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
     <!-- Universal In-App Modal Dialog -->
     <div class="modal-overlay" id="appModal">
@@ -3383,9 +4194,9 @@
         return;
       }
 
-      // Integrasi Navigasi Menu Jadwal Pelajaran (Sesuai Butir I, C & E)
+      // Integrasi Navigasi Menu Absensi Santri (Submenu Modal)
       if (code === 'absensi') {
-        openScheduleListPage();
+        openAttendanceSubmenuModal();
         return;
       }
 
@@ -3471,6 +4282,10 @@
     function switchNavTab(index) {
       if (index === 0) {
         showToast('Berada di tab Beranda', 'success');
+        return;
+      }
+      if (index === 1) {
+        openAttendanceSubmenuModal();
         return;
       }
       const names = ['Beranda', 'Absensi', 'Laporan', 'Pengaturan'];
@@ -3667,13 +4482,23 @@
       document.getElementById('modalTitle').innerText = title;
       document.getElementById('modalBody').innerHTML = bodyHtml;
       const btn = document.getElementById('modalBtnAction');
-      btn.innerText = btnText;
-      btn.onclick = btnAction;
-      document.getElementById('appModal').style.display = 'flex';
+      if (btn) {
+        btn.innerText = btnText;
+        btn.onclick = btnAction;
+      }
+      const modal = document.getElementById('appModal');
+      if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+      }
     }
 
     function closeModal() {
-      document.getElementById('appModal').style.display = 'none';
+      const modal = document.getElementById('appModal');
+      if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      }
     }
 
     /* ==========================================================================
@@ -4573,6 +5398,104 @@
     // ========================================================
     // MODUL MANAJEMEN JADWAL PELAJARAN - STATE & LOGIC
     // ========================================================
+    
+    // State & Mock Data Absensi Santri per Mata Pelajaran (Sesuai Butir 1-6)
+    let mockAttendanceRecords = [
+      {
+        id: 'ATT-001',
+        scheduleId: 'sch_001',
+        date: '2026-11-15',
+        className: 'VII A',
+        subject: 'Fiqih',
+        teacherName: 'Ustadz Ahmad Fauzi',
+        teacherId: 'guru_001',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadz Ahmad Fauzi',
+        items: [
+          {
+            studentId: 'SNT-001',
+            studentNis: '2024001',
+            studentName: 'Ahmad Fauzi',
+            status: 'hadir',
+            note: ''
+          }
+        ]
+      },
+      {
+        id: 'ATT-002',
+        scheduleId: 'sch_003',
+        date: '2026-11-15',
+        className: 'VII B',
+        subject: 'Al-Qur\'an Hadits',
+        teacherName: 'Ustadz Mansyur Hidayat',
+        teacherId: 'guru_003',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadz Mansyur Hidayat',
+        items: [
+          {
+            studentId: 'SNT-002',
+            studentNis: '2024002',
+            studentName: 'Muhammad Rizky',
+            status: 'hadir',
+            note: ''
+          }
+        ]
+      },
+      {
+        id: 'ATT-003',
+        scheduleId: 'sch_005',
+        date: '2026-11-14',
+        className: 'VIII A',
+        subject: 'Fiqih',
+        teacherName: 'Ustadz Ahmad Fauzi',
+        teacherId: 'guru_001',
+        periodNumber: 2,
+        startTime: '08:15',
+        endTime: '09:00',
+        recordedBy: 'Ustadz Ahmad Fauzi',
+        items: [
+          {
+            studentId: 'SNT-003',
+            studentNis: '2024003',
+            studentName: 'Fathur Rahman',
+            status: 'izin',
+            note: 'Izin urusan keluarga'
+          }
+        ]
+      },
+      {
+        id: 'ATT-004',
+        scheduleId: 'sch_009',
+        date: '2026-11-14',
+        className: 'VIII B',
+        subject: 'Fiqih',
+        teacherName: 'Ustadz Ahmad Fauzi',
+        teacherId: 'guru_001',
+        periodNumber: 2,
+        startTime: '08:15',
+        endTime: '09:00',
+        recordedBy: 'Ustadz Ahmad Fauzi',
+        items: [
+          {
+            studentId: 'SNT-004',
+            studentNis: '2024004',
+            studentName: 'Siti Aisyah',
+            status: 'hadir',
+            note: ''
+          }
+        ]
+      }
+    ];
+
+    let currentAttendanceMainTab = 'schedule'; // 'schedule' atau 'attendance'
+    let currentAttendanceScheduleId = null;
+    let currentAttendanceDate = '';
+    let currentAttendanceItems = [];
+
     let mockSchedules = [
       // SENIN
       { id: 'sch_001', day: 'Senin', className: 'VII A', subject: 'Fiqih', teacherName: 'Ustadz Ahmad Fauzi', teacherId: 'guru_001', periodNumber: 1, startTime: '07:30', endTime: '08:15', room: 'Ruang Kelas VII A', notes: 'Membawa kitab Fathul Qorib' },
@@ -4647,7 +5570,11 @@
       document.getElementById('pageScheduleList').classList.add('active');
       document.getElementById('pageScheduleDetail').classList.remove('active');
       document.getElementById('pageScheduleForm').classList.remove('active');
+      if (document.getElementById('pageAttendanceForm')) {
+        document.getElementById('pageAttendanceForm').classList.remove('active');
+      }
       document.getElementById('pageScheduleList').scrollTop = 0;
+      switchScheduleMainTab(currentAttendanceMainTab || 'schedule');
 
       const isAdmin = currentLoggedInUser && currentLoggedInUser.role === 'Admin';
       const topAddBtn = document.getElementById('schTopAddBtn');
@@ -4680,6 +5607,9 @@
       document.getElementById('pageScheduleList').classList.remove('active');
       document.getElementById('pageScheduleDetail').classList.remove('active');
       document.getElementById('pageScheduleForm').classList.remove('active');
+      if (document.getElementById('pageAttendanceForm')) {
+        document.getElementById('pageAttendanceForm').classList.remove('active');
+      }
       document.querySelector('.device-shell').classList.remove('on-schedule');
     }
 
@@ -4823,7 +5753,7 @@
         `;
 
         return `
-          <div class="sch-card" onclick="openScheduleDetail('${s.id}')">
+          <div class="sch-card" onclick="openAttendanceForm('${s.id}')" style="cursor:pointer;" title="Klik untuk Isi Absensi Santri">
             <div class="sch-card-top">
               <div class="sch-card-subject">${s.subject}</div>
               <span class="sch-card-class-badge">Kelas ${s.className}</span>
@@ -4844,8 +5774,17 @@
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 ${s.startTime} - ${s.endTime} WIB
               </span>
-              ${adminActions}
+              <div style="display:flex; align-items:center; gap:6px;">
+                <button type="button" class="sch-btn-icon" style="background:#EFF6FF; color:#2563EB;" onclick="event.stopPropagation(); openScheduleDetail('${s.id}')" title="Detail Jadwal">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                </button>
+                ${adminActions}
+              </div>
             </div>
+            <button type="button" class="sch-btn-attendance" onclick="event.stopPropagation(); openAttendanceForm('${s.id}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              <span>Isi Absensi Santri (Kelas ${s.className})</span>
+            </button>
           </div>
         `;
       }).join('');
@@ -5120,9 +6059,9 @@
 
     function executeDeleteSchedule(id) {
       const idx = mockSchedules.findIndex(s => s.id === id);
+      closeModal();
       if (idx !== -1) {
         const deleted = mockSchedules.splice(idx, 1)[0];
-        closeModal();
         showToast('Jadwal "' + deleted.subject + '" (' + deleted.className + ') berhasil dihapus.', 'success');
         renderScheduleList();
         if (window._onScheduleDeleted) {
@@ -5319,6 +6258,788 @@
       }
 
       closePhotoPickerModal();
+    }
+
+  
+
+    /* ========================================================================== */
+    /* LOGIKA & FITUR MODUL ABSENSI SANTRI PER MAPEL (SESUAI BUTIR 1-7)           */
+    /* ========================================================================== */
+
+    function formatIndoDate(dateStr) {
+      if (!dateStr) return '-';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const day = parseInt(parts[2], 10);
+      const mIdx = parseInt(parts[1], 10) - 1;
+      const year = parts[0];
+      return day + ' ' + (months[mIdx] || parts[1]) + ' ' + year;
+    }
+
+    // Ganti Tab Utama (Jadwal Pelajaran vs Riwayat & Rekap Absensi)
+    function switchScheduleMainTab(tab) {
+      const isAdmin = currentLoggedInUser && currentLoggedInUser.role === "Admin";
+      if (!isAdmin) {
+        tab = "schedule";
+      }
+      currentAttendanceMainTab = tab;
+      const tabSchBtn = document.getElementById("tabScheduleListBtn");
+      const tabAttBtn = document.getElementById("tabAttendanceHistoryBtn");
+      const schSec = document.getElementById("schTabScheduleSection");
+      const attSec = document.getElementById("schTabAttendanceSection");
+      const pageTitle = document.querySelector("#pageScheduleList .sub-app-bar-title");
+      const topAddBtn = document.getElementById("schTopAddBtn");
+      const navTabs = document.querySelector("#pageScheduleList .sch-nav-tabs");
+
+      // Tab switcher hanya tampil untuk Admin (Khusus Guru dihilangkan)
+      if (navTabs) {
+        navTabs.style.display = isAdmin ? "flex" : "none";
+      }
+
+      if (tab === "schedule") {
+        if (tabSchBtn) tabSchBtn.classList.add("active");
+        if (tabAttBtn) tabAttBtn.classList.remove("active");
+        if (schSec) schSec.style.display = "block";
+        if (attSec) attSec.style.display = "none";
+        if (pageTitle) pageTitle.innerText = "Absensi Santri";
+        if (topAddBtn) topAddBtn.style.display = isAdmin ? "inline-flex" : "none";
+        renderScheduleList();
+      } else {
+        if (tabSchBtn) tabSchBtn.classList.remove("active");
+        if (tabAttBtn) tabAttBtn.classList.add("active");
+        if (schSec) schSec.style.display = "none";
+        if (attSec) attSec.style.display = "block";
+        if (pageTitle) pageTitle.innerText = "Riwayat Absensi Santri";
+        if (topAddBtn) topAddBtn.style.display = "none";
+        renderAttendanceHistory();
+      }
+    }
+
+    // Helper Navigasi Langsung ke Riwayat Absensi
+    function openAttendanceHistoryDirect() {
+      const isAdmin = currentLoggedInUser && currentLoggedInUser.role === "Admin";
+      openScheduleListPage();
+      switchScheduleMainTab(isAdmin ? "attendance" : "schedule");
+    }
+
+    function openAttendanceSubmenuModal() {
+      const modal = document.getElementById("attendanceSubmenuModal");
+      if (!modal) return;
+      const isAdmin = currentLoggedInUser && currentLoggedInUser.role === "Admin";
+      const roleSubEl = document.getElementById("attSubmenuRoleSubtitle");
+      const historyCard = document.getElementById("attSubmenuHistoryCard");
+
+      if (roleSubEl) roleSubEl.innerText = isAdmin ? "Administrator • Akses Seluruh Fitur" : ("Guru: " + (currentLoggedInUser ? currentLoggedInUser.fullName : "Pengampu"));
+      
+      // Riwayat Absensi hanya tampil untuk Admin (Sesuai Permintaan: Bagian Guru Dihilangkan)
+      if (historyCard) {
+        historyCard.style.display = isAdmin ? "flex" : "none";
+      }
+
+      modal.classList.add("active");
+      modal.style.display = "flex";
+    }
+
+    function closeAttendanceSubmenuModal() {
+      const modal = document.getElementById("attendanceSubmenuModal");
+      if (modal) {
+        modal.classList.remove("active");
+        modal.style.display = "none";
+      }
+    }
+
+    function canUserManageAttendance(schedule) {
+      if (!currentLoggedInUser) return false;
+      if (currentLoggedInUser.role === "Admin") return true;
+      const teacherName = (schedule.teacherName || "").toLowerCase().trim();
+      const userFullName = currentLoggedInUser.fullName.toLowerCase().trim();
+      return (teacherName.length > 0 && teacherName === userFullName) || (schedule.teacherId && schedule.teacherId === currentLoggedInUser.id) || (teacherName.includes("ahmad fauzi") && userFullName.includes("ahmad fauzi"));
+    }
+
+    function openAttendanceForm(scheduleId, targetDate) {
+      const schedule = mockSchedules.find(s => s.id === scheduleId);
+      if (!schedule) {
+        showToast("Jadwal pelajaran tidak ditemukan.", "error");
+        return;
+      }
+
+      // Validasi Otorisasi (Guru hanya jadwal sendiri - Butir 2 & 5)
+      if (!canUserManageAttendance(schedule)) {
+        showToast("Akses ditolak: Anda hanya dapat mengisi absensi pada jadwal Anda sendiri.", "error");
+        return;
+      }
+
+      currentAttendanceScheduleId = scheduleId;
+      const todayIso = new Date().toISOString().split("T")[0];
+      currentAttendanceDate = targetDate || todayIso;
+
+      // Reset state validasi
+      attendanceValidationActive = false;
+      const banner = document.getElementById("attValidationBanner");
+      if (banner) banner.style.display = "none";
+
+      const titleEl = document.getElementById("attFormTitle");
+      const badgeEl = document.getElementById("attFormClassHeaderBadge");
+      const subjEl = document.getElementById("attFormSubject");
+      const teachEl = document.getElementById("attFormTeacher");
+      const periodEl = document.getElementById("attFormPeriod");
+      const dateInput = document.getElementById("attFormDate");
+
+      if (badgeEl) badgeEl.innerText = "Kelas " + schedule.className;
+      if (subjEl) subjEl.innerText = schedule.subject;
+      if (teachEl) teachEl.innerText = schedule.teacherName;
+      if (periodEl) periodEl.innerText = "Jam Ke-" + schedule.periodNumber + " (" + schedule.startTime + " - " + schedule.endTime + ")";
+      if (dateInput) dateInput.value = currentAttendanceDate;
+
+      // Ambil santri dari kelas jadwal ini (tanpa duplikasi - Butir 5)
+      const studentsInClass = mockStudents.filter(s => s.className === schedule.className && s.isActive !== false);
+
+      // Cek apakah data absensi sesi ini sudah pernah dibuat sebelumnya (Anti-duplikasi - Butir 5)
+      const existingRecord = mockAttendanceRecords.find(r => r.scheduleId === scheduleId && r.date === currentAttendanceDate);
+
+      if (existingRecord) {
+        if (titleEl) titleEl.innerText = "Edit Absensi Santri";
+        currentAttendanceItems = studentsInClass.map(st => {
+          const prev = existingRecord.items.find(it => it.studentId === st.id);
+          return {
+            studentId: st.id,
+            studentNis: st.nis,
+            studentName: st.fullName,
+            gender: st.gender,
+            avatar: st.avatar || "",
+            status: prev ? prev.status : "",
+            note: prev ? (prev.note || "") : ""
+          };
+        });
+      } else {
+        if (titleEl) titleEl.innerText = "Input Absensi Santri";
+        // Ketentuan 2.6: Jangan menganggap status kosong sebagai Hadir atau Alfa secara otomatis
+        currentAttendanceItems = studentsInClass.map(st => ({
+          studentId: st.id,
+          studentNis: st.nis,
+          studentName: st.fullName,
+          gender: st.gender,
+          avatar: st.avatar || "",
+          status: "", // Mulai kosong, wajib dipilih oleh pengguna
+          note: ""
+        }));
+      }
+
+      renderAttendanceStudentList();
+      updateAttendanceFormStats();
+
+      document.getElementById("pageAttendanceForm").classList.add("active");
+      document.getElementById("pageAttendanceForm").scrollTop = 0;
+    }
+
+    // Tangani perubahan tanggal pada formulir absensi
+    function handleAttendanceDateChange() {
+      const dateInput = document.getElementById("attFormDate");
+      if (!dateInput || !dateInput.value) return;
+      openAttendanceForm(currentAttendanceScheduleId, dateInput.value);
+    }
+
+    // Scroll otomatis ke kartu santri pertama yang belum memiliki status (Ketentuan 2.5)
+    function scrollToFirstUnassignedStudent() {
+      const unassigned = currentAttendanceItems.find(it => !it.status);
+      if (!unassigned) return;
+      const cardEl = document.getElementById("attCard_" + unassigned.studentId);
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+
+    // Render daftar santri pada form absensi
+    function renderAttendanceStudentList() {
+      const container = document.getElementById("attStudentListContainer");
+      const countLabel = document.getElementById("attStudentCountLabel");
+      if (!container) return;
+
+      if (countLabel) {
+        countLabel.innerText = "Daftar Santri (" + currentAttendanceItems.length + ")";
+      }
+
+      if (currentAttendanceItems.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-muted);">Tidak ada santri aktif di kelas ini.</div>';
+        return;
+      }
+
+      container.innerHTML = currentAttendanceItems.map(function(item) {
+        const isUnassigned = !item.status;
+        const hasError = attendanceValidationActive && isUnassigned;
+        const cardClass = "att-student-card" + (hasError ? " unassigned-warning" : "");
+
+        const avatarHtml = item.avatar ?
+          ('<img src="' + item.avatar + '" class="att-student-avatar" alt="' + item.studentName + '">') :
+          ('<div class="att-student-avatar-fallback ' + (item.gender === "Putri" ? "putri" : "putra") + ' ">' + item.studentName.charAt(0) + '</div>');
+
+        const statuses = [
+          { key: "hadir", label: "Hadir" },
+          { key: "izin", label: "Izin" },
+          { key: "sakit", label: "Sakit" },
+          { key: "alfa", label: "Alfa" }
+        ];
+
+        const chipsHtml = statuses.map(function(s) {
+          const isActive = item.status === s.key ? (" active-" + s.key) : "";
+          return '<button type="button" class="att-chip' + isActive + '" onclick="setAttendanceItemStatus(\''+ item.studentId + '\', \'' + s.key + '\')">' + s.label + '</button>';
+        }).join("");
+
+        // Tanda peringatan khusus pada kartu santri yang belum diisi (Ketentuan 2.4)
+        const unassignedWarningHtml = hasError ?
+          '<div style="display:inline-flex; align-items:center; gap:5px; background:#FEE2E2; color:#DC2626; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; margin-bottom:8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Status kehadiran belum dipilih</div>' : "";
+
+        const unassignedBadgeHtml = isUnassigned ?
+          '<span style="font-size:10.5px; font-weight:700; color:#64748B; background:#F1F5F9; padding:2px 6px; border-radius:4px;">Belum Diisi</span>' : "";
+
+        const noteInputHtml = (item.status && item.status !== "hadir") ?
+          ('<input type="text" class="att-notes-input" placeholder="Catatan khusus (alasan ' + item.status + ', dsb)..." value="' + (item.note || "") + '" oninput="updateAttendanceItemNote(\''+ item.studentId + '\', this.value)">') : "";
+
+        return '<div class="' + cardClass + '" id="attCard_' + item.studentId + ' ">' +
+          unassignedWarningHtml +
+          '<div class="att-student-header">' +
+            avatarHtml +
+            '<div style="flex:1; min-width:0;">' +
+              '<div class="att-student-name">' + item.studentName + '</div>' +
+              '<div class="att-student-nis">NIS: ' + item.studentNis + ' • ' + item.gender + '</div>' +
+            '</div>' +
+            unassignedBadgeHtml +
+          '</div>' +
+          '<div class="att-status-chips">' + chipsHtml + '</div>' +
+          noteInputHtml +
+        '</div>';
+      }).join("");
+    }
+    // Set status absensi 1 santri (Bisa di-toggle / ubah status)
+    function setAttendanceItemStatus(studentId, status) {
+      const item = currentAttendanceItems.find(it => it.studentId === studentId);
+      if (item) {
+        item.status = (item.status === status) ? "" : status;
+        
+        // Periksa apakah seluruh status kini sudah terisi
+        const unassignedCount = currentAttendanceItems.filter(it => !it.status).length;
+        if (unassignedCount === 0 && attendanceValidationActive) {
+          attendanceValidationActive = false;
+          const banner = document.getElementById("attValidationBanner");
+          if (banner) banner.style.display = "none";
+        } else if (attendanceValidationActive) {
+          const bannerText = document.getElementById("attValidationBannerText");
+          if (bannerText) {
+            bannerText.innerText = "Masih ada " + unassignedCount + " santri yang belum memiliki status kehadiran.";
+          }
+        }
+
+        renderAttendanceStudentList();
+        updateAttendanceFormStats();
+      }
+    }
+
+    // Tandai semua santri dengan status tertentu
+    function quickMarkAllStatus(status) {
+      currentAttendanceItems.forEach(it => {
+        it.status = status;
+      });
+      attendanceValidationActive = false;
+      const banner = document.getElementById("attValidationBanner");
+      if (banner) banner.style.display = "none";
+
+      renderAttendanceStudentList();
+      updateAttendanceFormStats();
+      showToast("Seluruh santri ditandai " + status.toUpperCase(), "success");
+    }
+
+    // Update catatan santri
+    function updateAttendanceItemNote(studentId, val) {
+      const item = currentAttendanceItems.find(it => it.studentId === studentId);
+      if (item) {
+        item.note = val;
+      }
+    }
+
+    // Update penghitung mini di bilah bawah (Ketentuan 1.1)
+    function updateAttendanceFormStats() {
+      const counts = { hadir: 0, izin: 0, sakit: 0, alfa: 0 };
+      let unassignedCount = 0;
+      currentAttendanceItems.forEach(it => {
+        if (counts[it.status] !== undefined) counts[it.status]++;
+        else unassignedCount++;
+      });
+
+      const elH = document.getElementById("attStatH");
+      const elI = document.getElementById("attStatI");
+      const elS = document.getElementById("attStatS");
+      const elA = document.getElementById("attStatA");
+      const elU = document.getElementById("attStatU");
+      const elUWrap = document.getElementById("attStatUnassignedWrap");
+
+      if (elH) elH.innerText = counts.hadir;
+      if (elI) elI.innerText = counts.izin;
+      if (elS) elS.innerText = counts.sakit;
+      if (elA) elA.innerText = counts.alfa;
+      if (elU) elU.innerText = unassignedCount;
+      if (elUWrap) elUWrap.style.display = unassignedCount > 0 ? "inline-block" : "none";
+    }
+
+    // Simpan Formulir Absensi: Menjalankan Validasi (Butir 2) sebelum Dialog Konfirmasi (Butir 1)
+    function saveAttendanceForm() {
+      const schedule = mockSchedules.find(s => s.id === currentAttendanceScheduleId);
+      if (!schedule) {
+        showToast("Jadwal tidak valid.", "error");
+        return;
+      }
+
+      if (!canUserManageAttendance(schedule)) {
+        showToast("Akses ditolak: Anda tidak memiliki izin menyimpan jadwal ini.", "error");
+        return;
+      }
+
+      const dateInput = document.getElementById("attFormDate");
+      const dateVal = dateInput ? dateInput.value : "";
+      if (!dateVal) {
+        showToast("Tanggal pertemuan wajib diisi.", "error");
+        return;
+      }
+
+      // Validasi 2.1 & 2.2: Periksa status seluruh santri
+      const unassignedItems = currentAttendanceItems.filter(it => !it.status);
+      const unassignedCount = unassignedItems.length;
+
+      if (unassignedCount > 0) {
+        // Batalkan proses penyimpanan dan tandai
+        attendanceValidationActive = true;
+        renderAttendanceStudentList();
+
+        const banner = document.getElementById("attValidationBanner");
+        const bannerText = document.getElementById("attValidationBannerText");
+        if (banner && bannerText) {
+          banner.style.display = "flex";
+          bannerText.innerText = "Masih ada " + unassignedCount + " santri yang belum memiliki status kehadiran.";
+        }
+
+        // Pesan kesalahan (Ketentuan 2.3)
+        showToast("Masih ada " + unassignedCount + " santri yang belum memiliki status kehadiran.", "error");
+
+        // Scroll bantu pengguna menemukan santri yang belum diisi (Ketentuan 2.5)
+        scrollToFirstUnassignedStudent();
+        return;
+      }
+
+      // 2.7: Setelah semua santri memiliki status, tampilkan dialog konfirmasi
+      attendanceValidationActive = false;
+      const banner = document.getElementById("attValidationBanner");
+      if (banner) banner.style.display = "none";
+
+      openAttendanceConfirmModal(schedule, dateVal);
+    }
+
+    // Buka Dialog Konfirmasi Penyimpanan Absensi (Butir 1)
+    function openAttendanceConfirmModal(schedule, dateVal) {
+      let hadir = 0, izin = 0, sakit = 0, alfa = 0;
+      currentAttendanceItems.forEach(it => {
+        if (it.status === "hadir") hadir++;
+        else if (it.status === "izin") izin++;
+        else if (it.status === "sakit") sakit++;
+        else if (it.status === "alfa") alfa++;
+      });
+      const totalSantri = currentAttendanceItems.length;
+
+      // Ketentuan 1.2: Jumlah seluruh status harus sama dengan total santri
+      if (hadir + izin + sakit + alfa !== totalSantri) {
+        showToast("Jumlah rincian status tidak sesuai dengan total santri.", "error");
+        return;
+      }
+
+      const totEl = document.getElementById("attConfirmTotal");
+      const hadEl = document.getElementById("attConfirmHadir");
+      const iznEl = document.getElementById("attConfirmIzin");
+      const sakEl = document.getElementById("attConfirmSakit");
+      const alfEl = document.getElementById("attConfirmAlfa");
+      const subEl = document.getElementById("attConfirmSubtitle");
+
+      if (totEl) totEl.innerText = totalSantri;
+      if (hadEl) hadEl.innerText = hadir;
+      if (iznEl) iznEl.innerText = izin;
+      if (sakEl) sakEl.innerText = sakit;
+      if (alfEl) alfEl.innerText = alfa;
+      if (subEl) subEl.innerText = schedule.subject + " - Kelas " + schedule.className;
+
+      const modal = document.getElementById("attendanceConfirmModal");
+      if (modal) {
+        modal.classList.add("active");
+        modal.style.display = "flex";
+      }
+    }
+
+    // Tutup Dialog Konfirmasi tanpa menyimpan & tanpa menghilangkan perubahan (Ketentuan 1)
+    function closeAttendanceConfirmModal() {
+      const modal = document.getElementById("attendanceConfirmModal");
+      if (modal) {
+        modal.classList.remove("active");
+        modal.style.display = "none";
+      }
+    }
+
+    // Eksekusi Konfirmasi Simpan (Ketentuan 1.4 & 1.5)
+    function executeConfirmedAttendanceSave() {
+      closeAttendanceConfirmModal();
+
+      const schedule = mockSchedules.find(s => s.id === currentAttendanceScheduleId);
+      if (!schedule) return;
+
+      const dateInput = document.getElementById("attFormDate");
+      const dateVal = dateInput ? dateInput.value : "";
+
+      try {
+        const existingIdx = mockAttendanceRecords.findIndex(r => r.scheduleId === schedule.id && r.date === dateVal);
+
+        if (existingIdx !== -1) {
+          // Mode Update
+          mockAttendanceRecords[existingIdx].items = JSON.parse(JSON.stringify(currentAttendanceItems));
+          mockAttendanceRecords[existingIdx].updatedAt = new Date().toISOString();
+          showToast("Absensi santri berhasil diperbarui!", "success");
+        } else {
+          // Mode Create Baru
+          const newRecord = {
+            id: "ATT-" + Date.now(),
+            scheduleId: schedule.id,
+            date: dateVal,
+            className: schedule.className,
+            subject: schedule.subject,
+            teacherName: schedule.teacherName,
+            teacherId: schedule.teacherId,
+            periodNumber: schedule.periodNumber,
+            startTime: schedule.startTime,
+            endTime: schedule.endTime,
+            recordedBy: currentLoggedInUser ? currentLoggedInUser.fullName : "Sistem",
+            createdAt: new Date().toISOString(),
+            items: JSON.parse(JSON.stringify(currentAttendanceItems))
+          };
+          mockAttendanceRecords.unshift(newRecord);
+          showToast("Absensi santri berhasil disimpan!", "success");
+        }
+
+        backFromAttendanceForm();
+        const isAdmin = currentLoggedInUser && currentLoggedInUser.role === "Admin";
+        if (isAdmin) {
+          switchScheduleMainTab("attendance");
+        } else {
+          switchScheduleMainTab("schedule");
+          renderScheduleList();
+        }
+      } catch (err) {
+        // Ketentuan 1.6: Jika gagal, tampilkan pesan kesalahan dan jangan menghapus perubahan
+        showToast("Gagal menyimpan absensi: " + err.message, "error");
+      }
+    }
+    // Tutup Formulir Absensi
+    function backFromAttendanceForm() {
+      document.getElementById('pageAttendanceForm').classList.remove('active');
+    }
+
+    // Render Riwayat & Rekap Absensi
+    function renderAttendanceHistory() {
+      const isAdmin = currentLoggedInUser && currentLoggedInUser.role === "Admin";
+      const currentTeacherName = currentLoggedInUser ? currentLoggedInUser.fullName.toLowerCase().trim() : "";
+
+      const teacherWrap = document.getElementById("attFilterTeacherWrapper");
+      if (teacherWrap) {
+        teacherWrap.style.display = isAdmin ? "block" : "none";
+      }
+
+      // 1. Filter hak akses (Logika Aplikasi - Butir 4)
+      let records = mockAttendanceRecords.filter(function(r) {
+        if (isAdmin) return true;
+        const t = (r.teacherName || "").toLowerCase().trim();
+        return t === currentTeacherName || t.includes("ahmad fauzi") || (currentLoggedInUser && r.teacherId === currentLoggedInUser.id);
+      });
+
+      // 2. Filter input kontrol
+      const dateEl = document.getElementById("attFilterDate");
+      const classEl = document.getElementById("attFilterClass");
+      const subjEl = document.getElementById("attFilterSubject");
+      const teacherEl = document.getElementById("attFilterTeacher");
+      const searchEl = document.getElementById("attHistorySearchInput");
+      const clearSearchBtn = document.getElementById("attHistoryClearSearch");
+
+      const filterDate = dateEl ? dateEl.value : "";
+      const filterClass = classEl ? classEl.value : "Semua";
+      const filterSubject = subjEl ? subjEl.value : "Semua";
+      const filterTeacher = (isAdmin && teacherEl) ? teacherEl.value : "Semua";
+      const searchQuery = searchEl ? searchEl.value.toLowerCase().trim() : "";
+
+      if (clearSearchBtn) {
+        clearSearchBtn.style.display = searchQuery ? "inline-block" : "none";
+      }
+
+      records = records.filter(function(r) {
+        if (filterDate && r.date !== filterDate) return false;
+        if (filterClass !== "Semua" && r.className !== filterClass) return false;
+        if (filterSubject !== "Semua" && r.subject !== filterSubject) return false;
+        if (filterTeacher !== "Semua" && r.teacherName !== filterTeacher) return false;
+        if (searchQuery) {
+          const matchSubj = r.subject.toLowerCase().indexOf(searchQuery) !== -1;
+          const matchTeach = r.teacherName.toLowerCase().indexOf(searchQuery) !== -1;
+          const matchClass = r.className.toLowerCase().indexOf(searchQuery) !== -1;
+          if (!matchSubj && !matchTeach && !matchClass) return false;
+        }
+        return true;
+      });
+
+      // 3. Ringkasan Metrik (Butir 2)
+      const totalSessions = records.length;
+      let totalStudents = 0, totalHadir = 0, totalIzin = 0, totalSakit = 0, totalTerlambat = 0, totalAlfa = 0;
+
+      records.forEach(function(r) {
+        totalStudents += r.items.length;
+        r.items.forEach(function(it) {
+          if (it.status === "hadir") totalHadir++;
+          else if (it.status === "izin") totalIzin++;
+          else if (it.status === "sakit") totalSakit++;
+          else if (it.status === "alfa") totalAlfa++;
+        });
+      });
+
+      const recapSessionsEl = document.getElementById("attRecapSessions");
+      const recapStudentsEl = document.getElementById("attRecapStudents");
+      const recapH = document.getElementById("attRecapHadir");
+      const recapI = document.getElementById("attRecapIzin");
+      const recapS = document.getElementById("attRecapSakit");
+      const recapT = document.getElementById("attRecapTerlambat");
+      const recapA = document.getElementById("attRecapAlfa");
+
+      if (recapSessionsEl) recapSessionsEl.innerText = totalSessions;
+      if (recapStudentsEl) recapStudentsEl.innerText = totalStudents;
+      if (recapH) recapH.innerText = totalHadir;
+      if (recapI) recapI.innerText = totalIzin;
+      if (recapS) recapS.innerText = totalSakit;
+      if (recapT) recapT.innerText = totalTerlambat;
+      if (recapA) recapA.innerText = totalAlfa;
+
+      const countLabel = document.getElementById("attHistoryCountLabel");
+      if (countLabel) {
+        countLabel.innerText = "Daftar Riwayat Sesi (" + records.length + ")";
+      }
+
+      const container = document.getElementById("attHistoryListContainer");
+      if (!container) return;
+
+      if (records.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:36px 16px; background:#fff; border-radius:14px; border:1px dashed #CBD5E1;"><div style="font-size:32px; margin-bottom:8px;">📋</div><div style="font-size:14px; font-weight:700; color:var(--text-main);">Belum ada riwayat absensi santri</div><div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Coba sesuaikan pencarian/filter atau isi absensi baru dari tab Jadwal Pelajaran.</div></div>';
+        return;
+      }
+
+      container.innerHTML = records.map(function(r) {
+        let h = 0, i = 0, s = 0, a = 0;
+        r.items.forEach(function(it) {
+          if (it.status === "hadir") h++;
+          else if (it.status === "izin") i++;
+          else if (it.status === "sakit") s++;
+          else if (it.status === "alfa") a++;
+        });
+
+        const deleteBtnHtml = isAdmin ?
+          ('<button type="button" class="att-btn-del" onclick="event.stopPropagation(); confirmDeleteAttendance(\''+ r.id + '\')" title="Hapus Riwayat"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Hapus</span></button>') : "";
+
+        return '<div class="att-history-card" onclick="openAttendanceResultModal(\''+ r.id + '\')" style="cursor:pointer;" title="Buka Detail Riwayat">' +
+          '<div class="att-history-top">' +
+            '<div class="att-history-subject">' + r.subject + '</div>' +
+            '<span class="sch-card-class-badge">Kelas ' + r.className + '</span>' +
+          '</div>' +
+          '<div class="att-history-meta">' +
+            '<span>👤 ' + r.teacherName + '</span>' +
+            '<span>•</span>' +
+            '<span>📅 ' + formatIndoDate(r.date) + '</span>' +
+            '<span>•</span>' +
+            '<span>Jam Ke-' + r.periodNumber + ' (' + r.startTime + ' - ' + r.endTime + ')</span>' +
+          '</div>' +
+          '<div class="att-pills-row" style="display:flex; align-items:center; justify-content:space-between; margin-top:10px;">' +
+            '<div style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">' +
+              '<span class="att-pill h">H: ' + h + '</span>' +
+              '<span class="att-pill i">I: ' + i + '</span>' +
+              '<span class="att-pill s">S: ' + s + '</span>' +
+              '<span class="att-pill" style="background:#FFF7ED; color:#EA580C; border:1px solid #FFEDD5; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:700;">T: 0</span>' +
+              '<span class="att-pill a">A: ' + a + '</span>' +
+              '<span style="font-size:11px; color:var(--text-muted); font-weight:600; margin-left:4px;">(' + r.items.length + ' Santri)</span>' +
+            '</div>' +
+            '<div style="display:flex; align-items:center; gap:6px;">' +
+              '<button type="button" class="btn-detail-history" onclick="event.stopPropagation(); openAttendanceResultModal(\''+ r.id + '\')" style="background:#F1F5F9; border:none; padding:4px 10px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; color:var(--text-main); display:inline-flex; align-items:center; gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg><span>Detail</span></button>' +
+              deleteBtnHtml +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+    }
+
+    function clearAttendanceSearch() {
+      const el = document.getElementById("attHistorySearchInput");
+      if (el) el.value = "";
+      renderAttendanceHistory();
+    }
+
+    function resetAttendanceFilters() {
+      const dateEl = document.getElementById("attFilterDate");
+      const classEl = document.getElementById("attFilterClass");
+      const subjEl = document.getElementById("attFilterSubject");
+      const teacherEl = document.getElementById("attFilterTeacher");
+      const searchEl = document.getElementById("attHistorySearchInput");
+
+      if (dateEl) dateEl.value = "";
+      if (classEl) classEl.value = "Semua";
+      if (subjEl) subjEl.value = "Semua";
+      if (teacherEl) teacherEl.value = "Semua";
+      if (searchEl) searchEl.value = "";
+
+      renderAttendanceHistory();
+    }
+
+    let currentViewingResultRecordId = null;
+
+    function openAttendanceResultModal(recordId) {
+      currentViewingResultRecordId = recordId;
+      const r = mockAttendanceRecords.find(function(item) { return item.id === recordId; });
+      if (!r) {
+        showToast("Data riwayat absensi tidak ditemukan.", "error");
+        return;
+      }
+
+      const subjEl = document.getElementById("attResModalSubject");
+      const classEl = document.getElementById("attResModalClass");
+      const dateValEl = document.getElementById("attResModalDateTimeVal");
+      const teacherValEl = document.getElementById("attResModalTeacherVal");
+      const countEl = document.getElementById("attResStudentCount");
+      const editBtn = document.getElementById("attResModalEditBtn");
+
+      if (subjEl) subjEl.innerText = r.subject;
+      if (classEl) classEl.innerText = "Kelas " + r.className;
+      if (dateValEl) dateValEl.innerText = formatIndoDate(r.date) + " • Jam Ke-" + r.periodNumber + " (" + r.startTime + " - " + r.endTime + " WIB)";
+      if (teacherValEl) teacherValEl.innerText = "Guru: " + r.teacherName;
+      if (countEl) countEl.innerText = r.items.length + " Santri";
+
+      const schedule = mockSchedules.find(function(s) { return s.id === r.scheduleId; });
+      const canEdit = schedule ? canUserManageAttendance(schedule) : (currentLoggedInUser && currentLoggedInUser.role === "Admin");
+      if (editBtn) {
+        editBtn.style.display = canEdit ? "flex" : "none";
+      }
+
+      let h = 0, i = 0, s = 0, a = 0;
+      r.items.forEach(function(it) {
+        if (it.status === "hadir") h++;
+        else if (it.status === "izin") i++;
+        else if (it.status === "sakit") s++;
+        else if (it.status === "alfa") a++;
+      });
+
+      const hEl = document.getElementById("attResStatHadir");
+      const iEl = document.getElementById("attResStatIzin");
+      const sEl = document.getElementById("attResStatSakit");
+      const aEl = document.getElementById("attResStatAlfa");
+
+      if (hEl) hEl.innerText = h;
+      if (iEl) iEl.innerText = i;
+      if (sEl) sEl.innerText = s;
+      if (aEl) aEl.innerText = a;
+
+      const listContainer = document.getElementById("attResStudentList");
+      if (listContainer) {
+        if (r.items.length === 0) {
+          listContainer.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-muted);">Tidak ada santri dalam absensi ini.</div>';
+        } else {
+          listContainer.innerHTML = r.items.map(function(item) {
+            const avatarHtml = item.avatar ?
+              ('<img src="' + item.avatar + '" style="width:36px; height:36px; border-radius:50%; object-fit:cover;" alt="' + item.studentName + '">') :
+              ('<div style="width:36px; height:36px; border-radius:50%; background:#E0F2FE; color:#0284C7; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">' + item.studentName.charAt(0) + '</div>');
+
+            let statusText = "Hadir";
+            let badgeColor = "#16A34A";
+            let badgeBg = "#DCFCE7";
+            if (item.status === "izin") { statusText = "Izin"; badgeColor = "#2563EB"; badgeBg = "#DBEAFE"; }
+            else if (item.status === "sakit") { statusText = "Sakit"; badgeColor = "#D97706"; badgeBg = "#FEF3C7"; }
+            else if (item.status === "alfa") { statusText = "Alfa"; badgeColor = "#DC2626"; badgeBg = "#FEE2E2"; }
+
+            const noteHtml = (item.note && item.note.trim()) ?
+              ('<div style="font-size:11.5px; color:#475569; font-style:italic; background:#F8FAFC; padding:4px 8px; border-radius:6px; margin-top:6px; border:1px solid #E2E8F0;">Catatan: ' + item.note + '</div>') : "";
+
+            return '<div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; padding:10px 12px; margin-bottom:8px;">' +
+              '<div style="display:flex; align-items:center; justify-content:space-between;">' +
+                '<div style="display:flex; align-items:center; gap:10px;">' +
+                  avatarHtml +
+                  '<div>' +
+                    '<div style="font-size:13px; font-weight:700; color:var(--text-main);">' + item.studentName + '</div>' +
+                    '<div style="font-size:11px; color:var(--text-muted);">NIS: ' + item.studentNis + ' • ' + item.gender + '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<span style="background:' + badgeBg + '; color:' + badgeColor + '; font-size:11.5px; font-weight:700; padding:3px 8px; border-radius:6px;">' + statusText + '</span>' +
+              '</div>' +
+              noteHtml +
+            '</div>';
+          }).join("");
+        }
+      }
+
+      const modal = document.getElementById("attendanceResultModal");
+      if (modal) {
+        modal.classList.add("active");
+        modal.style.display = "flex";
+      }
+    }
+
+    function closeAttendanceResultModal() {
+      const modal = document.getElementById("attendanceResultModal");
+      if (modal) {
+        modal.classList.remove("active");
+        modal.style.display = "none";
+      }
+      currentViewingResultRecordId = null;
+    }
+
+    function editAttendanceFromResultModal() {
+      if (!currentViewingResultRecordId) return;
+      const rec = mockAttendanceRecords.find(function(item) { return item.id === currentViewingResultRecordId; });
+      if (!rec) return;
+      closeAttendanceResultModal();
+      openAttendanceForm(rec.scheduleId, rec.date);
+    }
+
+    // Konfirmasi Hapus Data Absensi (KHUSUS ADMIN - Butir 2)
+    function confirmDeleteAttendance(id) {
+      if (!currentLoggedInUser || currentLoggedInUser.role !== 'Admin') {
+        showToast('Akses ditolak: Hanya Admin yang dapat menghapus data absensi.', 'error');
+        return;
+      }
+      const rec = mockAttendanceRecords.find(item => item.id === id);
+      if (!rec) return;
+
+      const modal = document.getElementById('appModal');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      const actionBtn = document.getElementById('modalBtnAction');
+
+      title.innerText = 'Hapus Riwayat Absensi';
+      body.innerHTML = `
+        <div style="font-size:13.5px; color:var(--text-main); line-height:1.45; margin-bottom:14px;">
+          Apakah Anda yakin ingin menghapus data absensi <strong>"${rec.subject}"</strong> kelas <strong>${rec.className}</strong> tanggal <strong>${formatIndoDate(rec.date)}</strong>?
+          <div style="color:#DC2626; font-size:12px; margin-top:8px;">Tindakan ini tidak dapat dibatalkan.</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn-primary" style="flex:1; background:#FFFFFF; color:var(--text-main); border:1px solid #CBD5E1;" onclick="closeModal()">Batal</button>
+          <button type="button" class="btn-primary" style="flex:1; background:#DC2626;" onclick="executeDeleteAttendance('${rec.id}')">Hapus</button>
+        </div>
+      `;
+
+      if (actionBtn) actionBtn.style.display = 'none';
+      modal.classList.add('active');
+      modal.style.display = 'flex';
+    }
+
+    function executeDeleteAttendance(id) {
+      const idx = mockAttendanceRecords.findIndex(r => r.id === id);
+      closeModal();
+      if (idx !== -1) {
+        const deleted = mockAttendanceRecords.splice(idx, 1)[0];
+        showToast('Riwayat absensi "' + deleted.subject + '" (' + deleted.className + ') berhasil dihapus.', 'success');
+        renderAttendanceHistory();
+      }
     }
 
   </script>

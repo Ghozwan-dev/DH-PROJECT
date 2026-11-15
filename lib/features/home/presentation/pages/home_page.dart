@@ -14,6 +14,7 @@ import '../widgets/recent_activities_card.dart';
 import '../widgets/welcome_hero_banner.dart';
 import '../../../students/presentation/pages/student_list_page.dart';
 import '../../../attendance/presentation/pages/schedule_management_page.dart';
+import '../../../attendance/presentation/widgets/attendance_menu_sheet.dart';
 
 /// Halaman Utama (Homepage) Aplikasi Absensi Darul Hikmah (Sesuai Butir 1-11):
 /// - Mendukung tampilan untuk Peran Admin dan Guru
@@ -90,15 +91,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (featureCode == 'absensi') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ScheduleManagementPage(
-            currentUser: _user,
-            userRole: _user.role,
-          ),
-        ),
-      );
+      AttendanceMenuSheet.show(context, currentUser: _user);
       return;
     }
 
