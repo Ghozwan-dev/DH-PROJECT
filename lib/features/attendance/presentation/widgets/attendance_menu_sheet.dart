@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../pages/schedule_management_page.dart';
-import '../pages/attendance_history_page.dart';
 
 /// Modal Submenu untuk Navigasi Fitur di dalam Menu Utama "Absensi"
-/// Menyediakan pilihan 2 Submenu:
-/// 1. Absensi Santri (Input & kelola absensi per jadwal kelas)
-/// 2. Riwayat Absensi (Catatan arsip absensi santri)
+/// Menyediakan pilihan:
+/// - Absensi Santri (Input & kelola absensi per jadwal kelas)
 class AttendanceMenuSheet extends StatelessWidget {
   final UserModel currentUser;
 
@@ -128,31 +126,6 @@ class AttendanceMenuSheet extends StatelessWidget {
                 );
               },
             ),
-
-            // Submenu 2: Riwayat Absensi (KHUSUS ADMIN - Sesuai Permintaan Guru Dihilangkan)
-            if (isAdmin) ...[
-              const SizedBox(height: 12),
-              _buildSubmenuItem(
-                context: context,
-                icon: Icons.history_rounded,
-                iconBgColor: const Color(0xFFFEF3C7),
-                iconColor: const Color(0xFFD97706),
-                title: 'Riwayat Absensi',
-                subtitle: 'Lihat seluruh catatan absensi yang sudah tersimpan',
-                badgeText: 'Admin',
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => AttendanceHistoryPage(
-                        currentUser: currentUser,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
           ],
         ),
       ),

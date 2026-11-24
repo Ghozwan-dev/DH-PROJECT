@@ -378,8 +378,6 @@ class _AttendanceHistoryDetailPageState extends State<AttendanceHistoryDetailPag
           _buildStatDivider(),
           _buildStatItem('Sakit', _record.sakitCount, const Color(0xFFD97706), const Color(0xFFFEF3C7)),
           _buildStatDivider(),
-          _buildStatItem('Terlambat', _record.terlambatCount, const Color(0xFFEA580C), const Color(0xFFFFEDD5)),
-          _buildStatDivider(),
           _buildStatItem('Alfa', _record.alfaCount, const Color(0xFFDC2626), const Color(0xFFFEE2E2)),
         ],
       ),

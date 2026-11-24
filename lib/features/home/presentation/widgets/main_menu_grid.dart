@@ -47,7 +47,7 @@ class MainMenuGrid extends StatelessWidget {
             title: 'Pengaturan',
             icon: Icons.settings_rounded,
             featureCode: 'pengaturan',
-            isRestrictedForGuru: userRole == UserRole.guru,
+            isRestrictedForGuru: false,
           ),
         ],
       ),

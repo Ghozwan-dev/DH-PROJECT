@@ -11,80 +11,96 @@ class WelcomeHeroBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Kontainer Utama dengan Latar Belakang Hijau Tua & Gedung
-        Container(
-          width: double.infinity,
-          height: 195,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF074724), // Hijau tua pekat
-                Color(0xFF0E6838), // Hijau Darul Hikmah
-                Color(0xFF10733E), // Hijau emerald
-              ],
-            ),
-          ),
-          child: Stack(
-            children: [
-              // Foto Gedung Pesantren di Sisi Kanan (Sesuai Referensi)
-              Positioned(
-                top: 0,
-                right: 0,
-                bottom: 25,
-                width: 210,
-                child: Image.asset(
-                  'assets/images/pesantren_building.png',
-                  fit: BoxFit.cover,
-                  alignment: Alignment.centerLeft,
-                  errorBuilder: (_, __, ___) => const SizedBox(),
-                ),
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isDesktop = constraints.maxWidth >= 1024;
+        final bannerHeight = isDesktop ? 230.0 : 195.0;
+        final greetingStyle = isDesktop
+            ? AppTextStyles.welcomeGreeting.copyWith(fontSize: 22, fontWeight: FontWeight.w700)
+            : AppTextStyles.welcomeGreeting;
+        final titleStyle = isDesktop
+            ? AppTextStyles.welcomeTitle.copyWith(fontSize: 38, fontWeight: FontWeight.w800)
+            : AppTextStyles.welcomeTitle;
+        final subtitleStyle = isDesktop
+            ? AppTextStyles.welcomeSubtitle.copyWith(fontSize: 17.5, fontWeight: FontWeight.w500)
+            : AppTextStyles.welcomeSubtitle;
 
-              // Teks Sapaan di Sisi Kiri
-              Positioned(
-                left: 20,
-                top: 14,
-                right: 170,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Text(
-                      "Assalamu'alaikum,",
-                      style: AppTextStyles.welcomeGreeting,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Selamat Datang!',
-                      style: AppTextStyles.welcomeTitle,
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      'di Aplikasi Absensi Santri',
-                      style: AppTextStyles.welcomeSubtitle,
-                    ),
+        return Stack(
+          children: [
+            // Kontainer Utama dengan Latar Belakang Hijau Tua & Gedung
+            Container(
+              width: double.infinity,
+              height: bannerHeight,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF074724), // Hijau tua pekat
+                    Color(0xFF0E6838), // Hijau Darul Hikmah
+                    Color(0xFF10733E), // Hijau emerald
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
+              child: Stack(
+                children: [
+                  // Foto Gedung Pesantren di Sisi Kanan (Sesuai Referensi)
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    bottom: 25,
+                    width: isDesktop ? 340 : 210,
+                    child: Image.asset(
+                      'assets/images/pesantren_building.png',
+                      fit: BoxFit.cover,
+                      alignment: Alignment.centerLeft,
+                      errorBuilder: (_, __, ___) => const SizedBox(),
+                    ),
+                  ),
 
-        // Aksen Lengkungan Emas & Hijau di Bagian Bawah (Sesuai Referensi)
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          height: 38,
-          child: CustomPaint(
-            painter: _WaveCurvePainter(),
-          ),
-        ),
-      ],
+                  // Teks Sapaan di Sisi Kiri
+                  Positioned(
+                    left: isDesktop ? 40 : 20,
+                    top: isDesktop ? 32 : 14,
+                    right: isDesktop ? 320 : 170,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Assalamu'alaikum,",
+                          style: greetingStyle,
+                        ),
+                        SizedBox(height: isDesktop ? 6 : 4),
+                        Text(
+                          'Selamat Datang!',
+                          style: titleStyle,
+                        ),
+                        SizedBox(height: isDesktop ? 8 : 6),
+                        Text(
+                          'di Aplikasi Absensi Santri',
+                          style: subtitleStyle,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Aksen Lengkungan Emas & Hijau di Bagian Bawah (Sesuai Referensi)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: isDesktop ? 40 : 38,
+              child: CustomPaint(
+                painter: _WaveCurvePainter(),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

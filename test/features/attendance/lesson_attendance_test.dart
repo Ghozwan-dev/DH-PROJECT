@@ -2,7 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:darul_hikmah_absensi/features/auth/data/models/user_model.dart';
 import 'package:darul_hikmah_absensi/features/attendance/data/models/schedule_model.dart';
 import 'package:darul_hikmah_absensi/features/attendance/data/models/lesson_attendance_model.dart';
+import 'package:darul_hikmah_absensi/features/attendance/data/models/student_attendance_recap_model.dart';
+import 'package:darul_hikmah_absensi/features/attendance/data/models/attendance_report_model.dart';
+import 'package:darul_hikmah_absensi/features/attendance/data/services/attendance_report_export_service.dart';
 import 'package:darul_hikmah_absensi/features/attendance/data/services/lesson_attendance_service.dart';
+import 'package:darul_hikmah_absensi/features/attendance/domain/repositories/lesson_attendance_repository_interface.dart';
 
 void main() {
   group('LessonAttendanceModel Unit Tests', () {
@@ -631,6 +635,380 @@ void main() {
       );
 
       expect(emptyResults.isEmpty, isTrue);
+    });
+  });
+
+  group('Rekap Absensi Per Santri (Khusus Admin) Tests', () {
+    late LessonAttendanceService service;
+
+    final adminUser = UserModel(
+      id: 'USR-001',
+      fullName: 'Administrator Pondok',
+      username: 'admin',
+      phoneNumber: '081234567890',
+      passwordHash: 'hash',
+      role: UserRole.admin,
+      createdAt: DateTime.now(),
+    );
+
+    final guruAhmad = UserModel(
+      id: 'USR-002',
+      fullName: 'Ustadz Ahmad Fauzi',
+      username: 'ustadz_ahmad',
+      phoneNumber: '081234567891',
+      passwordHash: 'hash',
+      role: UserRole.guru,
+      createdAt: DateTime.now(),
+    );
+
+    final scheduleTest = const ScheduleModel(
+      id: 'SCH-001',
+      day: 'Senin',
+      className: 'VII A',
+      subject: 'Fiqih',
+      teacherName: 'Ustadz Ahmad Fauzi',
+      periodNumber: 1,
+      startTime: '07:30',
+      endTime: '08:15',
+    );
+
+    setUp(() {
+      service = LessonAttendanceService();
+    });
+
+    test('1. Admin dapat membuka Rekap Absensi', () {
+      final recapList = service.getStudentRecapList(user: adminUser);
+      expect(recapList, isNotEmpty);
+      expect(recapList.first.student.fullName, isNotEmpty);
+    });
+
+    test('2. Guru tidak dapat melihat atau membuka Rekap Absensi', () {
+      expect(
+        () => service.getStudentRecapList(user: guruAhmad),
+        throwsA(isA<UnauthorizedAttendanceException>()),
+      );
+    });
+
+    test('3. Pencarian santri berfungsi (nama dan NIS)', () {
+      final searchByName = service.getStudentRecapList(
+        user: adminUser,
+        searchQuery: 'ahmad fauzi',
+      );
+      expect(searchByName, isNotEmpty);
+      expect(searchByName.every((r) => r.student.fullName.toLowerCase().contains('ahmad fauzi')), isTrue);
+
+      final searchByNis = service.getStudentRecapList(
+        user: adminUser,
+        searchQuery: '2024001',
+      );
+      expect(searchByNis, isNotEmpty);
+      expect(searchByNis.every((r) => r.student.nis.contains('2024001')), isTrue);
+    });
+
+    test('4. Filter kelas berfungsi', () {
+      final classVIIA = service.getStudentRecapList(
+        user: adminUser,
+        classFilter: 'VII A',
+      );
+      expect(classVIIA, isNotEmpty);
+      expect(classVIIA.every((r) => r.student.className.trim() == 'VII A'), isTrue);
+    });
+
+    test('5. Filter periode berfungsi', () {
+      final filteredPeriod = service.getStudentRecapList(
+        user: adminUser,
+        startDate: DateTime(2026, 11, 1),
+        endDate: DateTime(2026, 11, 30),
+      );
+      expect(filteredPeriod, isNotEmpty);
+      for (final recap in filteredPeriod) {
+        for (final log in recap.sessionLogs) {
+          final dt = DateTime.parse(log.date);
+          expect(dt.isAfter(DateTime(2026, 10, 31)), isTrue);
+          expect(dt.isBefore(DateTime(2026, 12, 1)), isTrue);
+        }
+      }
+    });
+
+    test('6. Detail rekap santri menampilkan data benar', () {
+      final recapList = service.getStudentRecapList(user: adminUser);
+      final studentRecap = recapList.firstWhere((r) => r.totalMeetings > 0);
+
+      expect(studentRecap.student.fullName, isNotEmpty);
+      expect(studentRecap.student.nis, isNotEmpty);
+      expect(studentRecap.student.className, isNotEmpty);
+      expect(studentRecap.sessionLogs, isNotEmpty);
+
+      final firstLog = studentRecap.sessionLogs.first;
+      expect(firstLog.subject, isNotEmpty);
+      expect(firstLog.teacherName, isNotEmpty);
+      expect(firstLog.date, isNotEmpty);
+    });
+
+    test('7. Persentase kehadiran dihitung dengan benar', () {
+      final recapList = service.getStudentRecapList(user: adminUser);
+      for (final recap in recapList) {
+        if (recap.totalMeetings == 0) {
+          expect(recap.presencePercentage, equals(0.0));
+          expect(recap.formattedPercentage, equals('0%'));
+        } else {
+          final expected = (recap.hadirCount / recap.totalMeetings) * 100.0;
+          expect(recap.presencePercentage, closeTo(expected, 0.01));
+        }
+      }
+    });
+
+    test('8. Total seluruh status sama dengan total pertemuan', () {
+      final recapList = service.getStudentRecapList(user: adminUser);
+      for (final recap in recapList) {
+        final sumStatus = recap.hadirCount + recap.izinCount + recap.sakitCount + recap.alfaCount;
+        expect(sumStatus, equals(recap.totalMeetings));
+        expect(recap.sessionLogs.length, equals(recap.totalMeetings));
+      }
+    });
+
+    test('9. Perubahan absensi memperbarui rekap secara otomatis', () async {
+      final initialRecap = service.getStudentRecapList(user: adminUser);
+      final targetStudent = initialRecap.first.student;
+      final initialStudentRecap = initialRecap.firstWhere((r) => r.student.id == targetStudent.id);
+      final initialHadir = initialStudentRecap.hadirCount;
+      final initialTotal = initialStudentRecap.totalMeetings;
+
+      final newDate = '2026-12-10';
+      await service.saveAttendance(
+        user: adminUser,
+        schedule: scheduleTest,
+        date: newDate,
+        items: [
+          StudentAttendanceItemModel(
+            studentId: targetStudent.id,
+            studentNis: targetStudent.nis,
+            studentName: targetStudent.fullName,
+            status: LessonAttendanceStatus.hadir,
+            note: 'Uji rekap dinamis',
+          ),
+        ],
+      );
+
+      final updatedRecap = service.getStudentRecapList(user: adminUser);
+      final updatedStudentRecap = updatedRecap.firstWhere((r) => r.student.id == targetStudent.id);
+
+      expect(updatedStudentRecap.hadirCount, equals(initialHadir + 1));
+      expect(updatedStudentRecap.totalMeetings, equals(initialTotal + 1));
+      expect(updatedStudentRecap.sessionLogs.any((l) => l.date == newDate), isTrue);
+
+      await service.saveAttendance(
+        user: adminUser,
+        schedule: scheduleTest,
+        date: newDate,
+        items: [
+          StudentAttendanceItemModel(
+            studentId: targetStudent.id,
+            studentNis: targetStudent.nis,
+            studentName: targetStudent.fullName,
+            status: LessonAttendanceStatus.izin,
+            note: 'Izin urusan keluarga',
+          ),
+        ],
+      );
+
+      final editedRecap = service.getStudentRecapList(user: adminUser);
+      final editedStudentRecap = editedRecap.firstWhere((r) => r.student.id == targetStudent.id);
+
+      expect(editedStudentRecap.hadirCount, equals(initialHadir));
+      expect(editedStudentRecap.izinCount, equals(initialStudentRecap.izinCount + 1));
+      expect(editedStudentRecap.totalMeetings, equals(initialTotal + 1));
+    });
+
+    test('10. Tidak ada kerusakan pada riwayat dan form absensi', () {
+      final history = service.getFilteredHistory(user: adminUser);
+      expect(history, isNotEmpty);
+      expect(history.first.items, isNotEmpty);
+
+      final existingForm = service.findExistingAttendance(
+        scheduleId: scheduleTest.id,
+        date: '2026-11-15',
+      );
+      expect(existingForm, isNotNull);
+    });
+  });
+
+  group('Modul Laporan Absensi Santri (Khusus Admin - 10 Skenario Wajib) Tests', () {
+    late LessonAttendanceService service;
+
+    final adminUser = UserModel(
+      id: 'USR-001',
+      fullName: 'Administrator Pondok',
+      username: 'admin',
+      phoneNumber: '081234567890',
+      passwordHash: 'hash',
+      role: UserRole.admin,
+      createdAt: DateTime.now(),
+    );
+
+    final guruAhmad = UserModel(
+      id: 'USR-002',
+      fullName: 'Ustadz Ahmad Fauzi',
+      username: 'ustadz_ahmad',
+      phoneNumber: '081234567891',
+      passwordHash: 'hash',
+      role: UserRole.guru,
+      createdAt: DateTime.now(),
+    );
+
+    final scheduleTest = const ScheduleModel(
+      id: 'SCH-001',
+      day: 'Senin',
+      className: 'VII A',
+      subject: 'Fiqih',
+      teacherName: 'Ustadz Ahmad Fauzi',
+      periodNumber: 1,
+      startTime: '07:30',
+      endTime: '08:15',
+    );
+
+    setUp(() {
+      service = LessonAttendanceService();
+    });
+
+    test('1. Admin dapat membuka modul laporan', () {
+      final report = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.perKelas,
+      );
+      expect(report, isNotNull);
+      expect(report.title, contains('Laporan Rekapitulasi Kehadiran Kelas'));
+    });
+
+    test('2. Guru tidak dapat mengakses modul laporan', () {
+      expect(
+        () => service.generateReport(
+          user: guruAhmad,
+          type: AttendanceReportType.perKelas,
+        ),
+        throwsA(isA<UnauthorizedAttendanceException>()),
+      );
+    });
+
+    test('3. Laporan per santri menampilkan data yang benar', () {
+      final report = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.perSantri,
+        studentId: 'SNT-001',
+      );
+      expect(report.studentReport, isNotNull);
+      final s = report.studentReport!;
+      expect(s.student.fullName, isNotEmpty);
+      expect(s.totalMeetings, equals(s.hadirCount + s.izinCount + s.sakitCount + s.alfaCount));
+      expect(s.sessionLogs.length, equals(s.totalMeetings));
+    });
+
+    test('4. Laporan per kelas menampilkan data yang benar', () {
+      final report = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.perKelas,
+        classFilter: 'VII A',
+      );
+      expect(report.classReport, isNotNull);
+      final c = report.classReport!;
+      expect(c.className, equals('VII A'));
+      expect(c.students, isNotEmpty);
+      expect(c.totalStudents, equals(c.students.length));
+      expect(c.totalMeetingsRecorded, equals(c.totalHadir + c.totalIzin + c.totalSakit + c.totalAlfa));
+    });
+
+    test('5. Filter periode berfungsi', () {
+      final report = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.periode,
+        startDate: DateTime(2026, 11, 1),
+        endDate: DateTime(2026, 11, 30),
+      );
+      expect(report.periodReport, isNotNull);
+      expect(report.periodLabel, contains('1/11/2026 - 30/11/2026'));
+      expect(report.periodReport!.totalSessions, greaterThanOrEqualTo(0));
+    });
+
+    test('6. Pratinjau sesuai data sumber', () {
+      final report = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.perKelas,
+        classFilter: 'VII A',
+      );
+      expect(report.institutionName, equals('Pondok Pesantren Islam Darul Hikmah'));
+      expect(report.formattedGeneratedDate, isNotEmpty);
+      expect(report.generatedBy, equals(adminUser.fullName));
+    });
+
+    test('7. Ekspor PDF berhasil', () {
+      final report = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.perSantri,
+        studentId: 'SNT-001',
+      );
+      final html = AttendanceReportExportService.generatePrintableHtml(report);
+      expect(html, contains('PONDOK PESANTREN ISLAM DARUL HIKMAH'));
+      expect(html, contains('K.H. Abdullah Syafi\'i'));
+      expect(html, contains(report.studentReport!.student.fullName));
+    });
+
+    test('8. Ekspor Excel berhasil', () {
+      final report = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.perKelas,
+        classFilter: 'VII A',
+      );
+      final csv = AttendanceReportExportService.generateExcelCsv(report);
+      expect(csv.startsWith('\uFEFF'), isTrue); // Memiliki UTF-8 BOM untuk Excel
+      expect(csv, contains('PONDOK PESANTREN ISLAM DARUL HIKMAH'));
+      expect(csv, contains('REKAPITULASI'));
+    });
+
+    test('9. Data hasil ekspor sesuai dengan pratinjau', () {
+      final report = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.periode,
+        startDate: DateTime(2026, 11, 1),
+        endDate: DateTime(2026, 11, 30),
+      );
+      final csv = AttendanceReportExportService.generateExcelCsv(report);
+      expect(csv, contains(report.periodLabel));
+      expect(csv, contains(report.periodReport!.totalHadir.toString()));
+      expect(csv, contains(report.periodReport!.totalSessions.toString()));
+    });
+
+    test('10. Perubahan absensi memperbarui laporan', () async {
+      final initialReport = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.perSantri,
+        studentId: 'SNT-001',
+      );
+      final initialHadir = initialReport.studentReport!.hadirCount;
+      final initialTotal = initialReport.studentReport!.totalMeetings;
+
+      // Tambahkan sesi absensi baru
+      await service.saveAttendance(
+        user: adminUser,
+        schedule: scheduleTest,
+        date: '2026-12-20',
+        items: [
+          const StudentAttendanceItemModel(
+            studentId: 'SNT-001',
+            studentNis: '2024001',
+            studentName: 'Ahmad Fauzi',
+            status: LessonAttendanceStatus.hadir,
+            note: 'Uji update laporan otomatis',
+          ),
+        ],
+      );
+
+      final updatedReport = service.generateReport(
+        user: adminUser,
+        type: AttendanceReportType.perSantri,
+        studentId: 'SNT-001',
+      );
+      expect(updatedReport.studentReport!.hadirCount, equals(initialHadir + 1));
+      expect(updatedReport.studentReport!.totalMeetings, equals(initialTotal + 1));
     });
   });
 }

@@ -696,8 +696,6 @@ class _AttendanceHistoryViewState extends State<AttendanceHistoryView> {
               const SizedBox(width: 4),
               _buildMiniStatusPill('S: ${rec.sakitCount}', const Color(0xFFD97706), const Color(0xFFFEF3C7)),
               const SizedBox(width: 4),
-              _buildMiniStatusPill('T: ${rec.terlambatCount}', const Color(0xFFEA580C), const Color(0xFFFFEDD5)),
-              const SizedBox(width: 4),
               _buildMiniStatusPill('A: ${rec.alfaCount}', const Color(0xFFDC2626), const Color(0xFFFEE2E2)),
               const Spacer(),
 

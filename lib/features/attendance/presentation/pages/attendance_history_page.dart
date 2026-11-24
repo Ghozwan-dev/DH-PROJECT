@@ -187,7 +187,6 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
     final totalHadir = historyList.fold<int>(0, (sum, rec) => sum + rec.hadirCount);
     final totalIzin = historyList.fold<int>(0, (sum, rec) => sum + rec.izinCount);
     final totalSakit = historyList.fold<int>(0, (sum, rec) => sum + rec.sakitCount);
-    final totalTerlambat = historyList.fold<int>(0, (sum, rec) => sum + rec.terlambatCount);
     final totalAlfa = historyList.fold<int>(0, (sum, rec) => sum + rec.alfaCount);
 
     final hasActiveFilter = _searchQuery.isNotEmpty ||
@@ -270,12 +269,11 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
 
                     const SizedBox(height: 14),
 
-                    // 2. Baris Mini Stat Status (H, I, S, T, A)
+                    // 2. Baris Mini Stat Status (H, I, S, A)
                     _buildStatusMetricsBar(
                       hadir: totalHadir,
                       izin: totalIzin,
                       sakit: totalSakit,
-                      terlambat: totalTerlambat,
                       alfa: totalAlfa,
                     ),
 
@@ -442,7 +440,6 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
     required int hadir,
     required int izin,
     required int sakit,
-    required int terlambat,
     required int alfa,
   }) {
     return Container(
@@ -459,7 +456,6 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
           _buildMetricPill('Hadir: $hadir', const Color(0xFF16A34A), const Color(0xFFDCFCE7)),
           _buildMetricPill('Izin: $izin', const Color(0xFF0284C7), const Color(0xFFE0F2FE)),
           _buildMetricPill('Sakit: $sakit', const Color(0xFFD97706), const Color(0xFFFEF3C7)),
-          _buildMetricPill('Terlambat: $terlambat', const Color(0xFFEA580C), const Color(0xFFFFEDD5)),
           _buildMetricPill('Alfa: $alfa', const Color(0xFFDC2626), const Color(0xFFFEE2E2)),
         ],
       ),
@@ -841,8 +837,6 @@ class _AttendanceHistoryPageState extends State<AttendanceHistoryPage> {
                   _buildMiniPill('I: ${rec.izinCount}', const Color(0xFF0284C7), const Color(0xFFE0F2FE)),
                   const SizedBox(width: 4),
                   _buildMiniPill('S: ${rec.sakitCount}', const Color(0xFFD97706), const Color(0xFFFEF3C7)),
-                  const SizedBox(width: 4),
-                  _buildMiniPill('T: ${rec.terlambatCount}', const Color(0xFFEA580C), const Color(0xFFFFEDD5)),
                   const SizedBox(width: 4),
                   _buildMiniPill('A: ${rec.alfaCount}', const Color(0xFFDC2626), const Color(0xFFFEE2E2)),
                   const SizedBox(width: 6),

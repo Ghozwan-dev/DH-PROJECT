@@ -14,7 +14,9 @@ import '../widgets/recent_activities_card.dart';
 import '../widgets/welcome_hero_banner.dart';
 import '../../../students/presentation/pages/student_list_page.dart';
 import '../../../attendance/presentation/pages/schedule_management_page.dart';
+import '../../../attendance/presentation/pages/attendance_report_page.dart';
 import '../../../attendance/presentation/widgets/attendance_menu_sheet.dart';
+import '../../../settings/presentation/pages/settings_page.dart';
 
 /// Halaman Utama (Homepage) Aplikasi Absensi Darul Hikmah (Sesuai Butir 1-11):
 /// - Mendukung tampilan untuk Peran Admin dan Guru
@@ -91,7 +93,37 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (featureCode == 'absensi') {
-      AttendanceMenuSheet.show(context, currentUser: _user);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ScheduleManagementPage(
+            currentUser: _user,
+            userRole: _user.role,
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (featureCode == 'laporan') {
+      if (_user.isAdmin) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AttendanceReportPage(currentUser: _user),
+          ),
+        );
+        return;
+      }
+    }
+
+    if (featureCode == 'pengaturan') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => SettingsPage(currentUser: _user),
+        ),
+      );
       return;
     }
 
@@ -217,10 +249,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final summary = _attendanceService.getSummary(
-      role: _user.role,
-      filter: _currentFilter,
-    );
     final activities = _attendanceService.getRecentActivities(
       role: _user.role,
       limit: 3,
@@ -265,18 +293,6 @@ class _HomePageState extends State<HomePage> {
                     MainMenuGrid(
                       userRole: _user.role,
                       onMenuTap: _handleMenuTap,
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    // 5. Ringkasan Absensi (Hadir, Izin, Alpha)
-                    AttendanceSummaryCard(
-                      summary: summary,
-                      onFilterChanged: (newFilter) {
-                        setState(() {
-                          _currentFilter = newFilter;
-                        });
-                      },
                     ),
 
                     const SizedBox(height: 18),

@@ -1,7 +1,9 @@
 import '../../../auth/data/models/user_model.dart';
 import '../../../students/data/models/student_model.dart';
+import '../../data/models/attendance_report_model.dart';
 import '../../data/models/lesson_attendance_model.dart';
 import '../../data/models/schedule_model.dart';
+import '../../data/models/student_attendance_recap_model.dart';
 
 /// Kontrak Repository untuk Absensi Santri Per Mata Pelajaran
 /// Menjembatani akses data absensi untuk REST API NestJS & PostgreSQL
@@ -39,6 +41,24 @@ abstract class ILessonAttendanceRepository {
     String? dateFilter,
     String? classFilter,
     String? subjectFilter,
+  });
+
+  List<StudentAttendanceRecapModel> getStudentRecapList({
+    required UserModel user,
+    String? classFilter,
+    String? searchQuery,
+    DateTime? startDate,
+    DateTime? endDate,
+  });
+
+  AttendanceReportResult generateReport({
+    required UserModel user,
+    required AttendanceReportType type,
+    String? studentId,
+    String? classFilter,
+    String? subjectFilter,
+    DateTime? startDate,
+    DateTime? endDate,
   });
 
   bool canManageSchedule({

@@ -10,7 +10,6 @@ import '../widgets/schedule_summary_card.dart';
 import 'schedule_detail_page.dart';
 import 'schedule_form_page.dart';
 import 'attendance_form_page.dart';
-import '../widgets/attendance_history_view.dart';
 import '../../data/services/lesson_attendance_service.dart';
 
 /// Halaman Manajemen Jadwal Pelajaran Pondok Pesantren Islam Darul Hikmah (Sesuai Butir C, D, E, G, I)
@@ -39,7 +38,6 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
   final _attendanceService = LessonAttendanceService();
   final _searchController = TextEditingController();
 
-  late int _currentTabIndex; // 0: Jadwal Pelajaran & Isi Absensi, 1: Riwayat Absensi
   String _searchQuery = '';
   String _selectedDay = 'Semua';
   String _selectedClass = 'Semua';
@@ -47,7 +45,6 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
   @override
   void initState() {
     super.initState();
-    _currentTabIndex = _isAdmin ? widget.initialTabIndex : 0;
     _scheduleService.addListener(_onServiceUpdate);
   }
 
@@ -229,7 +226,7 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
         title: Text(
           _currentTabIndex == 0
               ? (_isAdmin ? 'Manajemen Jadwal & Absensi' : 'Jadwal Mengajar Santri')
-              : 'Riwayat Absensi Santri',
+              : (_currentTabIndex == 1 ? 'Riwayat Absensi Santri' : 'Rekap Absensi Santri'),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -276,24 +273,13 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // 1. Header Informasi Halaman
-                    _buildPageHeader(),
-
-                    const SizedBox(height: 14),
-
-                    // 2. Tab Switcher Antara Jadwal dan Riwayat Absensi (Khusus Admin)
-                    if (_isAdmin) ...[
-                      _buildTabSwitcher(),
-                      const SizedBox(height: 16),
+                    // 1. Header Profil Guru (Khusus Guru Pengampu; untuk Admin ditiadakan sesuai instruksi)
+                    if (!_isAdmin) ...[
+                      _buildTeacherProfileHeader(),
+                      const SizedBox(height: 14),
                     ],
 
-                    if (_isAdmin && _currentTabIndex == 1) ...[
-                      // Tampilan Riwayat Absensi Santri (Khusus Admin)
-                      if (_user != null)
-                        AttendanceHistoryView(currentUser: _user!)
-                      else
-                        const SizedBox.shrink(),
-                    ] else ...[
+
                       // 3. Ringkasan Statistik Jadwal
                       ScheduleSummaryCards(
                         totalSchedules: totalSchedules,
@@ -363,16 +349,15 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
 
                       const SizedBox(height: 10),
 
-                      // 6. Daftar Kartu Jadwal Pelajaran
+                      // 5. Daftar Kartu Jadwal Pelajaran
                       if (filteredSchedules.isEmpty)
                         _buildEmptyState()
                       else if (isWideScreen)
                         _buildWideScheduleGrid(filteredSchedules)
                       else
                         _buildMobileScheduleList(filteredSchedules),
-                    ],
 
-                    const SizedBox(height: 32),
+                      const SizedBox(height: 32),
                   ],
                 ),
               ),
@@ -383,97 +368,15 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
     );
   }
 
-  Widget _buildTabSwitcher() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.borderLight),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: InkWell(
-              onTap: () => setState(() => _currentTabIndex = 0),
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 9),
-                decoration: BoxDecoration(
-                  color: _currentTabIndex == 0 ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.calendar_month_rounded,
-                      size: 16,
-                      color: _currentTabIndex == 0 ? Colors.white : AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Absensi Santri',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        color: _currentTabIndex == 0 ? Colors.white : AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: InkWell(
-              onTap: () => setState(() => _currentTabIndex = 1),
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 9),
-                decoration: BoxDecoration(
-                  color: _currentTabIndex == 1 ? AppColors.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.history_rounded,
-                      size: 16,
-                      color: _currentTabIndex == 1 ? Colors.white : AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Riwayat Absensi',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        color: _currentTabIndex == 1 ? Colors.white : AppColors.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPageHeader() {
-    final title = _isAdmin ? 'Manajemen Jadwal & Absensi' : 'Jadwal Mengajar Santri';
-    final desc = _isAdmin
-        ? 'Kelola jadwal mata pelajaran, alokasi kelas, dan penugasan guru pengampu di Pondok Pesantren Islam Darul Hikmah.'
-        : 'Jadwal pelajaran yang ditugaskan kepada Anda (${_user?.name ?? 'Guru Pengampu'}) di Pondok Pesantren Islam Darul Hikmah. Pilih jadwal untuk mengisi atau mengedit absensi.';
+  Widget _buildTeacherProfileHeader() {
+    final teacherName = _user?.fullName ?? _user?.name ?? 'Ustadz Pengajar';
+    final initials = teacherName.isNotEmpty
+        ? teacherName.split(' ').where((e) => e.isNotEmpty).map((e) => e[0]).take(2).join()
+        : 'GP';
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -487,18 +390,17 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
         ],
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.calendar_month_rounded,
-              color: AppColors.primary,
-              size: 26,
+          CircleAvatar(
+            radius: 24,
+            backgroundColor: AppColors.primaryLight,
+            child: Text(
+              initials,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
             ),
           ),
           const SizedBox(width: 14),
@@ -508,40 +410,44 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
-                        letterSpacing: -0.2,
+                    Flexible(
+                      child: Text(
+                        teacherName,
+                        style: const TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: _isAdmin ? AppColors.primaryLight : const Color(0xFFE0F2FE),
+                        color: const Color(0xFFE0F2FE),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Text(
-                        _isAdmin ? 'Admin' : 'Guru',
+                      child: const Text(
+                        'Guru Pengampu',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w700,
-                          color: _isAdmin ? AppColors.primary : const Color(0xFF0284C7),
+                          color: Color(0xFF0284C7),
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  desc,
-                  style: const TextStyle(
-                    fontSize: 12.5,
+                const SizedBox(height: 3),
+                const Text(
+                  'Jadwal pelajaran & pengisian absensi santri yang ditugaskan kepada Anda',
+                  style: TextStyle(
+                    fontSize: 12,
                     color: AppColors.textSecondary,
-                    height: 1.35,
+                    height: 1.3,
                   ),
                 ),
               ],
@@ -595,7 +501,7 @@ class _ScheduleManagementPageState extends State<ScheduleManagementPage> {
           child: ScheduleCard(
             schedule: schedule,
             isAdmin: _isAdmin,
-            onTap: () => _navigateToAttendance(schedule),
+            onTap: () => _navigateToDetail(schedule),
             onEdit: _isAdmin ? () => _navigateToEdit(schedule) : null,
             onDelete: _isAdmin ? () => _confirmDeleteSchedule(schedule) : null,
             onTakeAttendance: () => _navigateToAttendance(schedule),

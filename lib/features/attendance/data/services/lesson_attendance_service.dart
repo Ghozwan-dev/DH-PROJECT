@@ -2,8 +2,10 @@ import 'package:flutter/foundation.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../../../students/data/models/student_model.dart';
 import '../../domain/repositories/lesson_attendance_repository_interface.dart';
+import '../models/attendance_report_model.dart';
 import '../models/lesson_attendance_model.dart';
 import '../models/schedule_model.dart';
+import '../models/student_attendance_recap_model.dart';
 import '../repositories/mock_lesson_attendance_repository.dart';
 
 /// Pengecualian Akses Ditolak untuk RBAC
@@ -116,5 +118,41 @@ class LessonAttendanceService extends ChangeNotifier {
         dateFilter: dateFilter,
         classFilter: classFilter,
         subjectFilter: subjectFilter,
+      );
+
+  /// Mengambil data rekapitulasi absensi per santri (KHUSUS ADMIN)
+  List<StudentAttendanceRecapModel> getStudentRecapList({
+    required UserModel user,
+    String? classFilter,
+    String? searchQuery,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) =>
+      _repository.getStudentRecapList(
+        user: user,
+        classFilter: classFilter,
+        searchQuery: searchQuery,
+        startDate: startDate,
+        endDate: endDate,
+      );
+
+  /// Menghasilkan laporan absensi santri komprehensif (KHUSUS ADMIN)
+  AttendanceReportResult generateReport({
+    required UserModel user,
+    required AttendanceReportType type,
+    String? studentId,
+    String? classFilter,
+    String? subjectFilter,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) =>
+      _repository.generateReport(
+        user: user,
+        type: type,
+        studentId: studentId,
+        classFilter: classFilter,
+        subjectFilter: subjectFilter,
+        startDate: startDate,
+        endDate: endDate,
       );
 }

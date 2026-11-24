@@ -1,0 +1,430 @@
+    /* ================= MODUL ABSENSI SANTRI PER MAPEL STYLES ================= */
+    .sch-nav-tabs {
+      display: flex;
+      gap: 6px;
+      background: #E2E8F0;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 14px;
+    }
+    .sch-nav-tab {
+      flex: 1;
+      padding: 9px 12px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #64748B;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .sch-nav-tab:hover {
+      color: var(--primary);
+    }
+    .sch-nav-tab.active {
+      background: #FFFFFF;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .sch-btn-attendance {
+      width: 100%;
+      margin-top: 10px;
+      background: var(--primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .sch-btn-attendance:hover {
+      background: #0B532C;
+    }
+    .sch-btn-attendance:active {
+      transform: scale(0.99);
+    }
+
+    /* 5-Column Attendance Metric Cards */
+    .att-recap-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 639px) {
+      .att-recap-grid {
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+    }
+    .att-recap-card {
+      background: #FFFFFF;
+      border-radius: 10px;
+      padding: 8px 4px;
+      text-align: center;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+    }
+    .att-recap-card.hadir { border-top: 3px solid #16A34A; }
+    .att-recap-card.izin { border-top: 3px solid #2563EB; }
+    .att-recap-card.sakit { border-top: 3px solid #D97706; }
+    .att-recap-card.alfa { border-top: 3px solid #DC2626; }
+
+    .att-recap-val {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .att-recap-card.hadir .att-recap-val { color: #16A34A; }
+    .att-recap-card.izin .att-recap-val { color: #2563EB; }
+    .att-recap-card.sakit .att-recap-val { color: #D97706; }
+    .att-recap-card.alfa .att-recap-val { color: #DC2626; }
+
+    .att-recap-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Attendance History Card */
+    .att-history-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 14px 15px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 11px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .att-history-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 12px rgba(0,0,0,0.05);
+    }
+    .att-history-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .att-history-subject {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .att-history-meta {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .att-pills-row {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .att-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .att-pill.h { background: #DCFCE7; color: #16A34A; }
+    .att-pill.i { background: #DBEAFE; color: #2563EB; }
+    .att-pill.s { background: #FEF3C7; color: #D97706; }
+    .att-pill.a { background: #FEE2E2; color: #DC2626; }
+
+    .att-history-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      border-top: 1px solid #F1F5F9;
+      padding-top: 9px;
+    }
+    .att-btn-edit {
+      background: #F1F5F9;
+      color: #334155;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .att-btn-edit:hover {
+      background: #E2E8F0;
+    }
+    .att-btn-del {
+      background: #FEE2E2;
+      color: #DC2626;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .att-btn-del:hover {
+      background: #FECACA;
+    }
+
+    /* Attendance Form Page Styles */
+    .att-info-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .att-info-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .att-info-subject {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .att-info-teacher {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .att-info-period-badge {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .att-info-divider {
+      height: 1px;
+      background: #F1F5F9;
+      margin: 10px 0;
+    }
+    .att-date-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .att-quick-bar {
+      background: #FFFFFF;
+      border-radius: 12px;
+      padding: 10px 14px;
+      border: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .att-quick-btn {
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      padding: 4px 9px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .att-quick-btn.hadir { color: #16A34A; border-color: #86EFAC; background: #DCFCE7; }
+    .att-quick-btn.izin { color: #2563EB; border-color: #93C5FD; background: #DBEAFE; }
+    .att-quick-btn.sakit { color: #D97706; border-color: #FDE68A; background: #FEF3C7; }
+
+    /* Student Attendance Card List (Responsive Grid) */
+    #attStudentList {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 767px) {
+      #attStudentList {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+    }
+
+    /* Student Attendance Card */
+    .att-student-card {
+      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1px solid #E2E8F0;
+      margin-bottom: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+      transition: all 0.2s ease;
+      box-sizing: border-box;
+    }
+    .att-student-card.unassigned-warning {
+      background: #FFF7F7 !important;
+      border: 1.5px solid #DC2626 !important;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.12) !important;
+    }
+    .att-student-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .att-student-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .att-student-avatar-fallback {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .att-student-avatar-fallback.putra { background: #E0F2FE; color: #0284C7; }
+    .att-student-avatar-fallback.putri { background: #FCE7F3; color: #DB2777; }
+
+    .att-student-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .att-student-nis {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .att-status-chips {
+      display: flex;
+      gap: 5px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .att-chip {
+      flex: 1;
+      min-width: 54px;
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 700;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #64748B;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .att-chip:hover {
+      background: #F8FAFC;
+    }
+    .att-chip.active-hadir {
+      background: #DCFCE7;
+      color: #16A34A;
+      border-color: #16A34A;
+      box-shadow: 0 0 0 1px #16A34A;
+    }
+    .att-chip.active-izin {
+      background: #DBEAFE;
+      color: #2563EB;
+      border-color: #2563EB;
+      box-shadow: 0 0 0 1px #2563EB;
+    }
+    .att-chip.active-sakit {
+      background: #FEF3C7;
+      color: #D97706;
+      border-color: #D97706;
+      box-shadow: 0 0 0 1px #D97706;
+    }
+    .att-chip.active-alfa {
+      background: #FEE2E2;
+      color: #DC2626;
+      border-color: #DC2626;
+      box-shadow: 0 0 0 1px #DC2626;
+    }
+
+    .att-notes-input {
+      width: 100%;
+      margin-top: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 6px;
+      border: 1px solid #E2E8F0;
+      background: #F8FAFC;
+      box-sizing: border-box;
+      outline: none;
+    }
+    .att-notes-input:focus {
+      background: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    /* Sticky Bottom Bar (Responsive) */
+    .att-bottom-bar {
+      position: sticky;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      padding: 14px 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 50;
+      margin-top: 24px;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.05);
+      box-sizing: border-box;
+    }
+    .att-bottom-stats {
+      display: flex;
+      gap: 8px;
+      font-size: 11.5px;
+    }
+    .att-mini-stat {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+    .att-mini-stat.hadir { background: #DCFCE7; color: #16A34A; }
+    .att-mini-stat.izin { background: #DBEAFE; color: #2563EB; }
+    .att-mini-stat.sakit { background: #FEF3C7; color: #D97706; }
+    .att-mini-stat.alfa { background: #FEE2E2; color: #DC2626; }
