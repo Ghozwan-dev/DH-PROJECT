@@ -2,7 +2,7 @@
     // MODUL MANAJEMEN JADWAL PELAJARAN - STATE & LOGIC
     // ========================================================
     
-    // State & Mock Data Absensi Santri per Mata Pelajaran (Sesuai Butir 1-6)
+    // State & Mock Data Absensi Santri per Mata Pelajaran (Selaras dengan mockStudents)
     let mockAttendanceRecords = [
       {
         id: 'ATT-001',
@@ -17,18 +17,14 @@
         endTime: '08:15',
         recordedBy: 'Ustadz Ahmad Fauzi',
         items: [
-          {
-            studentId: 'SNT-001',
-            studentNis: '2024001',
-            studentName: 'Ahmad Fauzi',
-            status: 'hadir',
-            note: ''
-          }
+          { studentId: 'SNT-001', studentNis: '2024001', studentName: 'Ahmad Fauzi', status: 'hadir', note: '' },
+          { studentId: 'SNT-004', studentNis: '2024004', studentName: 'Fatimah Zahra', status: 'hadir', note: '' },
+          { studentId: 'SNT-011', studentNis: '2024011', studentName: 'Umar Al-Faruq', status: 'hadir', note: '' }
         ]
       },
       {
         id: 'ATT-002',
-        scheduleId: 'sch_003',
+        scheduleId: 'sch_003a',
         date: '2026-11-15',
         className: 'VII B',
         subject: 'Al-Qur\'an Hadits',
@@ -39,13 +35,8 @@
         endTime: '08:15',
         recordedBy: 'Ustadz Mansyur Hidayat',
         items: [
-          {
-            studentId: 'SNT-002',
-            studentNis: '2024002',
-            studentName: 'Muhammad Rizky',
-            status: 'hadir',
-            note: ''
-          }
+          { studentId: 'SNT-003', studentNis: '2024003', studentName: 'Muhammad Rizky', status: 'hadir', note: '' },
+          { studentId: 'SNT-010', studentNis: '2024010', studentName: 'Khadijah Al-Kubro', status: 'sakit', note: 'Demam' }
         ]
       },
       {
@@ -61,13 +52,7 @@
         endTime: '09:00',
         recordedBy: 'Ustadz Ahmad Fauzi',
         items: [
-          {
-            studentId: 'SNT-003',
-            studentNis: '2024003',
-            studentName: 'Fathur Rahman',
-            status: 'izin',
-            note: 'Izin urusan keluarga'
-          }
+          { studentId: 'SNT-006', studentNis: '2024006', studentName: 'Nabila Nur Azizah', status: 'izin', note: 'Izin urusan keluarga' }
         ]
       },
       {
@@ -83,13 +68,136 @@
         endTime: '09:00',
         recordedBy: 'Ustadz Ahmad Fauzi',
         items: [
-          {
-            studentId: 'SNT-004',
-            studentNis: '2024004',
-            studentName: 'Siti Aisyah',
-            status: 'hadir',
-            note: ''
-          }
+          { studentId: 'SNT-002', studentNis: '2024002', studentName: 'Siti Aisyah', status: 'hadir', note: '' },
+          { studentId: 'SNT-007', studentNis: '2024007', studentName: 'Bilal Habibi', status: 'hadir', note: '' }
+        ]
+      },
+      {
+        id: 'ATT-005',
+        scheduleId: 'sch_006',
+        date: '2026-11-14',
+        className: 'IX A',
+        subject: 'Matematika',
+        teacherName: 'Ustadzah Nurul Azizah',
+        teacherId: 'guru_005',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadzah Nurul Azizah',
+        items: [
+          { studentId: 'SNT-005', studentNis: '2024005', studentName: 'Zaidan Al-Farisi', status: 'hadir', note: '' }
+        ]
+      },
+      {
+        id: 'ATT-006',
+        scheduleId: 'sch_010',
+        date: '2026-11-14',
+        className: 'IX B',
+        subject: 'Tahfidz Al-Qur\'an',
+        teacherName: 'Ustadz Abdullah Said',
+        teacherId: 'guru_006',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadz Abdullah Said',
+        items: [
+          { studentId: 'SNT-008', studentNis: '2024008', studentName: 'Maryam Salsabila', status: 'alfa', note: 'Tanpa keterangan' }
+        ]
+      },
+      {
+        id: 'ATT-007',
+        scheduleId: 'sch_021',
+        date: '2026-11-14',
+        className: 'X A',
+        subject: 'Fiqih',
+        teacherName: 'Ustadz Ahmad Fauzi',
+        teacherId: 'guru_001',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadz Ahmad Fauzi',
+        items: [
+          { studentId: 'SNT-013', studentNis: '2024013', studentName: 'Fadhil Mubarak', status: 'hadir', note: '' }
+        ]
+      },
+      {
+        id: 'ATT-008',
+        scheduleId: 'sch_022',
+        date: '2026-11-14',
+        className: 'X B',
+        subject: 'Bahasa Arab',
+        teacherName: 'Ustadzah Halimah',
+        teacherId: 'guru_002',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadzah Halimah',
+        items: [
+          { studentId: 'SNT-014', studentNis: '2024014', studentName: 'Zahra An-Nisa', status: 'hadir', note: '' }
+        ]
+      },
+      {
+        id: 'ATT-009',
+        scheduleId: 'sch_023',
+        date: '2026-11-14',
+        className: 'XI A',
+        subject: 'Al-Qur\'an Hadits',
+        teacherName: 'Ustadz Mansyur Hidayat',
+        teacherId: 'guru_003',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadz Mansyur Hidayat',
+        items: [
+          { studentId: 'SNT-015', studentNis: '2024015', studentName: 'Rayhan Pratama', status: 'hadir', note: '' }
+        ]
+      },
+      {
+        id: 'ATT-010',
+        scheduleId: 'sch_024',
+        date: '2026-11-14',
+        className: 'XI B',
+        subject: 'Bahasa Arab',
+        teacherName: 'Ustadzah Halimah',
+        teacherId: 'guru_002',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadzah Halimah',
+        items: [
+          { studentId: 'SNT-016', studentNis: '2024016', studentName: 'Afiqah Salma', status: 'izin', note: 'Izin kegiatan pondok' }
+        ]
+      },
+      {
+        id: 'ATT-011',
+        scheduleId: 'sch_025',
+        date: '2026-11-14',
+        className: 'XII A',
+        subject: 'Fiqih',
+        teacherName: 'Ustadz Ahmad Fauzi',
+        teacherId: 'guru_001',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadz Ahmad Fauzi',
+        items: [
+          { studentId: 'SNT-017', studentNis: '2024017', studentName: 'Lukman Al-Hakim', status: 'hadir', note: '' }
+        ]
+      },
+      {
+        id: 'ATT-012',
+        scheduleId: 'sch_026',
+        date: '2026-11-14',
+        className: 'XII B',
+        subject: 'Fiqih',
+        teacherName: 'Ustadz Ahmad Fauzi',
+        teacherId: 'guru_001',
+        periodNumber: 1,
+        startTime: '07:30',
+        endTime: '08:15',
+        recordedBy: 'Ustadz Ahmad Fauzi',
+        items: [
+          { studentId: 'SNT-018', studentNis: '2024018', studentName: 'Syifa Maulida', status: 'hadir', note: '' }
         ]
       }
     ];
@@ -102,8 +210,10 @@
     let mockSchedules = [
       // SENIN
       { id: 'sch_001', day: 'Senin', className: 'VII A', subject: 'Fiqih', teacherName: 'Ustadz Ahmad Fauzi', teacherId: 'guru_001', periodNumber: 1, startTime: '07:30', endTime: '08:15', room: 'Ruang Kelas VII A', notes: 'Membawa kitab Fathul Qorib' },
-      { id: 'sch_002', day: 'Senin', className: 'VII A', subject: 'Bahasa Arab', teacherName: 'Ustadzah Halimah', teacherId: 'guru_002', periodNumber: 2, startTime: '08:15', endTime: '09:00', room: 'Ruang Kelas VII A', notes: 'Kosakata harian Bab 1' },
-      { id: 'sch_003', day: 'Senin', className: 'VII B', subject: 'Al-Qur\'an Hadits', teacherName: 'Ustadz Mansyur Hidayat', teacherId: 'guru_003', periodNumber: 1, startTime: '07:30', endTime: '08:15', room: 'Ruang Kelas VII B', notes: 'Hafalan Surat Al-Hujurat' },
+      { id: 'sch_002a', day: 'Senin', className: 'VIII B', subject: 'Bahasa Arab', teacherName: 'Ustadzah Halimah', teacherId: 'guru_002', periodNumber: 1, startTime: '07:30', endTime: '08:15', room: 'Ruang Kelas VIII B', notes: 'Kosakata harian Bab 1' },
+      { id: 'sch_002b', day: 'Senin', className: 'VII A', subject: 'Bahasa Arab', teacherName: 'Ustadzah Halimah', teacherId: 'guru_002', periodNumber: 2, startTime: '08:15', endTime: '09:00', room: 'Ruang Kelas VII A', notes: 'Latihan Muhadatsah' },
+      { id: 'sch_003a', day: 'Senin', className: 'VII B', subject: 'Al-Qur\'an Hadits', teacherName: 'Ustadz Mansyur Hidayat', teacherId: 'guru_003', periodNumber: 1, startTime: '07:30', endTime: '08:15', room: 'Ruang Kelas VII B', notes: 'Hafalan Surat Al-Hujurat' },
+      { id: 'sch_003b', day: 'Senin', className: 'VII A', subject: 'Akidah Akhlak', teacherName: 'Ustadz Mansyur Hidayat', teacherId: 'guru_003', periodNumber: 2, startTime: '08:15', endTime: '09:00', room: 'Ruang Kelas VII A', notes: 'Kajian Asmaul Husna' },
       { id: 'sch_004', day: 'Senin', className: 'VIII A', subject: 'Nahwu Shorof', teacherName: 'Ustadz Zulkifli', teacherId: 'guru_004', periodNumber: 1, startTime: '07:30', endTime: '08:15', room: 'Ruang Kelas VIII A', notes: 'Bab I\'rab' },
       { id: 'sch_005', day: 'Senin', className: 'VIII A', subject: 'Fiqih', teacherName: 'Ustadz Ahmad Fauzi', teacherId: 'guru_001', periodNumber: 2, startTime: '08:15', endTime: '09:00', room: 'Ruang Kelas VIII A', notes: 'Bab Zakat' },
       { id: 'sch_006', day: 'Senin', className: 'IX A', subject: 'Matematika', teacherName: 'Ustadzah Nurul Azizah', teacherId: 'guru_005', periodNumber: 1, startTime: '07:30', endTime: '08:15', room: 'Ruang Kelas IX A', notes: 'Persiapan Ujian Tengah Semester' },
@@ -223,23 +333,112 @@
       }
     }
 
-    // Render Filter Chips
-    function renderScheduleChips() {
-      const dayContainer = document.getElementById('schDayChipsContainer');
-      if (dayContainer) {
-        dayContainer.innerHTML = scheduleDayList.map(d => {
-          const activeClass = d === selectedScheduleDay ? ' active' : '';
-          return '<div class="sch-chip' + activeClass + '" onclick="setScheduleDayFilter(\'' + d + '\')">' + d + '</div>';
-        }).join('');
+    function syncScheduleChipPill(container, pillId, immediate) {
+      if (!container) return;
+      const pill = document.getElementById(pillId);
+      const activeChip = container.querySelector('.sch-chip.active');
+      if (!pill || !activeChip) return;
+
+      const applyPosition = () => {
+        let w = 0;
+        let h = 0;
+        let left = 0;
+        let top = 0;
+
+        if (typeof activeChip.getBoundingClientRect === 'function' && typeof container.getBoundingClientRect === 'function') {
+          const chipRect = activeChip.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          if (chipRect.width > 0 && chipRect.height > 0) {
+            w = chipRect.width;
+            h = chipRect.height;
+            left = (chipRect.left - containerRect.left) - (container.clientLeft || 0) + (container.scrollLeft || 0);
+            top = (chipRect.top - containerRect.top) - (container.clientTop || 0) + (container.scrollTop || 0);
+          }
+        }
+
+        if (w <= 0 || h <= 0) {
+          w = activeChip.offsetWidth || 0;
+          h = activeChip.offsetHeight || 0;
+          left = activeChip.offsetLeft || 0;
+          top = activeChip.offsetTop || 0;
+        }
+
+        if (w <= 0 || h <= 0) return false;
+
+        const shouldSnap = immediate || pill.style.opacity !== '1';
+
+        if (shouldSnap) {
+          pill.style.transition = 'none';
+        }
+        pill.style.width = w + 'px';
+        pill.style.height = h + 'px';
+        pill.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+        pill.style.opacity = '1';
+
+        if (shouldSnap) {
+          void pill.offsetWidth;
+          pill.style.transition = '';
+        }
+
+        // Scroll container smoothly if active chip sits outside visible horizontal bounds
+        if (typeof container.scrollTo === 'function' && container.clientWidth > 0) {
+          const viewLeft = container.scrollLeft;
+          const viewRight = viewLeft + container.clientWidth;
+          if (left < viewLeft + 12) {
+            container.scrollTo({ left: Math.max(0, left - 16), behavior: shouldSnap ? 'auto' : 'smooth' });
+          } else if (left + w > viewRight - 12) {
+            container.scrollTo({ left: Math.max(0, left + w - container.clientWidth + 16), behavior: shouldSnap ? 'auto' : 'smooth' });
+          }
+        }
+        return true;
+      };
+
+      if (!applyPosition() && typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(applyPosition);
+      }
+    }
+
+    function renderScheduleChipGroup(containerId, pillId, items, activeValue, onClickFnName) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const itemsSignature = items.join('|');
+      const existingPill = document.getElementById(pillId);
+      const needsInit = !existingPill || container.dataset.renderedItems !== itemsSignature;
+
+      if (needsInit) {
+        container.classList.add('has-sliding-pill');
+        container.dataset.renderedItems = itemsSignature;
+        container.innerHTML =
+          `<span class="sch-chip-sliding-pill" id="${pillId}" aria-hidden="true"></span>` +
+          items.map(val => {
+            const activeClass = val === activeValue ? ' active' : '';
+            const safeVal = String(val).replace(/'/g, "\\'");
+            return `<div class="sch-chip${activeClass}" role="button" tabindex="0" data-value="${val}" onclick="${onClickFnName}('${safeVal}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();${onClickFnName}('${safeVal}');}"><span class="sch-chip-text">${val}</span></div>`;
+          }).join('');
+      } else {
+        container.classList.add('has-sliding-pill');
+        container.querySelectorAll('.sch-chip').forEach(chip => {
+          chip.classList.toggle('active', chip.getAttribute('data-value') === activeValue);
+        });
       }
 
-      const classContainer = document.getElementById('schClassChipsContainer');
-      if (classContainer) {
-        classContainer.innerHTML = scheduleClassList.map(c => {
-          const activeClass = c === selectedScheduleClass ? ' active' : '';
-          return '<div class="sch-chip' + activeClass + '" onclick="setScheduleClassFilter(\'' + c + '\')">' + c + '</div>';
-        }).join('');
-      }
+      syncScheduleChipPill(container, pillId, needsInit);
+    }
+
+    // Render Filter Chips
+    function renderScheduleChips() {
+      renderScheduleChipGroup('schDayChipsContainer', 'schDaySlidingPill', scheduleDayList, selectedScheduleDay, 'setScheduleDayFilter');
+      renderScheduleChipGroup('schClassChipsContainer', 'schClassSlidingPill', scheduleClassList, selectedScheduleClass, 'setScheduleClassFilter');
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', () => {
+        const dayContainer = document.getElementById('schDayChipsContainer');
+        const classContainer = document.getElementById('schClassChipsContainer');
+        if (dayContainer) syncScheduleChipPill(dayContainer, 'schDaySlidingPill', true);
+        if (classContainer) syncScheduleChipPill(classContainer, 'schClassSlidingPill', true);
+      });
     }
 
     function setScheduleDayFilter(day) {
@@ -397,8 +596,11 @@
       }).join('');
     }
 
-    // Buka Halaman Detail Jadwal
-    function openScheduleDetail(id) {
+    let currentScheduleReturnPage = 'pageScheduleList';
+
+    // Buka Halaman Detail Jadwal (Mendukung pintasan kembali ke pageHome jika dibuka dari Beranda)
+    function openScheduleDetail(id, returnPage) {
+      currentScheduleReturnPage = returnPage || 'pageScheduleList';
       currentDetailScheduleId = id;
       const s = mockSchedules.find(item => item.id === id);
       if (!s) return;
@@ -446,7 +648,11 @@
     }
 
     function backFromScheduleDetail() {
-      openScheduleListPage();
+      if (currentScheduleReturnPage === 'pageHome' && typeof navigateToHome === 'function') {
+        navigateToHome(currentLoggedInUser);
+      } else {
+        openScheduleListPage();
+      }
     }
 
     function editScheduleFromDetail() {
@@ -642,6 +848,9 @@
 
       backFromScheduleForm();
       renderScheduleList();
+      if (typeof refreshTeacherReminders === 'function') {
+        refreshTeacherReminders({ silent: true });
+      }
 
       if (isEditingScheduleMode && currentDetailScheduleId) {
         openScheduleDetail(currentDetailScheduleId);
@@ -683,6 +892,9 @@
         const deleted = mockSchedules.splice(idx, 1)[0];
         showToast('Jadwal "' + deleted.subject + '" (' + deleted.className + ') berhasil dihapus.', 'success');
         renderScheduleList();
+        if (typeof refreshTeacherReminders === 'function') {
+          refreshTeacherReminders({ silent: true });
+        }
         if (window._onScheduleDeleted) {
           window._onScheduleDeleted();
           window._onScheduleDeleted = null;

@@ -104,8 +104,8 @@ Empat kartu dalam satu baris dengan ukuran kartu yang sama dan shadow lembut:
   - **Alpha**: Lingkaran merah muda, angka jumlah tanpa keterangan, teks merah.
 - Perhitungan statistik terbarui secara otomatis saat filter tanggal diubah.
 
-### 5. Aktivitas Terakhir (Sesuai Butir 6)
-- Judul kartu *"Aktivitas Terakhir"* dilengkapi tombol *"Lihat Semua >"*.
+### 5. Pengajar Hari Ini (Sesuai Butir 6)
+- Judul kartu *"Pengajar Hari Ini"* dilengkapi tombol *"Lihat Semua >"*.
 - Menampilkan 3 data absensi terbaru:
   1. **Ahmad Fauzi** &bull; Hadir &bull; Kelas VII A (08:12, Hari Ini).
   2. **Siti Aisyah** &bull; Izin &bull; Kelas VIII B (07:50, Hari Ini).
@@ -130,7 +130,7 @@ Navigasi tetap di bagian bawah layar dengan 4 menu:
 | **Absensi Santri** | Monitoring & pencatatan global | Input & presensi kelas harian |
 | **Laporan** | Laporan berkala komprehensif pondok | Rekapitulasi kelas binaan |
 | **Pengaturan** | Manajemen akun & sistem pondok | **Akses Dibatasi** (Tidak dapat mengelola admin) |
-| **Aktivitas Terakhir** | Seluruh riwayat presensi santri | Riwayat santri kelas terkait |
+| **Pengajar Hari Ini** | Seluruh riwayat presensi santri | Riwayat santri kelas terkait |
 
 ---
 
@@ -160,5 +160,5 @@ Perintah ini akan membuka [preview.html](file:///d:/Kiro%20Folder/Darul%20Hikmah
 2. Klik tombol dropdown role di kanan atas header untuk beralih seketika antara mode Admin dan mode Guru.
 3. Klik tombol filter tanggal *"Hari Ini ⌄"* pada kartu Ringkasan Absensi untuk melihat angka terbarui otomatis.
 4. Klik kartu menu *"Pengaturan"* saat login sebagai Guru untuk melihat notifikasi pembatasan hak akses yang elegan.
-5. Klik *"Lihat Semua >"* pada Aktivitas Terakhir untuk membuka riwayat presensi harian.
+5. Klik *"Lihat Semua >"* pada Pengajar Hari Ini untuk membuka riwayat presensi harian.
 6. Klik *"Keluar (Logout)"* pada menu dropdown profil untuk kembali ke halaman Login.

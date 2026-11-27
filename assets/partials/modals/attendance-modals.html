@@ -1,0 +1,148 @@
+    <!-- Modal Konfirmasi Simpan Absensi Santri (Butir 1) -->
+    <div class="modal-overlay" id="attendanceConfirmModal" style="background:rgba(0,0,0,0.55); z-index:9999;" onclick="if(event.target === this) closeAttendanceConfirmModal()">
+      <div class="modal-card" style="max-width:340px; border-radius:16px; padding:20px; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+          <div style="width:36px; height:36px; border-radius:10px; background:#DCFCE7; display:flex; align-items:center; justify-content:center; color:#16A34A; flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+          </div>
+          <div>
+            <h3 style="font-size:16px; font-weight:800; color:var(--text-main); margin:0;">Konfirmasi Simpan</h3>
+            <p style="font-size:11.5px; color:var(--text-secondary); margin:0;" id="attConfirmSubtitle">Rincian kehadiran santri sesi ini</p>
+          </div>
+        </div>
+
+        <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:14px; margin-bottom:18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-weight:800; font-size:13.5px; color:var(--text-main); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid #E2E8F0;">
+            <span>TOTAL SANTRI:</span>
+            <span id="attConfirmTotal" style="color:var(--primary); font-size:15px; font-weight:800;">0</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:13px; font-weight:600;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#16A34A;"></span>Hadir:</span>
+              <span id="attConfirmHadir" style="color:#16A34A; font-weight:700;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#2563EB;"></span>Izin:</span>
+              <span id="attConfirmIzin" style="color:#2563EB; font-weight:700;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#D97706;"></span>Sakit:</span>
+              <span id="attConfirmSakit" style="color:#D97706; font-weight:700;">0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:8px; height:8px; border-radius:50%; background:#DC2626;"></span>Alfa:</span>
+              <span id="attConfirmAlfa" style="color:#DC2626; font-weight:700;">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn-secondary" style="flex:1; margin-bottom:0; padding:11px; font-size:13px; font-weight:700; border-radius:10px;" onclick="closeAttendanceConfirmModal()">Kembali</button>
+          <button type="button" class="btn-primary" style="flex:1; margin-bottom:0; padding:11px; font-size:13px; font-weight:700; border-radius:10px;" onclick="executeConfirmedAttendanceSave()">Konfirmasi Simpan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Submenu Fitur Absensi Santri (Butir 5) -->
+    <div class="modal-overlay" id="attendanceSubmenuModal" style="background:rgba(0,0,0,0.55); z-index:9998;" onclick="if(event.target === this) closeAttendanceSubmenuModal()">
+      <div class="modal-card" style="max-width:360px; border-radius:20px; padding:20px; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:36px; height:36px; border-radius:10px; background:#DCFCE7; display:flex; align-items:center; justify-content:center; color:#16A34A; flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div>
+              <h3 style="font-size:16px; font-weight:800; color:var(--text-main); margin:0;">Menu Absensi</h3>
+              <p style="font-size:11.5px; color:var(--text-secondary); margin:0;" id="attSubmenuRoleSubtitle">Pilih submenu fitur absensi santri</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeAttendanceSubmenuModal()" style="border:none; background:#F1F5F9; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#64748B;">&times;</button>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Submenu 1: Absensi Santri -->
+          <div class="att-submenu-item" onclick="closeAttendanceSubmenuModal(); openScheduleListPage(); switchScheduleMainTab('schedule');" style="display:flex; align-items:center; gap:12px; padding:12px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; cursor:pointer; transition:all 0.15s;">
+            <div style="width:40px; height:40px; border-radius:10px; background:#DCFCE7; display:flex; align-items:center; justify-content:center; color:#16A34A; flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13.5px; font-weight:700; color:var(--text-main);">Absensi Santri</div>
+              <div style="font-size:11.5px; color:var(--text-secondary);">Pilih jadwal pelajaran untuk input atau edit kehadiran</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+        <!-- Modal Hasil Rincian Riwayat Absensi Santri (Butir 3) -->
+    <div class="modal-overlay" id="attendanceResultModal" style="background:rgba(0,0,0,0.55); z-index:9999;" onclick="if(event.target === this) closeAttendanceResultModal()">
+      <div class="modal-card" style="max-width:380px; width:92%; max-height:85vh; border-radius:18px; padding:0; display:flex; flex-direction:column; overflow:hidden; background:#FFFFFF; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+        <!-- Modal Header -->
+        <div style="padding:16px 18px; border-bottom:1px solid #E2E8F0; display:flex; align-items:center; justify-content:space-between; background:#FFFFFF; flex-shrink:0;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:38px; height:38px; border-radius:10px; background:#DCFCE7; color:#16A34A; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
+            </div>
+            <div>
+              <div style="font-size:15px; font-weight:800; color:var(--text-main);">Hasil Rekapan Absensi Guru &amp; Santri</div>
+              <div style="font-size:11.5px; color:var(--text-secondary);">Rincian kehadiran santri sesi ini</div>
+            </div>
+          </div>
+          <button type="button" onclick="closeAttendanceResultModal()" style="border:none; background:#F1F5F9; border-radius:50%; width:30px; height:30px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#64748B;">&times;</button>
+        </div>
+
+        <!-- Modal Body (Scrollable) -->
+        <div style="padding:16px 18px; overflow-y:auto; flex:1;">
+          <!-- Session Header Card -->
+          <div style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; padding:12px 14px; margin-bottom:14px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <div style="font-size:15px; font-weight:800; color:var(--text-main);" id="attResModalSubject">Fiqih</div>
+              <span class="sch-card-class-badge" id="attResModalClass">Kelas VII A</span>
+            </div>
+            <div style="font-size:11.5px; color:var(--text-secondary); line-height:1.5;">
+              <div id="attResModalDateTimeVal">📅 15 Nov 2026 • Jam Ke-1 (07:30 - 08:15 WIB)</div>
+              <div id="attResModalTeacherVal">👤 Guru: Ustadz Ahmad Fauzi</div>
+            </div>
+          </div>
+
+          <!-- Presence Metric Breakdown -->
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:14px;">
+            <div style="background:#FFFFFF; border:1px solid #DCFCE7; border-top:3px solid #16A34A; border-radius:8px; padding:8px; text-align:center;">
+              <div style="font-size:16px; font-weight:800; color:#16A34A;" id="attResStatHadir">0</div>
+              <div style="font-size:11px; font-weight:600; color:#15803D;">Hadir</div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #DBEAFE; border-top:3px solid #2563EB; border-radius:8px; padding:8px; text-align:center;">
+              <div style="font-size:16px; font-weight:800; color:#2563EB;" id="attResStatIzin">0</div>
+              <div style="font-size:11px; font-weight:600; color:#1D4ED8;">Izin</div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #FEF3C7; border-top:3px solid #D97706; border-radius:8px; padding:8px; text-align:center;">
+              <div style="font-size:16px; font-weight:800; color:#D97706;" id="attResStatSakit">0</div>
+              <div style="font-size:11px; font-weight:600; color:#B45309;">Sakit</div>
+            </div>
+            <div style="background:#FFFFFF; border:1px solid #FEE2E2; border-top:3px solid #DC2626; border-radius:8px; padding:8px; text-align:center;">
+              <div style="font-size:16px; font-weight:800; color:#DC2626;" id="attResStatAlfa">0</div>
+              <div style="font-size:11px; font-weight:600; color:#B91C1C;">Alfa</div>
+            </div>
+          </div>
+
+          <!-- Student List Header -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+            <span style="font-size:12px; font-weight:700; color:var(--text-main); text-transform:uppercase;">Daftar Kehadiran Santri:</span>
+            <span style="font-size:11.5px; font-weight:600; color:var(--text-muted);" id="attResStudentCount">0 Santri</span>
+          </div>
+
+          <!-- Student List Items -->
+          <div id="attResStudentList"></div>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div style="padding:12px 18px; border-top:1px solid #E2E8F0; display:flex; gap:10px; background:#FFFFFF; flex-shrink:0;">
+          <button type="button" onclick="closeAttendanceResultModal()" style="flex:1; background:#FFFFFF; border:1px solid #CBD5E1; border-radius:10px; padding:10px; font-size:13px; font-weight:700; color:var(--text-main); cursor:pointer;">Tutup</button>
+          <button type="button" id="attResModalEditBtn" onclick="editAttendanceFromResultModal()" style="flex:1.5; background:#0E6838; border:none; border-radius:10px; padding:10px; font-size:13px; font-weight:700; color:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 1-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <span>Edit Absensi</span>
+          </button>
+        </div>
+      </div>
+    </div>

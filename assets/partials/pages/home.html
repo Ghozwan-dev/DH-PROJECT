@@ -1,0 +1,341 @@
+        <!-- ================= HALAMAN 3: HOMEPAGE (SESUAI GAMBAR REFERENSI) ================= -->
+        <div class="screen-page" id="pageHome">
+          <!-- 3. Welcome Section -->
+          <div class="welcome-hero">
+            <img src="assets/images/pesantren_building.png" alt="Gedung Pesantren" class="welcome-building-img" onerror="this.style.display='none'">
+            <div class="welcome-text-content">
+              <div class="welcome-greeting">Assalamu'alaikum,</div>
+              <div class="welcome-title">Selamat Datang!</div>
+              <div class="welcome-sub">di Aplikasi Absensi Santri</div>
+            </div>
+            <!-- Dynamic Gold and Green Wave Curves -->
+            <svg class="welcome-curves" viewBox="0 0 400 40" preserveAspectRatio="none">
+              <!-- Golden Wave Ribbon -->
+              <path d="M 0,18 Q 140,40 280,20 Q 350,10 400,16 L 400,40 L 0,40 Z" fill="#E5B842" />
+              <!-- Background Transition Wave -->
+              <path d="M 0,26 Q 140,48 290,26 Q 355,16 400,24 L 400,40 L 0,40 Z" fill="#F8FAFC" />
+            </svg>
+          </div>
+
+            <!-- 4. Diagram Lingkaran (Pie Chart) Kehadiran Santri Per Kelas (Khusus Admin) -->
+            <div class="admin-chart-card" id="adminAttendanceChartCard" style="display: none;">
+              <div class="admin-chart-header">
+                <div class="admin-chart-title-wrap">
+                  <div class="admin-chart-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                  </div>
+                  <div>
+                    <h4 class="admin-chart-title">Persentase Kehadiran Santri</h4>
+                    <p class="admin-chart-subtitle">Diagram status kehadiran santri per kelas</p>
+                  </div>
+                </div>
+                <div class="admin-chart-filter-wrap">
+                  <label for="chartClassSelect" class="chart-filter-label">Filter Kelas:</label>
+                  <select id="chartClassSelect" class="chart-class-dropdown" onchange="onClassChartFilterChange(this.value)">
+                    <option value="Semua Kelas">Semua Kelas</option>
+                    <option value="Kelas VII A">Kelas VII A</option>
+                    <option value="Kelas VII B">Kelas VII B</option>
+                    <option value="Kelas VIII A">Kelas VIII A</option>
+                    <option value="Kelas VIII B">Kelas VIII B</option>
+                    <option value="Kelas IX A">Kelas IX A</option>
+                    <option value="Kelas IX B">Kelas IX B</option>
+                    <option value="Kelas X A">Kelas X A</option>
+                    <option value="Kelas X B">Kelas X B</option>
+                    <option value="Kelas XI A">Kelas XI A</option>
+                    <option value="Kelas XI B">Kelas XI B</option>
+                    <option value="Kelas XII A">Kelas XII A</option>
+                    <option value="Kelas XII B">Kelas XII B</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="admin-chart-body">
+                <!-- SVG Pie / Donut Chart -->
+                <div class="pie-chart-wrapper">
+                  <svg id="attendancePieChartSvg" viewBox="0 0 200 200" class="pie-chart-svg"></svg>
+                  <div class="pie-chart-center-text">
+                    <span class="pie-center-value" id="pieCenterRate">0%</span>
+                    <span class="pie-center-label" id="pieCenterLabel">Hadir</span>
+                  </div>
+                </div>
+
+                <!-- Legend & Statistics Breakdown -->
+                <div class="pie-chart-legend-grid">
+                  <div class="legend-card hadir" id="legendCardHadir" role="button" tabindex="0" onclick="toggleChartStatusDetail('hadir')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleChartStatusDetail('hadir');}" title="Klik untuk melihat daftar santri Hadir">
+                    <div class="legend-indicator"></div>
+                    <div class="legend-info">
+                      <div class="legend-top">
+                        <span class="legend-name">Hadir</span>
+                        <span class="legend-percent" id="legendPctHadir">0%</span>
+                      </div>
+                      <div class="legend-bottom-row">
+                        <div class="legend-count" id="legendCountHadir">0 Santri</div>
+                        <span class="legend-tap-hint">Lihat daftar ›</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="legend-card izin" id="legendCardIzin" role="button" tabindex="0" onclick="toggleChartStatusDetail('izin')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleChartStatusDetail('izin');}" title="Klik untuk melihat daftar santri Izin">
+                    <div class="legend-indicator"></div>
+                    <div class="legend-info">
+                      <div class="legend-top">
+                        <span class="legend-name">Izin</span>
+                        <span class="legend-percent" id="legendPctIzin">0%</span>
+                      </div>
+                      <div class="legend-bottom-row">
+                        <div class="legend-count" id="legendCountIzin">0 Santri</div>
+                        <span class="legend-tap-hint">Lihat daftar ›</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="legend-card sakit" id="legendCardSakit" role="button" tabindex="0" onclick="toggleChartStatusDetail('sakit')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleChartStatusDetail('sakit');}" title="Klik untuk melihat daftar santri Sakit">
+                    <div class="legend-indicator"></div>
+                    <div class="legend-info">
+                      <div class="legend-top">
+                        <span class="legend-name">Sakit</span>
+                        <span class="legend-percent" id="legendPctSakit">0%</span>
+                      </div>
+                      <div class="legend-bottom-row">
+                        <div class="legend-count" id="legendCountSakit">0 Santri</div>
+                        <span class="legend-tap-hint">Lihat daftar ›</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="legend-card alpa" id="legendCardAlpa" role="button" tabindex="0" onclick="toggleChartStatusDetail('alpa')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleChartStatusDetail('alpa');}" title="Klik untuk melihat daftar santri Alpa">
+                    <div class="legend-indicator"></div>
+                    <div class="legend-info">
+                      <div class="legend-top">
+                        <span class="legend-name">Alpa</span>
+                        <span class="legend-percent" id="legendPctAlpa">0%</span>
+                      </div>
+                      <div class="legend-bottom-row">
+                        <div class="legend-count" id="legendCountAlpa">0 Santri</div>
+                        <span class="legend-tap-hint">Lihat daftar ›</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Animated Expandable Student Breakdown Drawer -->
+              <div class="chart-detail-drawer" id="chartStatusDetailPanel" aria-hidden="true">
+                <div class="chart-detail-drawer-inner">
+                  <div class="chart-detail-header">
+                    <div class="chart-detail-title-group">
+                      <div class="chart-detail-badge-icon" id="chartDetailBadgeIcon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                      <div>
+                        <div class="chart-detail-heading" id="chartDetailHeading">Daftar Santri — Hadir</div>
+                        <div class="chart-detail-subheading" id="chartDetailSubheading">Semua Kelas • 0 Santri</div>
+                      </div>
+                    </div>
+                    <div class="chart-detail-controls">
+                      <div class="chart-detail-tabs" id="chartDetailTabs" role="tablist" aria-label="Filter kriteria kehadiran">
+                        <span class="chart-detail-tabs-pill" id="chartDetailTabsPill" aria-hidden="true"></span>
+                        <button type="button" class="chart-detail-tab hadir" id="chartTabHadir" onclick="openChartStatusDetail('hadir')">Hadir</button>
+                        <button type="button" class="chart-detail-tab izin" id="chartTabIzin" onclick="openChartStatusDetail('izin')">Izin</button>
+                        <button type="button" class="chart-detail-tab sakit" id="chartTabSakit" onclick="openChartStatusDetail('sakit')">Sakit</button>
+                        <button type="button" class="chart-detail-tab alpa" id="chartTabAlpa" onclick="openChartStatusDetail('alpa')">Alpa</button>
+                      </div>
+                      <button type="button" class="chart-detail-close" id="chartDetailCloseBtn" onclick="closeChartStatusDetail(this)" title="Tutup daftar" aria-label="Tutup daftar">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="chart-detail-list" id="chartStatusDetailList"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 5. Pengajar Hari Ini -->
+            <div class="dashboard-bottom-grid">
+              <div class="activities-card">
+                <div class="activities-header">
+                  <div class="activities-header-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                    <span>Pengajar Hari Ini</span>
+                  </div>
+                  <div class="activities-view-all" onclick="openViewAllActivities()">
+                    <span>Lihat Semua</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </div>
+
+                <!-- Daftar Aktivitas Real Ustadz Setiap Harinya -->
+                <div class="activities-list" id="homeActivitiesList">
+                  <div class="activity-row">
+                    <div class="activity-avatar-wrap">
+                      <img src="assets/images/santri_ahmad.png" class="activity-avatar" onerror="this.src='assets/images/logo.png'">
+                      <div class="activity-badge hadir">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    </div>
+                    <div class="activity-info">
+                      <div class="activity-name">Ustadz Ahmad Fauzi, S.Pd.I</div>
+                      <div class="activity-meta">
+                        <span class="meta-status hadir">Absensi KBM Selesai</span>
+                      </div>
+
+                      <!-- Button Pintasan untuk Melihat Tampilan Jadwal (1 button kecil rapi) -->
+                      <div class="activity-teaching-toggle-wrap">
+                        <button type="button" class="btn-teaching-toggle" onclick="toggleTeachingBox('teachBox_0', this)" aria-expanded="false" title="Tampilkan/Sembunyikan Jadwal Mapel">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          <span class="btn-toggle-label">Lihat Jadwal</span>
+                          <svg class="chevron-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                      </div>
+
+                      <!-- Daftar Mapel, Kelas & Waktu yang Diampu Hari Itu (Tersembunyi Awal Agar Tampilan Rapi) -->
+                      <div class="activity-teaching-box" id="teachBox_0" style="display: none;">
+                        <div class="activity-teaching-header">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          <span>Jadwal Mapel Diampu Hari Ini:</span>
+                        </div>
+                        <div class="activity-teaching-list">
+                          <div class="activity-teaching-item">
+                            <div class="activity-teaching-left">
+                              <span class="teaching-period-badge">Jam Ke-1</span>
+                              <strong class="teaching-subject-name">Fiqih</strong>
+                              <span class="teaching-class-badge">Kelas VII A</span>
+                            </div>
+                            <div class="activity-teaching-time">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                              <span>07:30 - 08:15 WIB</span>
+                            </div>
+                          </div>
+                          <div class="activity-teaching-item">
+                            <div class="activity-teaching-left">
+                              <span class="teaching-period-badge">Jam Ke-2</span>
+                              <strong class="teaching-subject-name">Fiqih</strong>
+                              <span class="teaching-class-badge">Kelas VIII A</span>
+                            </div>
+                            <div class="activity-teaching-time">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                              <span>08:15 - 09:00 WIB</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="activity-row">
+                    <div class="activity-avatar-wrap">
+                      <img src="assets/images/santri_aisyah.png" class="activity-avatar" onerror="this.src='assets/images/logo.png'">
+                      <div class="activity-badge hadir">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    </div>
+                    <div class="activity-info">
+                      <div class="activity-name">Ustadzah Halimah</div>
+                      <div class="activity-meta">
+                        <span class="meta-status hadir">Absensi KBM Selesai</span>
+                      </div>
+
+                      <!-- Button Pintasan untuk Melihat Tampilan Jadwal (1 button kecil rapi) -->
+                      <div class="activity-teaching-toggle-wrap">
+                        <button type="button" class="btn-teaching-toggle" onclick="toggleTeachingBox('teachBox_1', this)" aria-expanded="false" title="Tampilkan/Sembunyikan Jadwal Mapel">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          <span class="btn-toggle-label">Lihat Jadwal</span>
+                          <svg class="chevron-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                      </div>
+
+                      <!-- Daftar Mapel, Kelas & Waktu yang Diampu Hari Itu (Tersembunyi Awal Agar Tampilan Rapi) -->
+                      <div class="activity-teaching-box" id="teachBox_1" style="display: none;">
+                        <div class="activity-teaching-header">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          <span>Jadwal Mapel Diampu Hari Ini:</span>
+                        </div>
+                        <div class="activity-teaching-list">
+                          <div class="activity-teaching-item">
+                            <div class="activity-teaching-left">
+                              <span class="teaching-period-badge">Jam Ke-1</span>
+                              <strong class="teaching-subject-name">Bahasa Arab</strong>
+                              <span class="teaching-class-badge">Kelas VIII B</span>
+                            </div>
+                            <div class="activity-teaching-time">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                              <span>07:30 - 08:15 WIB</span>
+                            </div>
+                          </div>
+                          <div class="activity-teaching-item">
+                            <div class="activity-teaching-left">
+                              <span class="teaching-period-badge">Jam Ke-2</span>
+                              <strong class="teaching-subject-name">Bahasa Arab</strong>
+                              <span class="teaching-class-badge">Kelas VII A</span>
+                            </div>
+                            <div class="activity-teaching-time">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                              <span>08:15 - 09:00 WIB</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="activity-row">
+                    <div class="activity-avatar-wrap">
+                      <img src="assets/images/santri_rizky.png" class="activity-avatar" onerror="this.src='assets/images/logo.png'">
+                      <div class="activity-badge hadir">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      </div>
+                    </div>
+                    <div class="activity-info">
+                      <div class="activity-name">Ustadz Mansyur Hidayat</div>
+                      <div class="activity-meta">
+                        <span class="meta-status hadir">Absensi KBM Selesai</span>
+                      </div>
+
+                      <!-- Button Pintasan untuk Melihat Tampilan Jadwal (1 button kecil rapi) -->
+                      <div class="activity-teaching-toggle-wrap">
+                        <button type="button" class="btn-teaching-toggle" onclick="toggleTeachingBox('teachBox_2', this)" aria-expanded="false" title="Tampilkan/Sembunyikan Jadwal Mapel">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          <span class="btn-toggle-label">Lihat Jadwal</span>
+                          <svg class="chevron-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                      </div>
+
+                      <!-- Daftar Mapel, Kelas & Waktu yang Diampu Hari Itu (Tersembunyi Awal Agar Tampilan Rapi) -->
+                      <div class="activity-teaching-box" id="teachBox_2" style="display: none;">
+                        <div class="activity-teaching-header">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                          <span>Jadwal Mapel Diampu Hari Ini:</span>
+                        </div>
+                        <div class="activity-teaching-list">
+                          <div class="activity-teaching-item">
+                            <div class="activity-teaching-left">
+                              <span class="teaching-period-badge">Jam Ke-1</span>
+                              <strong class="teaching-subject-name">Al-Qur'an Hadits</strong>
+                              <span class="teaching-class-badge">Kelas VII B</span>
+                            </div>
+                            <div class="activity-teaching-time">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                              <span>07:30 - 08:15 WIB</span>
+                            </div>
+                          </div>
+                          <div class="activity-teaching-item">
+                            <div class="activity-teaching-left">
+                              <span class="teaching-period-badge">Jam Ke-2</span>
+                              <strong class="teaching-subject-name">Akidah Akhlak</strong>
+                              <span class="teaching-class-badge">Kelas VII A</span>
+                            </div>
+                            <div class="activity-teaching-time">
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                              <span>08:15 - 09:00 WIB</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+
+        </div><!-- /.screen-page #pageHome -->

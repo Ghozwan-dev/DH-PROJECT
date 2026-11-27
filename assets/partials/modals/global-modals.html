@@ -1,0 +1,128 @@
+    <!-- Universal In-App Toast -->
+    <div class="toast" id="appToast"></div>
+
+    <!-- Universal In-App Modal Dialog -->
+    <div class="modal-overlay" id="appModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#0E6838"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          <h3 id="modalTitle">Notifikasi</h3>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <button class="btn-primary" style="margin-bottom:0" id="modalBtnAction" onclick="closeModal()">Tutup</button>
+      </div>
+    </div>
+
+    <!-- Modal Pilih / Ubah Foto Profil Santri (Khusus Admin) -->
+    <div class="modal-overlay" id="photoPickerModal">
+      <div class="modal-card" style="max-width:380px; max-height:90vh; overflow-y:auto; padding:20px; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:34px; height:34px; border-radius:50%; background:#E8F5E9; display:flex; align-items:center; justify-content:center; color:#0E6838; flex-shrink:0;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <div>
+              <h3 style="font-size:15px; font-weight:700; color:var(--text-main); margin:0;">Foto Profil Santri</h3>
+              <p style="font-size:11px; color:var(--text-secondary); margin:0;">Khusus Administrator (Putra &amp; Putri)</p>
+            </div>
+          </div>
+          <button type="button" onclick="closePhotoPickerModal()" style="border:none; background:#F1F5F9; border-radius:50%; width:28px; height:28px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#64748B;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Preview Foto Terpilih -->
+        <div style="text-align:center; margin-bottom:14px; background:#F8FAFC; border-radius:12px; padding:12px; border:1px dashed #CBD5E1;">
+          <div class="snt-avatar-wrapper" style="margin-bottom:4px;">
+            <img id="photoPickerPreviewImg" src="assets/images/santri_ahmad.png" style="width:72px; height:72px; border-radius:50%; object-fit:cover; border:2.5px solid #0E6838; box-shadow:0 3px 8px rgba(14,104,56,0.25);" onerror="this.src='assets/images/logo.png'">
+          </div>
+          <div id="photoPickerPreviewLabel" style="font-size:12px; font-weight:700; color:var(--text-main);">Ahmad Fauzi (Putra)</div>
+          <div style="font-size:11px; color:#64748B;">Foto yang akan disimpan ke profil santri</div>
+        </div>
+
+        <!-- Tab Navigasi -->
+        <div style="display:flex; gap:4px; background:#F1F5F9; padding:4px; border-radius:10px; margin-bottom:12px;">
+          <button type="button" id="tabBtnPutra" onclick="switchPhotoPickerTab('putra')" style="flex:1; padding:6px 0; border:none; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer; background:#FFFFFF; color:#0E6838; box-shadow:0 1px 3px rgba(0,0,0,0.08);">👦 Santri Putra</button>
+          <button type="button" id="tabBtnPutri" onclick="switchPhotoPickerTab('putri')" style="flex:1; padding:6px 0; border:none; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer; background:transparent; color:#64748B;">👧 Santri Putri</button>
+          <button type="button" id="tabBtnUpload" onclick="switchPhotoPickerTab('upload')" style="flex:1; padding:6px 0; border:none; border-radius:8px; font-size:11.5px; font-weight:700; cursor:pointer; background:transparent; color:#64748B;">📁 Upload Baru</button>
+        </div>
+
+        <!-- Tab 1: Presets Putra -->
+        <div id="tabPanelPutra">
+          <div style="font-size:11.5px; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Pilih Karakter Santri Putra:</div>
+          <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin-bottom:14px;" id="presetGridPutra"></div>
+        </div>
+
+        <!-- Tab 2: Presets Putri -->
+        <div id="tabPanelPutri" style="display:none;">
+          <div style="font-size:11.5px; font-weight:600; color:var(--text-secondary); margin-bottom:8px;">Pilih Karakter Santri Putri:</div>
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:14px;" id="presetGridPutri"></div>
+        </div>
+
+        <!-- Tab 3: Upload Custom Foto -->
+        <div id="tabPanelUpload" style="display:none; margin-bottom:14px;">
+          <div onclick="document.getElementById('customPhotoFileInput').click()" style="border:2px dashed #0E6838; background:#F0FDF4; border-radius:12px; padding:20px 12px; text-align:center; cursor:pointer; transition:all 0.2s ease;">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size:12.5px; font-weight:700; color:#0E6838;">Pilih Foto dari Komputer/HP</div>
+            <div style="font-size:11px; color:#64748B; margin-top:3px;">JPG, PNG, atau WEBP (Maks 5MB)</div>
+          </div>
+          <input type="file" id="customPhotoFileInput" accept="image/*" onchange="handlePhotoFileUpload(event)" style="display:none;">
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display:flex; gap:8px; margin-top:6px;">
+          <button type="button" onclick="closePhotoPickerModal()" style="flex:1; height:38px; border:1px solid var(--border); background:#FFF; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; color:var(--text-secondary);">Batal</button>
+          <button type="button" onclick="saveSelectedStudentPhoto()" style="flex:1.4; height:38px; border:none; background:#0E6838; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer; color:#FFF; box-shadow:0 2px 6px rgba(14,104,56,0.3);">Simpan Foto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Edit Laporan Absensi Santri -->
+    <div id="editReportModal" class="modal-backdrop" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); z-index:1150; align-items:center; justify-content:center; padding:12px; box-sizing:border-box;">
+      <div style="background:#FFFFFF; border-radius:14px; width:100%; max-width:620px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 12px 30px rgba(0,0,0,0.25); overflow:hidden; animation:modalFadeIn 0.2s ease;">
+        <!-- Modal Header -->
+        <div style="background:linear-gradient(135deg, #074724 0%, #0E6838 100%); color:#FFF; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <div style="width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </div>
+            <div>
+              <div style="font-size:14px; font-weight:800; letter-spacing:0.2px;">Edit Laporan Absensi Santri</div>
+              <div style="font-size:11px; opacity:0.88;">Sesuaikan kop, judul, angka kehadiran &amp; pengesahan laporan</div>
+            </div>
+          </div>
+          <button type="button" onclick="closeEditReportModal()" style="background:transparent; border:none; color:#FFF; font-size:22px; font-weight:700; cursor:pointer; line-height:1; padding:0 4px;">&times;</button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div style="display:flex; background:#F8FAFC; border-bottom:1px solid #E2E8F0; padding:6px 14px; gap:6px; overflow-x:auto;">
+          <button type="button" id="tabBtnReportKop" onclick="switchEditReportTab('kop')" style="background:#0E6838; color:#FFF; border:none; padding:7px 12px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer; white-space:nowrap;">Kop &amp; Judul</button>
+          <button type="button" id="tabBtnReportData" onclick="switchEditReportTab('data')" style="background:transparent; color:var(--text-secondary); border:none; padding:7px 12px; border-radius:6px; font-size:11.5px; font-weight:600; cursor:pointer; white-space:nowrap;">Data Kehadiran</button>
+          <button type="button" id="tabBtnReportSign" onclick="switchEditReportTab('sign')" style="background:transparent; color:var(--text-secondary); border:none; padding:7px 12px; border-radius:6px; font-size:11.5px; font-weight:600; cursor:pointer; white-space:nowrap;">Pengesahan</button>
+          <button type="button" id="tabBtnReportStyle" onclick="switchEditReportTab('style')" style="background:transparent; color:var(--text-secondary); border:none; padding:7px 12px; border-radius:6px; font-size:11.5px; font-weight:600; cursor:pointer; white-space:nowrap;">Tampilan</button>
+        </div>
+
+        <!-- Modal Body (Scrollable) -->
+        <div id="editReportModalContent" style="padding:16px 18px; overflow-y:auto; flex:1; max-height:calc(85vh - 140px);">
+          <!-- Dynamically populated via report.js renderEditReportModalContent() -->
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="background:#F8FAFC; border-top:1px solid #E2E8F0; padding:12px 18px; display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div style="display:flex; gap:8px;">
+            <button type="button" onclick="resetReportCustomOverrides()" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#64748B; padding:8px 12px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer;">Reset Default</button>
+            <button type="button" onclick="closeEditReportModal(); toggleDirectReportEdit();" style="background:#F0FDF4; border:1px solid #86EFAC; color:#15803D; padding:8px 12px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:5px;" title="Beralih ke mode edit langsung di lembar kertas">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              <span>Edit di Lembar</span>
+            </button>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button type="button" onclick="closeEditReportModal()" style="background:#FFF; border:1px solid #CBD5E1; color:var(--text-secondary); padding:8px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer;">Batal</button>
+            <button type="button" onclick="saveReportModalEdits()" style="background:#0E6838; border:none; color:#FFF; padding:8px 16px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; box-shadow:0 2px 6px rgba(14,104,56,0.3);">Terapkan Perubahan</button>
+          </div>
+        </div>
+      </div>
+    </div>

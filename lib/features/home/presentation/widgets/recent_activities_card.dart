@@ -51,7 +51,7 @@ class RecentActivitiesCard extends StatelessWidget {
                     ),
                     SizedBox(width: 8),
                     Text(
-                      'Aktivitas Terakhir',
+                      'Pengajar Hari Ini',
                       style: TextStyle(
                         fontSize: 15.5,
                         fontWeight: FontWeight.w700,

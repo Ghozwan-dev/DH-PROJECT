@@ -1,0 +1,211 @@
+        <!-- ======================================================== -->
+        <!-- HALAMAN 12: MODUL LAPORAN ABSENSI SANTRI (KHUSUS ADMIN) -->
+        <!-- ======================================================== -->
+        <div class="screen-page" id="pageAttendanceReport">
+          <!-- Top Sticky App Bar -->
+          <div class="sub-app-bar" style="padding:12px 16px; border-bottom:1px solid #E2E8F0; background:#FFFFFF;">
+            <div class="sub-app-bar-left" style="display:flex; align-items:center; gap:11px; min-width:0; flex:1;">
+              <button class="btn-icon-back" onclick="backFromAttendanceReport()" title="Kembali ke Beranda" style="flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <div class="report-header-icon" style="width:36px; height:36px; border-radius:10px; background:#F0FDF4; border:1px solid #DCFCE7; display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="20" x2="18" y2="10"></line>
+                  <line x1="12" y1="20" x2="12" y2="4"></line>
+                  <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+              </div>
+              <div style="display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+                <span class="sub-app-bar-title" style="font-size:15.5px; font-weight:700; color:var(--text-main); line-height:1.25; letter-spacing:-0.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Laporan Absensi Santri</span>
+                <span style="font-size:11.5px; color:#64748B; font-weight:500; line-height:1.2; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Pondok Pesantren Islam Darul Hikmah</span>
+              </div>
+            </div>
+            <div class="sub-app-bar-actions" style="flex-shrink:0;">
+              <button class="btn-app-bar-action" onclick="renderAttendanceReport()" title="Segarkan Laporan" style="width:34px; height:34px; padding:0; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Page Content -->
+          <div class="snt-content">
+            <div id="schTabReportSection" style="display:block;">
+              <!-- 1. Report Type Selector Pills -->
+              <div style="background:#F1F5F9; border-radius:12px; padding:4px; display:flex; gap:6px; margin-bottom:12px;">
+                <button type="button" class="report-type-btn active" id="repTypeKelasBtn" onclick="setReportType('perKelas')" style="flex:1; padding:9px 12px; border:none; border-radius:8px; font-size:12.5px; font-weight:700; cursor:pointer; background:#FFFFFF; color:var(--primary); box-shadow:0 1px 3px rgba(0,0,0,0.06); transition:all 0.15s; text-align:center;">Per Kelas</button>
+                <button type="button" class="report-type-btn" id="repTypeSantriBtn" onclick="setReportType('perSantri')" style="flex:1; padding:9px 12px; border:none; border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer; background:transparent; color:var(--text-secondary); transition:all 0.15s; text-align:center;">Per Santri</button>
+              </div>
+
+              <!-- 2. Filter Box -->
+              <div style="background:#FFFFFF; border-radius:12px; padding:12px; border:1px solid #E2E8F0; margin-bottom:12px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Dari Tanggal</label>
+                    <input type="date" id="repFilterStartDate" class="form-input" style="padding:5px 8px; font-size:11.5px; width:100%; box-sizing:border-box;" onchange="renderAttendanceReport()">
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Sampai Tanggal</label>
+                    <input type="date" id="repFilterEndDate" class="form-input" style="padding:5px 8px; font-size:11.5px; width:100%; box-sizing:border-box;" onchange="renderAttendanceReport()">
+                  </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Kelas</label>
+                    <select id="repFilterClass" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="onReportClassChanged()">
+                      <option value="Semua">Semua Kelas</option>
+                      <option value="VII A" selected>Kelas VII A</option>
+                      <option value="VII B">Kelas VII B</option>
+                      <option value="VIII A">Kelas VIII A</option>
+                      <option value="VIII B">Kelas VIII B</option>
+                      <option value="IX A">Kelas IX A</option>
+                      <option value="IX B">Kelas IX B</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Mata Pelajaran</label>
+                    <select id="repFilterSubject" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceReport()">
+                      <option value="Semua">Semua Mapel</option>
+                      <option value="Fiqih">Fiqih</option>
+                      <option value="Bahasa Arab">Bahasa Arab</option>
+                      <option value="Aqidah Akhlak">Aqidah Akhlak</option>
+                      <option value="Al-Qur'an Hadits">Al-Qur'an Hadits</option>
+                      <option value="Tarikh Islam">Tarikh Islam</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Santri Selector (Khusus perSantri) -->
+                <div id="repFilterStudentWrap" style="display:none; margin-top:8px;">
+                  <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Pilih Santri</label>
+                  <select id="repFilterStudent" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceReport()">
+                    <!-- Populated dynamically -->
+                  </select>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                  <button type="button" onclick="resetReportFilters()" style="background:#F1F5F9; border:1px solid #CBD5E1; color:var(--text-main); font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:6px; cursor:pointer;">Reset Filter</button>
+                </div>
+              </div>
+
+              <!-- 3. Action Buttons (Sederhana: Edit Laporan, Ekspor PDF, Ekspor Excel, Segarkan) -->
+              <div style="display:flex; gap:8px; margin-bottom:14px;">
+                <button type="button" id="btnEditReportModal" onclick="openEditReportModal()" style="flex:1.1; background:#0E6838; color:white; border:none; padding:9px 12px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 4px rgba(14,104,56,0.25);">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  <span>Edit Laporan</span>
+                </button>
+                <button type="button" onclick="exportReportPdf()" style="flex:1; background:#DC2626; color:white; border:none; padding:9px 12px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 4px rgba(220,38,38,0.2);">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span>Ekspor PDF</span>
+                </button>
+                <button type="button" onclick="exportReportExcel()" style="flex:1; background:#16A34A; color:white; border:none; padding:9px 12px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 4px rgba(22,163,74,0.2);">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                  <span>Ekspor Excel</span>
+                </button>
+                <button type="button" onclick="renderAttendanceReport()" title="Segarkan Laporan" style="background:#F1F5F9; border:1px solid #CBD5E1; color:var(--text-main); padding:9px 12px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                </button>
+              </div>
+
+              <!-- Direct Edit Banner Notice -->
+              <div id="directEditNotice" style="display:none; background:#FEF3C7; border:1px solid #FCD34D; border-radius:8px; padding:10px 14px; margin-bottom:14px; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                <span style="font-size:12px; font-weight:700; color:#92400E; display:flex; align-items:center; gap:6px;">
+                  <span>✏️</span> <strong>Mode Edit Lembar Aktif:</strong> Nilai &amp; teks di kertas laporan kini dapat diklik dan diedit langsung.
+                </span>
+                <div style="display:flex; gap:6px;">
+                  <button type="button" onclick="saveDirectReportEdit()" style="background:#0E6838; color:white; border:none; padding:5px 12px; border-radius:6px; font-size:11.5px; font-weight:700; cursor:pointer;">Selesai &amp; Simpan</button>
+                  <button type="button" onclick="cancelDirectReportEdit()" style="background:#FFF; border:1px solid #CBD5E1; color:#64748B; padding:5px 10px; border-radius:6px; font-size:11.5px; font-weight:600; cursor:pointer;">Batal</button>
+                </div>
+              </div>
+
+              <!-- 4. Official Report Preview Paper (Ukuran Kertas A4 Standar 210 x 297 mm) -->
+              <div class="report-desk-viewport" style="background:#F1F5F9; border:1px solid #E2E8F0; border-radius:12px; padding:24px 14px; margin-bottom:24px; overflow-x:auto; display:flex; flex-direction:column; align-items:center;">
+                <!-- Paper Info Header Badge -->
+                <div style="align-self:flex-end; margin-bottom:12px; display:flex; align-items:center; gap:6px; font-size:11px; font-weight:700; color:#64748B; background:#FFFFFF; border:1px solid #CBD5E1; padding:4px 10px; border-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span>Ukuran Kertas: A4 (210 × 297 mm)</span>
+                </div>
+
+                <div id="reportPaperContainer" class="a4-report-paper" style="background:#FFFFFF; width:100%; max-width:210mm; min-height:297mm; border-radius:2px; border:1px solid #CBD5E1; padding:20mm 15mm; box-shadow:0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.06); box-sizing:border-box; display:flex; flex-direction:column; justify-content:space-between; position:relative; margin:0 auto; font-family:'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+                  <!-- Dynamically rendered -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ======================================================== -->
+        <!-- HALAMAN 7B: DETAIL REKAP ABSENSI SANTRI (KHUSUS ADMIN) -->
+        <!-- ======================================================== -->
+        <div class="screen-page" id="pageStudentRecapDetail">
+          <!-- Top Sticky App Bar -->
+          <div class="sub-app-bar">
+            <div class="sub-app-bar-left">
+              <button class="btn-icon-back" onclick="backFromStudentRecapDetail()" title="Kembali">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="sub-app-bar-title">Detail Rekap Absensi</span>
+            </div>
+          </div>
+
+          <div class="snt-content">
+            <!-- 1. Student Identity Header Box -->
+            <div class="snt-section-box" style="padding:14px; margin-bottom:12px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div id="recapDetAvatarBox" style="width:52px; height:52px; border-radius:14px; background:#DCFCE7; color:#16A34A; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:800; flex-shrink:0;">
+                  A
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:16px; font-weight:800; color:var(--text-main); line-height:1.25;" id="recapDetName">Nama Santri</div>
+                  <div style="display:flex; gap:6px; margin-top:5px; flex-wrap:wrap;">
+                    <span style="background:#E2E8F0; color:#334155; font-size:11px; font-weight:700; padding:2px 6px; border-radius:4px;" id="recapDetNis">NIS: -</span>
+                    <span class="sch-card-class-badge" id="recapDetClass">Kelas -</span>
+                  </div>
+                  <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;" id="recapDetGenderRoom">Putra • Ruang -</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Attendance Metric Summary Box -->
+            <div class="snt-section-box" style="padding:14px; margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <div>
+                  <div style="font-size:11.5px; font-weight:600; color:var(--text-muted);">Persentase Kehadiran</div>
+                  <div style="font-size:26px; font-weight:800; line-height:1.2; margin-top:2px;" id="recapDetPercentage">0%</div>
+                  <div style="font-size:11.5px; color:var(--text-secondary);" id="recapDetMeetingsSub">(0/0 Pertemuan)</div>
+                </div>
+                <div id="recapDetBadgeStatus" style="padding:6px 12px; border-radius:10px; font-size:12px; font-weight:700; background:#DCFCE7; color:#16A34A;">
+                  Sangat Baik
+                </div>
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;">
+                <div style="background:#DCFCE7; padding:8px 4px; border-radius:8px; text-align:center;">
+                  <div style="font-size:16px; font-weight:800; color:#16A34A;" id="recapDetHadir">0</div>
+                  <div style="font-size:10.5px; font-weight:700; color:#16A34A;">Hadir</div>
+                </div>
+                <div style="background:#E0F2FE; padding:8px 4px; border-radius:8px; text-align:center;">
+                  <div style="font-size:16px; font-weight:800; color:#0284C7;" id="recapDetIzin">0</div>
+                  <div style="font-size:10.5px; font-weight:700; color:#0284C7;">Izin</div>
+                </div>
+                <div style="background:#FEF3C7; padding:8px 4px; border-radius:8px; text-align:center;">
+                  <div style="font-size:16px; font-weight:800; color:#D97706;" id="recapDetSakit">0</div>
+                  <div style="font-size:10.5px; font-weight:700; color:#D97706;">Sakit</div>
+                </div>
+                <div style="background:#FEE2E2; padding:8px 4px; border-radius:8px; text-align:center;">
+                  <div style="font-size:16px; font-weight:800; color:#DC2626;" id="recapDetAlfa">0</div>
+                  <div style="font-size:10.5px; font-weight:700; color:#DC2626;">Alfa</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Session Attendance Log List -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+              <span style="font-size:13.5px; font-weight:700; color:var(--text-main);" id="recapDetLogHeader">Riwayat Sesi Absensi (0)</span>
+            </div>
+            <div id="recapDetLogContainer">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>

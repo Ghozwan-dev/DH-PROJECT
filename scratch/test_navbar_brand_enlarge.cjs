@@ -4,7 +4,7 @@ const path = require('path');
 console.log('=== TEST: NAVBAR BRAND ENLARGEMENT ===');
 
 const baseCss = fs.readFileSync(path.join(__dirname, '..', 'assets', 'css', 'base.css'), 'utf-8');
-const previewHtml = fs.readFileSync(path.join(__dirname, '..', 'preview.html'), 'utf-8');
+const previewHtml = require('../scripts/html-assembler').loadPreviewHtml();
 
 // 1. Verify HTML structure
 if (!previewHtml.includes('class="navbar-logo"') || !previewHtml.includes('class="navbar-brand-title"') || !previewHtml.includes('class="navbar-brand-sub"')) {

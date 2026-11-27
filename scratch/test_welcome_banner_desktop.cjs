@@ -4,7 +4,7 @@ const path = require('path');
 console.log('=== TEST: WELCOME HERO BANNER DESKTOP-ONLY ENLARGEMENT ===');
 
 const homeCss = fs.readFileSync(path.join(__dirname, '..', 'assets', 'css', 'home.css'), 'utf-8');
-const previewHtml = fs.readFileSync(path.join(__dirname, '..', 'preview.html'), 'utf-8');
+const previewHtml = require('../scripts/html-assembler').loadPreviewHtml();
 const dartBanner = fs.readFileSync(path.join(__dirname, '..', 'lib', 'features', 'home', 'presentation', 'widgets', 'welcome_hero_banner.dart'), 'utf-8');
 
 // 1. Verify HTML structure

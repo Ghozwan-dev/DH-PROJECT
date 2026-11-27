@@ -3,7 +3,7 @@ const path = require('path');
 
 console.log('=== TEST: PERSISTENT BOTTOM NAVIGATION ACROSS ALL PAGES ===\n');
 
-const previewHtml = fs.readFileSync(path.join(__dirname, '..', 'preview.html'), 'utf-8');
+const previewHtml = require('../scripts/html-assembler').loadPreviewHtml();
 const authJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'auth.js'), 'utf-8');
 
 // 1. Verify that .bottom-nav-fixed is NOT inside #pageHome

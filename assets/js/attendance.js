@@ -436,8 +436,24 @@
             statusType: 'hadir',
             subject: schedule.subject,
             className: 'Kelas ' + schedule.className,
-            summary: `${hadir} Hadir, ${izin} Izin, ${sakit} Sakit, ${alfa} Alpa`
+            summary: `${hadir} Hadir, ${izin} Izin, ${sakit} Sakit, ${alfa} Alpa`,
+            teachingList: [
+              {
+                subject: schedule.subject,
+                className: 'Kelas ' + schedule.className,
+                time: `${schedule.startTime} - ${schedule.endTime} WIB`,
+                periodNumber: schedule.periodNumber || 1
+              }
+            ]
           });
+        }
+
+        if (typeof markScheduleReminderResolved === 'function') {
+          markScheduleReminderResolved(currentAttendanceScheduleId, currentAttendanceDate);
+        }
+
+        if (typeof renderAttendancePieChart === 'function') {
+          renderAttendancePieChart();
         }
 
         backFromAttendanceForm();
@@ -764,5 +780,8 @@
         const deleted = mockAttendanceRecords.splice(idx, 1)[0];
         showToast('Riwayat absensi "' + deleted.subject + '" (' + deleted.className + ') berhasil dihapus.', 'success');
         renderAttendanceHistory();
+        if (typeof renderAttendancePieChart === 'function') {
+          renderAttendancePieChart();
+        }
       }
     }

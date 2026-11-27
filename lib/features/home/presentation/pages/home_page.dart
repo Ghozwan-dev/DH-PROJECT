@@ -297,7 +297,7 @@ class _HomePageState extends State<HomePage> {
 
                     const SizedBox(height: 18),
 
-                    // 6. Aktivitas Terakhir (Maks 3 Baris)
+                    // 6. Pengajar Hari Ini (Maks 3 Baris)
                     RecentActivitiesCard(
                       activities: activities,
                       onViewAllTap: _handleViewAllActivities,

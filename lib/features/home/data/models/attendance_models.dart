@@ -78,7 +78,7 @@ class AttendanceSummaryModel {
   }
 }
 
-/// Model Aktivitas Terakhir (Butir 6)
+/// Model Pengajar Hari Ini (Butir 6)
 class AttendanceActivityModel {
   final String id;
   final String studentName;

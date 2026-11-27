@@ -169,7 +169,10 @@
       if (ov) ov.classList.remove('active');
     }
 
+    let currentActiveNavPage = 'home';
+
     function syncActiveNav(pageKey) {
+      currentActiveNavPage = pageKey;
       const navMap = {
         'home': 'navLinkHome',
         'students': 'navLinkStudents',
@@ -206,6 +209,9 @@
         if (el) el.classList.add('active');
       }
 
+      // Animasi sliding pill sidebar navigasi (Khusus Tampilan Desktop)
+      updateSidebarSlidingPill(pageKey);
+
       // Sinkronisasi status tab navbar bawah (Mobile): 0: home, 1: schedule, 2: students, 3: report, 4: settings
       const tabIndices = {
         'home': 0,
@@ -229,10 +235,132 @@
           underline.style.display = (activeTabIndex === i) ? 'block' : 'none';
         }
       }
+
+      // Animasi sliding pill & line untuk navbar bawah tampilan mobile
+      if (activeTabIndex >= 0) {
+        updateBottomNavSlidingPill(activeTabIndex);
+      }
+    }
+
+    // Animasi Sliding Pill Sidebar Navigasi (Khusus Tampilan Desktop)
+    function updateSidebarSlidingPill(pageKey) {
+      if (!pageKey) pageKey = currentActiveNavPage || 'home';
+      currentActiveNavPage = pageKey;
+      if (typeof document === 'undefined') return;
+      if (typeof window !== 'undefined' && window.innerWidth < 768) return;
+
+      const pill = document.getElementById('sidebarSlidingPill');
+      const container = document.querySelector('.sidebar-nav-container');
+      if (!pill || !container) return;
+
+      const sbMap = {
+        'home': 'sbLinkHome',
+        'students': 'sbLinkStudents',
+        'schedule': 'sbLinkSchedule',
+        'report': 'sbLinkReport',
+        'settings': 'sbLinkSettings'
+      };
+
+      const targetId = sbMap[pageKey];
+      if (!targetId) {
+        pill.style.opacity = '0';
+        return;
+      }
+
+      const activeItem = document.getElementById(targetId);
+      if (!activeItem) {
+        pill.style.opacity = '0';
+        return;
+      }
+
+      // Hitung posisi vertikal dan horizontal relatif terhadap container
+      let top = 0;
+      let left = 0;
+      let curr = activeItem;
+      while (curr && curr !== container) {
+        top += curr.offsetTop || 0;
+        left += curr.offsetLeft || 0;
+        curr = curr.offsetParent;
+      }
+
+      const width = (activeItem.offsetWidth && activeItem.offsetWidth > 0)
+        ? activeItem.offsetWidth
+        : (container.clientWidth ? (container.clientWidth - 8) : 220);
+      const height = (activeItem.offsetHeight && activeItem.offsetHeight > 0)
+        ? activeItem.offsetHeight
+        : 38;
+
+      pill.style.width = width + 'px';
+      pill.style.height = height + 'px';
+      pill.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+      pill.style.opacity = '1';
+    }
+
+    // Animasi Sliding Pill Navbar Bawah (Khusus Tampilan Mobile)
+    function updateBottomNavSlidingPill(index) {
+      if (index === undefined || index < 0 || index > 4) return;
+      if (typeof document === 'undefined') return;
+      const bNav = document.querySelector('.bottom-nav-fixed');
+      if (!bNav) return;
+
+      if (typeof bNav.setAttribute === 'function') {
+        bNav.setAttribute('data-active-tab', index);
+      }
+
+      const pill = document.getElementById('bottomNavSlidingPill');
+      const line = document.getElementById('bottomNavSlidingLine');
+      if (!pill) return;
+
+      // Cek apakah posisi dapat dihitung secara dinamis (lebar render tersedia)
+      if (typeof bNav.querySelectorAll === 'function') {
+        const tabs = bNav.querySelectorAll('.bottom-nav-tab');
+        if (tabs && tabs[index]) {
+          const tab = tabs[index];
+          const tabWidth = tab.offsetWidth || 0;
+          const tabLeft = tab.offsetLeft || 0;
+          if (tabWidth > 0) {
+            const pillWidth = pill.offsetWidth || 46;
+            const targetPillLeft = tabLeft + (tabWidth - pillWidth) / 2;
+            pill.style.left = targetPillLeft + 'px';
+
+            if (line) {
+              const lineWidth = line.offsetWidth || 24;
+              const targetLineLeft = tabLeft + (tabWidth - lineWidth) / 2;
+              line.style.left = targetLineLeft + 'px';
+            }
+            return;
+          }
+        }
+      }
+
+      // Fallback persentase jika offsetWidth belum tersedia (misal saat load awal)
+      const pct = (index * 20) + 10;
+      pill.style.left = `calc(${pct}% - 23px)`;
+      if (line) line.style.left = `calc(${pct}% - 12px)`;
+    }
+
+    if (typeof window !== 'undefined') {
+      window.updateBottomNavSlidingPill = updateBottomNavSlidingPill;
+      window.updateSidebarSlidingPill = updateSidebarSlidingPill;
+      if (typeof window.addEventListener === 'function') {
+        window.addEventListener('resize', function() {
+          const bNav = document.querySelector('.bottom-nav-fixed');
+          if (bNav && bNav.hasAttribute('data-active-tab')) {
+            const curTab = parseInt(bNav.getAttribute('data-active-tab'), 10);
+            if (!isNaN(curTab)) updateBottomNavSlidingPill(curTab);
+          }
+          if (window.innerWidth >= 768 && typeof updateSidebarSlidingPill === 'function') {
+            updateSidebarSlidingPill(currentActiveNavPage);
+          }
+        });
+      }
     }
 
     function updateHomeDisplayForRole(role) {
-      document.getElementById('homeRoleLabel').innerText = role;
+      const homeRoleLabel = document.getElementById('homeRoleLabel');
+      if (homeRoleLabel) homeRoleLabel.innerText = role;
+      const roleBtn = document.getElementById('roleDropdownBtn');
+      if (roleBtn) roleBtn.title = `Mode: ${role} — Pilih Mode Pengguna`;
       const bAdmin = document.getElementById('demoBtnAdmin');
       const bGuru = document.getElementById('demoBtnGuru');
       if (bAdmin && bGuru) {
@@ -303,6 +431,11 @@
       // Update angka ringkasan
       updateStatsDisplay();
 
+      // Sinkronisasi pengingat & notifikasi guru sesuai role aktif
+      if (typeof refreshTeacherReminders === 'function') {
+        refreshTeacherReminders();
+      }
+
       // Sinkronisasi hak akses Modul Data Santri jika sedang dibuka (Sesuai Butir D)
       const sntList = document.getElementById('pageStudentList');
       if (sntList && sntList.classList.contains('active')) {
@@ -337,6 +470,7 @@
 
     function toggleRoleDropdown(e) {
       if (e) e.stopPropagation();
+      if (typeof closeTeacherNotifPanel === 'function') closeTeacherNotifPanel();
       const popover = document.getElementById('homeRolePopover');
       const chevron = document.getElementById('homeRoleChevron');
       const isOpen = popover.style.display === 'block';
@@ -356,6 +490,7 @@
 
     document.addEventListener('click', () => {
       closeRoleDropdown();
+      if (typeof closeTeacherNotifPanel === 'function') closeTeacherNotifPanel();
     });
 
     // Siklus Filter Tanggal Ringkasan Absensi (Hari Ini -> Kemarin -> Pekan Ini)
@@ -382,27 +517,309 @@
 
     // ========================================================
     // STATISTIK DIAGRAM LINGKARAN (PIE CHART) KEHADIRAN PER KELAS
+    // Dihitung dinamis dari data absensi & santri (mockAttendanceRecords & mockStudents)
     // ========================================================
-    const classAttendanceStats = {
-      'Semua Kelas': { hadir: 245, izin: 12, sakit: 9, alpa: 8 },
-      'Kelas VII A': { hadir: 32, izin: 1, sakit: 2, alpa: 1 },
-      'Kelas VII B': { hadir: 30, izin: 2, sakit: 1, alpa: 2 },
-      'Kelas VIII A': { hadir: 34, izin: 1, sakit: 1, alpa: 0 },
-      'Kelas VIII B': { hadir: 31, izin: 3, sakit: 2, alpa: 1 },
-      'Kelas IX A': { hadir: 35, izin: 2, sakit: 1, alpa: 1 },
-      'Kelas IX B': { hadir: 33, izin: 2, sakit: 2, alpa: 2 }
+    let classAttendanceStats = {
+      'Semua Kelas': { hadir: 0, izin: 0, sakit: 0, alpa: 0 }
     };
 
     let currentSelectedChartClass = 'Semua Kelas';
+    let currentSelectedChartStatus = null; // null | 'hadir' | 'izin' | 'sakit' | 'alpa'
+
+    const CHART_STATUS_META = {
+      hadir: {
+        label: 'Hadir',
+        color: '#16A34A',
+        bg: '#DCFCE7',
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>`
+      },
+      izin: {
+        label: 'Izin',
+        color: '#2563EB',
+        bg: '#DBEAFE',
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+      },
+      sakit: {
+        label: 'Sakit',
+        color: '#D97706',
+        bg: '#FEF3C7',
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>`
+      },
+      alpa: {
+        label: 'Alpa',
+        color: '#DC2626',
+        bg: '#FEE2E2',
+        icon: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`
+      }
+    };
+
+    function getChartStatusRecords(statusKey, className) {
+      const results = [];
+      if (typeof mockAttendanceRecords === 'undefined' || !Array.isArray(mockAttendanceRecords)) {
+        return results;
+      }
+
+      const targetStatus = (statusKey || 'hadir').toLowerCase();
+      const targetClass = normalizeChartClassName(className || currentSelectedChartClass);
+      const isAll = targetClass === 'Semua Kelas';
+      const studentById = {};
+
+      if (typeof mockStudents !== 'undefined' && Array.isArray(mockStudents)) {
+        mockStudents.forEach(st => {
+          if (st.id) studentById[st.id] = st;
+        });
+      }
+
+      mockAttendanceRecords.forEach(record => {
+        const recClassKey = normalizeChartClassName(record.className);
+        if (!isAll && recClassKey !== targetClass) return;
+
+        (record.items || []).forEach(item => {
+          const st = (item.status || '').toLowerCase();
+          const normalizedStatus = st === 'alfa' ? 'alpa' : st;
+          if (normalizedStatus !== targetStatus) return;
+
+          const studentProfile = item.studentId ? studentById[item.studentId] : null;
+          results.push({
+            recordId: record.id,
+            studentId: item.studentId || '',
+            studentNis: item.studentNis || (studentProfile ? studentProfile.nis : ''),
+            studentName: item.studentName || (studentProfile ? studentProfile.fullName : '-'),
+            avatar: studentProfile ? studentProfile.avatar : null,
+            className: recClassKey,
+            subject: record.subject || '-',
+            teacherName: record.teacherName || '-',
+            date: record.date || '',
+            periodNumber: record.periodNumber || 1,
+            note: item.note || '',
+            status: normalizedStatus
+          });
+        });
+      });
+
+      return results;
+    }
+
+    function toggleChartStatusDetail(statusKey) {
+      if (currentSelectedChartStatus === statusKey) {
+        closeChartStatusDetail();
+      } else {
+        openChartStatusDetail(statusKey);
+      }
+    }
+
+    function openChartStatusDetail(statusKey) {
+      currentSelectedChartStatus = statusKey;
+      renderAttendancePieChart(currentSelectedChartClass);
+      renderChartStatusDetailPanel();
+    }
+
+    function closeChartStatusDetail(btnEl) {
+      const closeBtn = btnEl || document.getElementById('chartDetailCloseBtn');
+      if (closeBtn && closeBtn.classList) {
+        closeBtn.classList.remove('is-tapping');
+        if (typeof closeBtn.offsetWidth !== 'undefined') void closeBtn.offsetWidth;
+        closeBtn.classList.add('is-tapping');
+        setTimeout(() => {
+          if (closeBtn && closeBtn.classList) closeBtn.classList.remove('is-tapping');
+        }, 400);
+      }
+      currentSelectedChartStatus = null;
+      const panel = document.getElementById('chartStatusDetailPanel');
+      if (panel) {
+        panel.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+      }
+      renderAttendancePieChart(currentSelectedChartClass);
+    }
+
+    function updateChartDetailTabsPill(statusKey) {
+      const pill = document.getElementById('chartDetailTabsPill');
+      const tabsWrap = document.getElementById('chartDetailTabs');
+      if (!pill || !tabsWrap || !statusKey) return;
+
+      const cap = statusKey.charAt(0).toUpperCase() + statusKey.slice(1);
+      const activeTab = document.getElementById('chartTab' + cap);
+      if (!activeTab) return;
+
+      const idxMap = { hadir: 0, izin: 1, sakit: 2, alpa: 3 };
+      const width = activeTab.offsetWidth || 0;
+      const left = activeTab.offsetLeft || 0;
+
+      if (width > 0) {
+        pill.style.width = width + 'px';
+        pill.style.transform = `translate3d(${Math.max(0, left - 3)}px, 0, 0)`;
+        pill.style.opacity = '1';
+      } else if (statusKey in idxMap) {
+        pill.style.width = '24%';
+        pill.style.transform = `translate3d(${idxMap[statusKey] * 100}%, 0, 0)`;
+        pill.style.opacity = '1';
+      }
+    }
+
+    function renderChartStatusDetailPanel() {
+      const panel = document.getElementById('chartStatusDetailPanel');
+      const listEl = document.getElementById('chartStatusDetailList');
+      const headingEl = document.getElementById('chartDetailHeading');
+      const subEl = document.getElementById('chartDetailSubheading');
+      const iconEl = document.getElementById('chartDetailBadgeIcon');
+
+      if (!panel || !listEl) return;
+
+      if (!currentSelectedChartStatus || !CHART_STATUS_META[currentSelectedChartStatus]) {
+        panel.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+        return;
+      }
+
+      const meta = CHART_STATUS_META[currentSelectedChartStatus];
+      const items = getChartStatusRecords(currentSelectedChartStatus, currentSelectedChartClass);
+
+      if (headingEl) headingEl.innerText = `Daftar Santri — ${meta.label}`;
+      if (subEl) subEl.innerText = `${currentSelectedChartClass} • ${items.length} Santri`;
+      if (iconEl) {
+        iconEl.style.background = meta.bg;
+        iconEl.style.color = meta.color;
+        iconEl.innerHTML = meta.icon;
+      }
+
+      // Update quick tab buttons & Apple-style sliding segmented pill
+      ['hadir', 'izin', 'sakit', 'alpa'].forEach(key => {
+        const cap = key.charAt(0).toUpperCase() + key.slice(1);
+        const tab = document.getElementById('chartTab' + cap);
+        if (tab) {
+          if (key === currentSelectedChartStatus) tab.classList.add('active');
+          else tab.classList.remove('active');
+        }
+      });
+      updateChartDetailTabsPill(currentSelectedChartStatus);
+
+      if (items.length === 0) {
+        listEl.innerHTML = `
+          <div class="chart-detail-empty">
+            Tidak ada data santri berstatus <strong>${meta.label}</strong> pada filter <strong>${currentSelectedChartClass}</strong>.
+          </div>
+        `;
+      } else {
+        listEl.innerHTML = items.map((item, idx) => {
+          const initials = (item.studentName || 'S')
+            .split(' ')
+            .map(w => w[0] || '')
+            .slice(0, 2)
+            .join('')
+            .toUpperCase();
+          const avatarHtml = item.avatar
+            ? `<img src="${item.avatar}" alt="${item.studentName}" class="chart-student-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+               <div class="chart-student-initials ${item.status}" style="display:none;">${initials}</div>`
+            : `<div class="chart-student-initials ${item.status}">${initials}</div>`;
+          const dateDisp = typeof formatIndoDate === 'function' && item.date ? formatIndoDate(item.date) : item.date;
+          const noteHtml = item.note ? `<span class="chart-student-note">• ${item.note}</span>` : '';
+
+          return `
+            <div class="chart-student-item ${item.status}" style="--stagger-idx:${idx};" onclick="if(typeof openAttendanceResultModal==='function'){openAttendanceResultModal('${item.recordId}');}">
+              <div class="chart-student-avatar-wrap">
+                ${avatarHtml}
+                <span class="chart-student-dot ${item.status}"></span>
+              </div>
+              <div class="chart-student-body">
+                <div class="chart-student-name">${item.studentName}</div>
+                <div class="chart-student-badges">
+                  <span class="chart-badge-class">${item.className}</span>
+                  <span class="chart-badge-subject">${item.subject}</span>
+                </div>
+                <div class="chart-student-meta">
+                  <span>${dateDisp || 'Tercatat'}</span>
+                  <span>• Jam Ke-${item.periodNumber}</span>
+                  ${noteHtml}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      panel.classList.add('open');
+      panel.setAttribute('aria-hidden', 'false');
+    }
+
+    function normalizeChartClassName(name) {
+      if (!name || name === 'Semua Kelas' || name === 'Semua') return 'Semua Kelas';
+      const cleaned = name.replace(/^Kelas\s+/i, '').trim();
+      return cleaned ? `Kelas ${cleaned}` : 'Semua Kelas';
+    }
+
+    function syncClassAttendanceStats() {
+      const statsMap = {
+        'Semua Kelas': { hadir: 0, izin: 0, sakit: 0, alpa: 0 }
+      };
+
+      if (typeof mockStudents !== 'undefined' && Array.isArray(mockStudents)) {
+        mockStudents.forEach(s => {
+          if (!s.className) return;
+          const key = normalizeChartClassName(s.className);
+          if (!statsMap[key]) statsMap[key] = { hadir: 0, izin: 0, sakit: 0, alpa: 0 };
+        });
+      }
+
+      if (typeof mockAttendanceRecords !== 'undefined' && Array.isArray(mockAttendanceRecords)) {
+        mockAttendanceRecords.forEach(record => {
+          const key = normalizeChartClassName(record.className);
+          if (!statsMap[key]) statsMap[key] = { hadir: 0, izin: 0, sakit: 0, alpa: 0 };
+
+          (record.items || []).forEach(item => {
+            const st = (item.status || '').toLowerCase();
+            if (st === 'hadir') {
+              statsMap['Semua Kelas'].hadir++;
+              statsMap[key].hadir++;
+            } else if (st === 'izin') {
+              statsMap['Semua Kelas'].izin++;
+              statsMap[key].izin++;
+            } else if (st === 'sakit') {
+              statsMap['Semua Kelas'].sakit++;
+              statsMap[key].sakit++;
+            } else if (st === 'alfa' || st === 'alpa') {
+              statsMap['Semua Kelas'].alpa++;
+              statsMap[key].alpa++;
+            }
+          });
+        });
+      }
+
+      classAttendanceStats = statsMap;
+      return statsMap;
+    }
+
+    function syncChartClassFilterOptions() {
+      const selClass = document.getElementById('chartClassSelect');
+      if (!selClass) return;
+
+      const keys = Object.keys(classAttendanceStats).filter(k => k !== 'Semua Kelas');
+      if (keys.length === 0) return;
+
+      const currentVal = selClass.value || currentSelectedChartClass || 'Semua Kelas';
+      selClass.innerHTML = ['Semua Kelas', ...keys].map(k => `<option value="${k}">${k}</option>`).join('');
+      if (classAttendanceStats[currentVal]) {
+        selClass.value = currentVal;
+      } else {
+        selClass.value = 'Semua Kelas';
+        currentSelectedChartClass = 'Semua Kelas';
+      }
+    }
 
     function onClassChartFilterChange(className) {
       currentSelectedChartClass = className;
       renderAttendancePieChart(className);
+      if (currentSelectedChartStatus) {
+        renderChartStatusDetailPanel();
+      }
     }
 
     function renderAttendancePieChart(className) {
+      syncClassAttendanceStats();
+      syncChartClassFilterOptions();
+
       if (!className) className = currentSelectedChartClass || 'Semua Kelas';
-      const stats = classAttendanceStats[className] || classAttendanceStats['Semua Kelas'];
+      const stats = classAttendanceStats[className] || classAttendanceStats['Semua Kelas'] || { hadir: 0, izin: 0, sakit: 0, alpa: 0 };
 
       const hadir = stats.hadir || 0;
       const izin = stats.izin || 0;
@@ -427,6 +844,7 @@
       const elCntA = document.getElementById('legendCountAlpa');
 
       const elCenterRate = document.getElementById('pieCenterRate');
+      const elCenterLabel = document.getElementById('pieCenterLabel');
       const selClass = document.getElementById('chartClassSelect');
 
       if (selClass && selClass.value !== className) {
@@ -443,9 +861,36 @@
       if (elCntS) elCntS.innerText = sakit + ' Santri';
       if (elCntA) elCntA.innerText = alpa + ' Santri';
 
-      if (elCenterRate) elCenterRate.innerText = pctHadir.toFixed(0) + '%';
+      // Highlight legend cards sesuai kriteria aktif
+      const legendGrid = document.querySelector('.pie-chart-legend-grid');
+      if (legendGrid) {
+        if (currentSelectedChartStatus) legendGrid.classList.add('has-active');
+        else legendGrid.classList.remove('has-active');
+      }
+      ['hadir', 'izin', 'sakit', 'alpa'].forEach(key => {
+        const cap = key.charAt(0).toUpperCase() + key.slice(1);
+        const card = document.getElementById('legendCard' + cap);
+        if (card) {
+          if (currentSelectedChartStatus === key) card.classList.add('active');
+          else card.classList.remove('active');
+        }
+      });
 
-      // Render SVG Donut Chart Slices
+      const pctByKey = { hadir: pctHadir, izin: pctIzin, sakit: pctSakit, alpa: pctAlpa };
+      if (elCenterRate) {
+        const activeMeta = currentSelectedChartStatus ? CHART_STATUS_META[currentSelectedChartStatus] : null;
+        const rateVal = activeMeta ? pctByKey[currentSelectedChartStatus] : pctHadir;
+        elCenterRate.innerText = rateVal.toFixed(0) + '%';
+        elCenterRate.style.color = activeMeta ? activeMeta.color : 'var(--primary)';
+        if (elCenterLabel) elCenterLabel.innerText = activeMeta ? activeMeta.label : 'Hadir';
+        if (elCenterRate.classList) {
+          elCenterRate.classList.remove('pie-center-pop');
+          if (typeof elCenterRate.offsetWidth !== 'undefined') void elCenterRate.offsetWidth;
+          elCenterRate.classList.add('pie-center-pop');
+        }
+      }
+
+      // Render SVG Donut Chart Slices (interaktif saat diklik)
       const svg = document.getElementById('attendancePieChartSvg');
       if (!svg) return;
 
@@ -454,23 +899,24 @@
       const strokeWidth = 26;
 
       const slices = [
-        { label: 'Hadir', pct: pctHadir, color: '#16A34A', count: hadir },
-        { label: 'Izin', pct: pctIzin, color: '#2563EB', count: izin },
-        { label: 'Sakit', pct: pctSakit, color: '#F59E0B', count: sakit },
-        { label: 'Alpa', pct: pctAlpa, color: '#DC2626', count: alpa }
+        { key: 'hadir', label: 'Hadir', pct: pctHadir, color: '#16A34A', count: hadir },
+        { key: 'izin', label: 'Izin', pct: pctIzin, color: '#2563EB', count: izin },
+        { key: 'sakit', label: 'Sakit', pct: pctSakit, color: '#F59E0B', count: sakit },
+        { key: 'alpa', label: 'Alpa', pct: pctAlpa, color: '#DC2626', count: alpa }
       ];
 
       let currentOffset = 0;
-      let svgHtml = `
-        <circle cx="100" cy="100" r="${r}" fill="none" stroke="#F1F5F9" stroke-width="${strokeWidth}" />
-      `;
+      let slicesHtml = '';
 
       slices.forEach(slice => {
         if (slice.pct <= 0) return;
         const sliceLength = (slice.pct / 100) * c;
-        svgHtml += `
+        const activeCls = currentSelectedChartStatus
+          ? (currentSelectedChartStatus === slice.key ? ' is-active' : ' is-dimmed')
+          : '';
+        slicesHtml += `
           <circle 
-            class="pie-slice"
+            class="pie-slice${activeCls}"
             cx="100" 
             cy="100" 
             r="${r}" 
@@ -479,16 +925,26 @@
             stroke-width="${strokeWidth}" 
             stroke-dasharray="${sliceLength.toFixed(2)} ${c.toFixed(2)}" 
             stroke-dashoffset="${(-currentOffset).toFixed(2)}"
-            transform="rotate(-90 100 100)"
-            style="transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer;"
+            onclick="toggleChartStatusDetail('${slice.key}')"
+            style="cursor: pointer;"
           >
-            <title>${slice.label}: ${slice.pct.toFixed(1)}% (${slice.count} Santri)</title>
+            <title>${slice.label}: ${slice.pct.toFixed(1)}% (${slice.count} Santri) — Klik untuk lihat daftar</title>
           </circle>
         `;
         currentOffset += sliceLength;
       });
 
+      const svgHtml = `
+        <circle cx="100" cy="100" r="${r}" fill="none" stroke="#F1F5F9" stroke-width="${strokeWidth}" />
+        <g transform="rotate(-90 100 100)">
+          ${slicesHtml}
+        </g>
+      `;
+
       svg.innerHTML = svgHtml;
+      if (currentSelectedChartStatus) {
+        renderChartStatusDetailPanel();
+      }
     }
 
     // Modal Fitur Menu & Cek Akses
@@ -560,6 +1016,33 @@
     // ========================================================
     // AKTIVITAS REAL USTADZ SETIAP HARINYA (DYNAMIC FEED)
     // ========================================================
+    // Helper: Mengambil daftar mapel, kelas, dan waktu yang diampu oleh ustadz pada hari tertentu
+    function getTeacherScheduleForDay(teacherName, targetDay = 'Senin') {
+      if (typeof mockSchedules === 'undefined') return [];
+      const clean = (teacherName || '')
+        .toLowerCase()
+        .replace('ustadzah', '')
+        .replace('ustadz', '')
+        .replace('s.pd.i', '')
+        .replace(',', '')
+        .trim();
+
+      return mockSchedules
+        .filter(s => {
+          const matchDay = targetDay === 'Semua' || s.day === targetDay;
+          const sTeacher = (s.teacherName || '').toLowerCase();
+          const matchTeacher = sTeacher.includes(clean) || clean.includes(sTeacher.replace('ustadz', '').replace('ustadzah', '').trim());
+          return matchDay && matchTeacher;
+        })
+        .map(s => ({
+          scheduleId: s.id,
+          subject: s.subject,
+          className: s.className.startsWith('Kelas') ? s.className : `Kelas ${s.className}`,
+          time: `${s.startTime} - ${s.endTime} WIB`,
+          periodNumber: s.periodNumber
+        }));
+    }
+
     let mockUstadzActivities = [
       {
         id: 'act_001',
@@ -572,6 +1055,10 @@
         summary: '32 Hadir • 1 Izin • 1 Sakit',
         time: '08:12',
         date: 'Hari Ini',
+        teachingList: [
+          { scheduleId: 'sch_001', subject: 'Fiqih', className: 'Kelas VII A', time: '07:30 - 08:15 WIB', periodNumber: 1 },
+          { scheduleId: 'sch_005', subject: 'Fiqih', className: 'Kelas VIII A', time: '08:15 - 09:00 WIB', periodNumber: 2 }
+        ],
         timestamp: Date.now() - 1000 * 60 * 12
       },
       {
@@ -585,6 +1072,10 @@
         summary: '31 Hadir • 2 Izin • 1 Alpa',
         time: '07:50',
         date: 'Hari Ini',
+        teachingList: [
+          { scheduleId: 'sch_002a', subject: 'Bahasa Arab', className: 'Kelas VIII B', time: '07:30 - 08:15 WIB', periodNumber: 1 },
+          { scheduleId: 'sch_002b', subject: 'Bahasa Arab', className: 'Kelas VII A', time: '08:15 - 09:00 WIB', periodNumber: 2 }
+        ],
         timestamp: Date.now() - 1000 * 60 * 34
       },
       {
@@ -598,6 +1089,10 @@
         summary: '33 Hadir • 1 Izin',
         time: '07:30',
         date: 'Hari Ini',
+        teachingList: [
+          { scheduleId: 'sch_003a', subject: 'Al-Qur\'an Hadits', className: 'Kelas VII B', time: '07:30 - 08:15 WIB', periodNumber: 1 },
+          { scheduleId: 'sch_003b', subject: 'Akidah Akhlak', className: 'Kelas VII A', time: '08:15 - 09:00 WIB', periodNumber: 2 }
+        ],
         timestamp: Date.now() - 1000 * 60 * 54
       },
       {
@@ -611,6 +1106,9 @@
         summary: '34 Hadir • 0 Alpa',
         time: '07:15',
         date: 'Hari Ini',
+        teachingList: [
+          { scheduleId: 'sch_004', subject: 'Nahwu Shorof', className: 'Kelas VIII A', time: '07:30 - 08:15 WIB', periodNumber: 1 }
+        ],
         timestamp: Date.now() - 1000 * 60 * 69
       },
       {
@@ -624,11 +1122,14 @@
         summary: 'Sesi Aktif',
         time: '07:05',
         date: 'Hari Ini',
+        teachingList: [
+          { scheduleId: 'sch_006', subject: 'Matematika', className: 'Kelas IX A', time: '07:30 - 08:15 WIB', periodNumber: 1 }
+        ],
         timestamp: Date.now() - 1000 * 60 * 79
       }
     ];
 
-    // Render 3 Aktivitas Ustadz Terakhir ke Kartu Beranda
+    // Render 3 Aktivitas Ustadz Terakhir beserta Daftar Mapel, Kelas & Waktu ke Kartu Beranda
     function renderRecentActivities() {
       const container = document.getElementById('homeActivitiesList');
       if (!container) return;
@@ -644,13 +1145,56 @@
       const displayItems = mockUstadzActivities.slice(0, 3);
       let html = '';
 
-      displayItems.forEach(item => {
+      displayItems.forEach((item, idx) => {
         const badgeClass = item.statusType === 'hadir' ? 'hadir' : (item.statusType === 'info' ? 'info' : 'izin');
         const badgeIcon = item.statusType === 'hadir'
           ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>`
           : (item.statusType === 'info'
             ? `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
             : `!`);
+
+        // Mengambil daftar mapel, kelas, dan waktu yang diampu oleh ustadz pada hari itu
+        const tList = (item.teachingList && item.teachingList.length > 0)
+          ? item.teachingList
+          : (typeof getTeacherScheduleForDay === 'function' ? getTeacherScheduleForDay(item.teacherName, 'Senin') : [
+              { scheduleId: 'sch_001', subject: item.subject, className: item.className, time: `${item.time} WIB`, periodNumber: 1 }
+            ]);
+
+        let teachingHtml = '';
+        if (tList && tList.length > 0) {
+          const boxId = 'dynTeachBox_' + idx;
+          const teacherEscaped = (item.teacherName || '').replace(/'/g, "\\'");
+          teachingHtml = `
+            <div class="activity-teaching-toggle-wrap">
+              <button type="button" class="btn-teaching-toggle" onclick="toggleTeachingBox('${boxId}', this)" aria-expanded="false" title="Tampilkan/Sembunyikan Jadwal Mapel">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span class="btn-toggle-label">Lihat Jadwal</span>
+                <svg class="chevron-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <div class="activity-teaching-box" id="${boxId}" style="display: none;">
+              <div class="activity-teaching-header">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Jadwal Mapel Diampu Hari Ini:</span>
+              </div>
+              <div class="activity-teaching-list">
+                ${tList.map(t => `
+                  <div class="activity-teaching-item">
+                    <div class="activity-teaching-left">
+                      <span class="teaching-period-badge">${t.periodNumber ? 'Jam Ke-' + t.periodNumber : 'KBM'}</span>
+                      <strong class="teaching-subject-name">${t.subject}</strong>
+                      <span class="teaching-class-badge">${t.className}</span>
+                    </div>
+                    <div class="activity-teaching-time">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+                      <span>${t.time}</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
 
         html += `
           <div class="activity-row">
@@ -662,18 +1206,94 @@
               <div class="activity-name">${item.teacherName}</div>
               <div class="activity-meta">
                 <span class="meta-status ${badgeClass}">${item.action}</span>
-                <span class="meta-class">• ${item.className} (${item.subject})</span>
               </div>
-            </div>
-            <div class="activity-time-col">
-              <div class="activity-time">${item.time}</div>
-              <div class="activity-date">${item.date || 'Hari Ini'}</div>
+              ${teachingHtml}
             </div>
           </div>
         `;
       });
 
       container.innerHTML = html;
+    }
+
+    // Toggle Tampilan Jadwal Mengajar Ustadz di Kartu Beranda (1 button kecil rapi)
+    function toggleTeachingBox(boxId, btn) {
+      if (typeof document === 'undefined') return;
+      const box = document.getElementById(boxId);
+      if (!box) return;
+      const isHidden = box.style.display === 'none' || (typeof getComputedStyle !== 'undefined' && getComputedStyle(box).display === 'none');
+      if (isHidden) {
+        box.style.display = 'block';
+        if (btn) {
+          btn.classList.add('active');
+          btn.setAttribute('aria-expanded', 'true');
+          const label = btn.querySelector('.btn-toggle-label');
+          if (label) {
+            if (!btn.dataset.prevLabel) {
+              btn.dataset.prevLabel = label.innerText;
+            }
+            label.innerText = 'Tutup Jadwal';
+          }
+        }
+      } else {
+        box.style.display = 'none';
+        if (btn) {
+          btn.classList.remove('active');
+          btn.setAttribute('aria-expanded', 'false');
+          const label = btn.querySelector('.btn-toggle-label');
+          if (label) {
+            label.innerText = btn.dataset.prevLabel || 'Lihat Jadwal';
+          }
+        }
+      }
+    }
+
+    // Modal Rincian Jadwal Mengajar Harian Ustadz
+    function openTeacherDailyScheduleDetail(teacherName, day) {
+      day = day || 'Senin';
+      const schedules = typeof getTeacherScheduleForDay === 'function'
+        ? getTeacherScheduleForDay(teacherName, day)
+        : [];
+
+      if (!schedules || schedules.length === 0) {
+        showAppModal(
+          `Jadwal ${teacherName}`,
+          `<p style="text-align:center; padding:16px; color:#64748b;">Tidak ada jadwal mengajar pada hari ${day}.</p>`,
+          'Tutup',
+          closeModal
+        );
+        return;
+      }
+
+      let rows = schedules.map(s => {
+        const schId = s.scheduleId || 'sch_001';
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 12px; margin-bottom:8px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px;">
+            <div>
+              <div style="font-weight:600; color:#0f172a; font-size:13px;">${s.subject} - <span style="color:#059669;">${s.className}</span></div>
+              <div style="font-size:11px; color:#64748b; margin-top:2px;">${s.periodNumber ? 'Jam Ke-' + s.periodNumber + ' • ' : ''}${s.time}</div>
+            </div>
+            <button type="button" class="btn-item-detail-shortcut" onclick="closeModal(); if (typeof openScheduleDetail === 'function') openScheduleDetail('${schId}', 'pageHome');" style="padding:4px 8px; font-size:11px; display:inline-flex; align-items:center; gap:3px;">
+              <span>Detail</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      showAppModal(
+        `Jadwal Mengajar: ${teacherName}`,
+        `
+          <div style="margin-bottom:12px; font-size:12.5px; color:#475569;">
+            Daftar mata pelajaran yang diampu pada hari <strong>${day}</strong>:
+          </div>
+          <div style="max-height:360px; overflow-y:auto; padding-right:2px;">
+            ${rows}
+          </div>
+        `,
+        'Tutup',
+        closeModal
+      );
     }
 
     // Tambahkan Aktivitas Ustadz Baru Secara Real-Time
@@ -698,6 +1318,17 @@
         }
       }
 
+      const activeTeachingList = (activity.teachingList && activity.teachingList.length > 0)
+        ? activity.teachingList
+        : (typeof getTeacherScheduleForDay === 'function' ? getTeacherScheduleForDay(activity.teacherName || 'Ustadz Ahmad Fauzi', 'Senin') : [
+            {
+              subject: activity.subject || 'Fiqih',
+              className: activity.className || 'Kelas VII A',
+              time: `${activity.time || timeStr} WIB`,
+              periodNumber: 1
+            }
+          ]);
+
       const newAct = {
         id: 'act_' + Date.now(),
         teacherName: activity.teacherName || 'Ustadz Ahmad Fauzi',
@@ -709,6 +1340,7 @@
         summary: activity.summary || 'Kehadiran santri berhasil disimpan',
         time: activity.time || timeStr,
         date: 'Hari Ini',
+        teachingList: activeTeachingList,
         timestamp: Date.now()
       };
 
@@ -716,39 +1348,66 @@
       renderRecentActivities();
     }
 
-    // Modal Riwayat Lengkap Aktivitas Ustadz Hari Ini (Lihat Semua)
+    // Modal Riwayat Lengkap Pengajar Hari Ini (Lihat Semua)
     function openViewAllActivities() {
       if (!mockUstadzActivities || mockUstadzActivities.length === 0) {
-        showAppModal('Aktivitas Ustadz Hari Ini', '<p style="text-align:center; padding:16px; color:#64748b;">Belum ada aktivitas ustadz hari ini.</p>', 'Tutup', closeModal);
+        showAppModal('Pengajar Hari Ini', '<p style="text-align:center; padding:16px; color:#64748b;">Belum ada data pengajar hari ini.</p>', 'Tutup', closeModal);
         return;
       }
 
       let rowsHtml = '';
       mockUstadzActivities.forEach(item => {
         const badgeColor = item.statusType === 'hadir' ? '#16A34A' : '#2563EB';
-        rowsHtml += `
-          <div style="padding:10px 0; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <img src="${item.avatar || 'assets/images/santri_ahmad.png'}" style="width:38px; height:38px; border-radius:50%; object-fit:cover;" onerror="this.src='assets/images/logo.png'">
-              <div>
-                <div style="font-weight:700; color:#0f172a; font-size:13.5px;">${item.teacherName}</div>
-                <div style="font-size:12px; color:#64748b; margin-top:2px;">
-                  <span style="color:${badgeColor}; font-weight:700;">${item.action}</span> • ${item.className} (${item.subject})
-                </div>
-                ${item.summary ? `<div style="font-size:11px; color:#94a3b8; margin-top:2px;">${item.summary}</div>` : ''}
+        const tList = (item.teachingList && item.teachingList.length > 0)
+          ? item.teachingList
+          : (typeof getTeacherScheduleForDay === 'function' ? getTeacherScheduleForDay(item.teacherName, 'Senin') : []);
+
+        let teachingHtml = '';
+        if (tList && tList.length > 0) {
+          teachingHtml = `
+            <div style="margin-top:6px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:6px 8px;">
+              <div style="font-size:11px; font-weight:700; color:#475569; display:flex; align-items:center; gap:5px; margin-bottom:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Jadwal Mapel Diampu Hari Ini:</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                ${tList.map(t => `
+                  <div style="display:flex; justify-content:space-between; align-items:center; background:#FFF; border:1px solid #EDF2F7; padding:4px 8px; border-radius:5px; font-size:11.5px; flex-wrap:wrap; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:5px;">
+                      <span style="font-size:9.5px; font-weight:700; background:#DCFCE7; color:#074724; padding:1px 5px; border-radius:3px;">${t.periodNumber ? 'Jam Ke-' + t.periodNumber : 'KBM'}</span>
+                      <strong style="color:#0F172A;">${t.subject}</strong>
+                      <span style="color:#475569; background:#F1F5F9; padding:1px 5px; border-radius:3px; font-size:10.5px;">${t.className}</span>
+                    </div>
+                    <div style="color:#0E6838; font-weight:600; font-size:11px;">
+                      🕒 ${t.time}
+                    </div>
+                  </div>
+                `).join('')}
               </div>
             </div>
-            <div style="text-align:right; flex-shrink:0;">
-              <div style="font-weight:700; font-size:13px; color:#0f172a;">${item.time}</div>
-              <div style="font-size:11px; color:#94a3b8;">${item.date || 'Hari Ini'}</div>
+          `;
+        }
+
+        rowsHtml += `
+          <div style="padding:12px 0; border-bottom:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+            <div style="display:flex; align-items:flex-start; gap:10px; flex:1;">
+              <img src="${item.avatar || 'assets/images/santri_ahmad.png'}" style="width:38px; height:38px; border-radius:50%; object-fit:cover; margin-top:2px; flex-shrink:0;" onerror="this.src='assets/images/logo.png'">
+              <div style="flex:1;">
+                <div style="font-weight:700; color:#0f172a; font-size:13.5px;">${item.teacherName}</div>
+                <div style="font-size:12px; color:#64748b; margin-top:2px;">
+                  <span style="color:${badgeColor}; font-weight:700;">${item.action}</span>
+                </div>
+                ${item.summary ? `<div style="font-size:11px; color:#94a3b8; margin-top:2px;">${item.summary}</div>` : ''}
+                ${teachingHtml}
+              </div>
             </div>
           </div>
         `;
       });
 
       showAppModal(
-        'Riwayat Aktivitas Ustadz Hari Ini',
-        `<div style="max-height:360px; overflow-y:auto; text-align:left; font-size:13px; padding-right:4px;">${rowsHtml}</div>`,
+        'Pengajar Hari Ini',
+        `<div style="max-height:420px; overflow-y:auto; text-align:left; font-size:13px; padding-right:4px;">${rowsHtml}</div>`,
         'Tutup',
         closeModal
       );
@@ -789,6 +1448,8 @@
     // Logout dari Homepage
     function logoutFromHome() {
       closeRoleDropdown();
+      if (typeof closeTeacherNotifPanel === 'function') closeTeacherNotifPanel();
+      if (typeof hideReminderFloatingToast === 'function') hideReminderFloatingToast();
       document.querySelector('.device-shell').classList.remove('on-home');
       document.getElementById('pageHome').classList.remove('active');
       document.getElementById('pageRegister').classList.remove('active');
@@ -994,4 +1655,14 @@
         modal.classList.remove('active');
         modal.style.display = 'none';
       }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.toggleTeachingBox = toggleTeachingBox;
+      window.openTeacherDailyScheduleDetail = openTeacherDailyScheduleDetail;
+      window.renderRecentActivities = renderRecentActivities;
+      window.getTeacherScheduleForDay = getTeacherScheduleForDay;
+      window.toggleChartStatusDetail = toggleChartStatusDetail;
+      window.openChartStatusDetail = openChartStatusDetail;
+      window.closeChartStatusDetail = closeChartStatusDetail;
     }

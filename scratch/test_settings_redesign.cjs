@@ -6,7 +6,7 @@ console.log('=== TEST: SETTINGS MODAL REDESIGN & DATA BINDING VERIFICATION ===\n
 
 // 1. Read files
 const baseCss = fs.readFileSync(path.join(__dirname, '..', 'assets', 'css', 'base.css'), 'utf8');
-const previewHtml = fs.readFileSync(path.join(__dirname, '..', 'preview.html'), 'utf8');
+const previewHtml = require('../scripts/html-assembler').loadPreviewHtml();
 const authJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'auth.js'), 'utf8');
 const settingsJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'settings.js'), 'utf8');
 

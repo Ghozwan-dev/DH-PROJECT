@@ -140,6 +140,77 @@
     .input-field::placeholder {
       color: var(--text-hint);
     }
+
+    /* Floating Label Text Field (Auth Forms) */
+    #pageLogin .form-group,
+    #pageRegister .form-group {
+      margin-bottom: 16px;
+    }
+    .input-wrapper.floating-field {
+      position: relative;
+      overflow: visible;
+      height: 52px;
+    }
+    .floating-field-control {
+      position: relative;
+      flex: 1;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      min-width: 0;
+    }
+    .floating-input {
+      padding: 4px 0 0;
+    }
+    .floating-label {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-hint);
+      pointer-events: none;
+      transition: top 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                  left 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                  font-size 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                  color 0.18s ease,
+                  padding 0.18s ease,
+                  background-color 0.18s ease;
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1;
+    }
+    .floating-input:focus + .floating-label,
+    .floating-input:not(:placeholder-shown) + .floating-label {
+      top: 0;
+      left: -4px;
+      transform: translateY(-50%);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 0 6px;
+      background-color: #FFFFFF;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      max-width: calc(100% + 12px);
+    }
+    .input-wrapper.floating-field:focus-within .floating-label {
+      color: var(--primary);
+    }
+    .input-wrapper.floating-field:focus-within .input-icon {
+      color: var(--primary);
+    }
+    .input-wrapper.floating-field.error .floating-label {
+      color: var(--error);
+    }
+    .input-wrapper.floating-field.error .floating-input:focus + .floating-label,
+    .input-wrapper.floating-field.error .floating-input:not(:placeholder-shown) + .floating-label {
+      background-color: #fffafa;
+      color: var(--error);
+    }
     input[type="date"].input-field {
       width: 100%;
       min-width: 0;
@@ -327,34 +398,4 @@
       font-size: 13.5px;
       color: var(--text-muted);
       margin-top: 4px;
-    }
-
-    /* Role Security Badge (Section 5) */
-    .role-badge {
-      background: var(--primary-light);
-      border: 1px solid var(--border-green);
-      border-radius: 10px;
-      padding: 10px 12px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 16px;
-    }
-    .role-badge svg {
-      width: 20px;
-      height: 20px;
-      color: var(--primary);
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .role-badge-text h4 {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--primary-dark);
-      margin-bottom: 2px;
-    }
-    .role-badge-text p {
-      font-size: 11px;
-      color: var(--text-secondary);
-      line-height: 1.35;
     }

@@ -24,7 +24,11 @@
       sesiBaru: true,
       rekapMingguan: true,
       jadwal: true,
-      pengumuman: true
+      pengumuman: true,
+      pengingatMengajar: true,
+      pengingatAbsensi: true,
+      leadMinutes: 15,
+      suaraNotifikasi: true
     };
 
     function openSettingsPage() {
@@ -101,7 +105,7 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
 
-          <div onclick="openSettingDetail('security')" style="display:flex; align-items:center; padding:13px 16px; cursor:pointer; border-bottom:1px solid #F1F5F9; transition:background 0.15s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#FFFFFF'">
+          <div onclick="openSettingDetail('security')" style="display:flex; align-items:center; padding:13px 16px; cursor:pointer; ${isAdmin ? 'border-bottom:1px solid #F1F5F9; ' : ''}transition:background 0.15s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#FFFFFF'">
             <div style="width:36px; height:36px; border-radius:8px; background:#F1F5F9; display:flex; align-items:center; justify-content:center; color:var(--primary); margin-right:14px; flex-shrink:0;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
@@ -112,6 +116,7 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
 
+          ${isAdmin ? `
           <div onclick="openSettingDetail('notifications')" style="display:flex; align-items:center; padding:13px 16px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#FFFFFF'">
             <div style="width:36px; height:36px; border-radius:8px; background:#F1F5F9; display:flex; align-items:center; justify-content:center; color:var(--primary); margin-right:14px; flex-shrink:0;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -122,6 +127,7 @@
             </div>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
+          ` : ''}
         </div>
       `;
 
@@ -395,12 +401,62 @@
           </div>
         `;
       } else if (type === 'notifications') {
+        const isAdminUser = currentLoggedInUser && currentLoggedInUser.role === 'Admin';
+        if (!isAdminUser) {
+          if (typeof showToast === 'function') {
+            showToast('Akses dibatasi: Pengaturan notifikasi hanya dikelola oleh Admin Pondok.', 'error');
+          }
+          return;
+        }
         titleEl.innerText = 'Preferensi Notifikasi';
         if (subTitleEl) subTitleEl.innerText = 'Tentukan jenis pemberitahuan sistem yang ingin Anda terima';
         if (iconEl) iconEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
 
         bodyEl.innerHTML = `
           <div class="settings-form-container">
+            <div class="settings-toggle-card">
+              <div>
+                <div class="toggle-card-title">Pengingat Jadwal Mengajar Guru</div>
+                <div class="toggle-card-desc">Ingatkan guru secara otomatis sebelum sesi KBM dimulai</div>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setNotifPengingatMengajar" ${notificationPreferences.pengingatMengajar !== false ? 'checked' : ''}>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="settings-toggle-card">
+              <div>
+                <div class="toggle-card-title">Pengingat Absensi Belum Diisi</div>
+                <div class="toggle-card-desc">Notifikasi pengingat jika absensi sesi KBM belum tercatat</div>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setNotifPengingatAbsensi" ${notificationPreferences.pengingatAbsensi !== false ? 'checked' : ''}>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label" for="setNotifLeadMinutes">Waktu Pengingat Sebelum KBM</label>
+              <select id="setNotifLeadMinutes" class="form-input">
+                <option value="5" ${Number(notificationPreferences.leadMinutes) === 5 ? 'selected' : ''}>5 menit sebelum masuk</option>
+                <option value="10" ${Number(notificationPreferences.leadMinutes) === 10 ? 'selected' : ''}>10 menit sebelum masuk</option>
+                <option value="15" ${!notificationPreferences.leadMinutes || Number(notificationPreferences.leadMinutes) === 15 ? 'selected' : ''}>15 menit sebelum masuk</option>
+                <option value="30" ${Number(notificationPreferences.leadMinutes) === 30 ? 'selected' : ''}>30 menit sebelum masuk</option>
+              </select>
+            </div>
+
+            <div class="settings-toggle-card">
+              <div>
+                <div class="toggle-card-title">Suara Pengingat Notifikasi</div>
+                <div class="toggle-card-desc">Putar nada lembut saat notifikasi pengingat guru muncul</div>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setNotifSuara" ${notificationPreferences.suaraNotifikasi !== false ? 'checked' : ''}>
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+
             <div class="settings-toggle-card">
               <div>
                 <div class="toggle-card-title">Sesi Absensi Masuk</div>
@@ -539,11 +595,24 @@
         closeSettingDetail();
         showToast('Pengaturan absensi KBM berhasil disimpan.', 'success');
       } else if (type === 'notifications') {
+        const elPengingatMengajar = document.getElementById('setNotifPengingatMengajar');
+        const elPengingatAbsensi = document.getElementById('setNotifPengingatAbsensi');
+        const elLead = document.getElementById('setNotifLeadMinutes');
+        const elSuara = document.getElementById('setNotifSuara');
+
+        if (elPengingatMengajar) notificationPreferences.pengingatMengajar = elPengingatMengajar.checked;
+        if (elPengingatAbsensi) notificationPreferences.pengingatAbsensi = elPengingatAbsensi.checked;
+        if (elLead) notificationPreferences.leadMinutes = parseInt(elLead.value, 10) || 15;
+        if (elSuara) notificationPreferences.suaraNotifikasi = elSuara.checked;
+
         notificationPreferences.sesiBaru = document.getElementById('setNotifSesi').checked;
         notificationPreferences.rekapMingguan = document.getElementById('setNotifRekap').checked;
         notificationPreferences.jadwal = document.getElementById('setNotifJadwal').checked;
         notificationPreferences.pengumuman = document.getElementById('setNotifPeng').checked;
         closeSettingDetail();
+        if (typeof refreshTeacherReminders === 'function') {
+          refreshTeacherReminders({ silent: true });
+        }
         showToast('Preferensi notifikasi berhasil disimpan.', 'success');
       }
     }

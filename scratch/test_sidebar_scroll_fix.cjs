@@ -3,7 +3,7 @@ const path = require('path');
 
 console.log('=== TEST: SIDEBAR FOOTER & FIXED POSITIONING SCROLL FIX VERIFICATION ===\n');
 
-const previewHtml = fs.readFileSync(path.join(__dirname, '..', 'preview.html'), 'utf8');
+const previewHtml = require('../scripts/html-assembler').loadPreviewHtml();
 const baseCss = fs.readFileSync(path.join(__dirname, '..', 'assets', 'css', 'base.css'), 'utf8');
 
 let passedTests = 0;

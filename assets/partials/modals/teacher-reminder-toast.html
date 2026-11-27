@@ -1,0 +1,15 @@
+  <!-- Floating Reminder Notification Banner for Teachers -->
+  <div class="reminder-floating-toast" id="teacherReminderToast" role="alert" aria-live="polite">
+    <div class="reminder-floating-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+    <div class="reminder-floating-body">
+      <div class="reminder-floating-title" id="teacherReminderToastTitle">Pengingat Mengajar</div>
+      <div class="reminder-floating-desc" id="teacherReminderToastDesc">Jadwal KBM akan segera dimulai.</div>
+      <div class="reminder-floating-actions">
+        <button type="button" class="btn-reminder-cta" id="teacherReminderToastAction">Isi Absensi</button>
+        <button type="button" class="btn-reminder-secondary" onclick="hideReminderFloatingToast()">Nanti</button>
+      </div>
+    </div>
+    <button type="button" class="reminder-floating-close" onclick="hideReminderFloatingToast()" aria-label="Tutup">&times;</button>
+  </div>

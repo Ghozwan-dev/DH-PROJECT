@@ -1,0 +1,352 @@
+        <!-- ================= HALAMAN 4: MODUL DATA SANTRI (LIST) ================= -->
+        <div class="screen-page" id="pageStudentList">
+          <!-- Top Bar -->
+          <div class="sub-app-bar">
+            <div class="sub-app-bar-left">
+              <button class="btn-icon-back" onclick="backFromStudentList()" title="Kembali ke Beranda">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="sub-app-bar-title">Data Santri</span>
+            </div>
+            <div class="sub-app-bar-actions">
+              <button class="btn-app-bar-action" id="sntTopAddBtn" onclick="openAddStudentForm()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Tambah</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Body Content -->
+          <div class="snt-content">
+            <!-- 1. Info Banner -->
+            <div class="snt-info-banner">
+              <div class="snt-info-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div>
+                <div style="font-size:15px; font-weight:700; color:var(--text-main);">Basis Data Santri</div>
+                <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;" id="sntRoleSubDesc">Kelola data seluruh santri, kamar asrama, dan perwalian.</div>
+              </div>
+            </div>
+
+            <!-- 2. Ringkasan Mini Cards -->
+            <div class="snt-stats-row">
+              <div class="snt-stat-card">
+                <div class="snt-stat-circle" style="background:#DCFCE7; color:#16A34A;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                  <div class="snt-stat-num" id="sntStatTotal">12</div>
+                  <div class="snt-stat-lbl">Total Santri</div>
+                </div>
+              </div>
+              <div class="snt-stat-card">
+                <div class="snt-stat-circle" style="background:#E0F2FE; color:#0284C7;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="5" r="3"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="11" x2="16" y2="11"/></svg>
+                </div>
+                <div>
+                  <div class="snt-stat-num" id="sntStatMale">6</div>
+                  <div class="snt-stat-lbl">Putra</div>
+                </div>
+              </div>
+              <div class="snt-stat-card">
+                <div class="snt-stat-circle" style="background:#FCE7F3; color:#DB2777;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="7" r="4"/><path d="M12 11v8"/><path d="M9 16h6"/></svg>
+                </div>
+                <div>
+                  <div class="snt-stat-num" id="sntStatFemale">6</div>
+                  <div class="snt-stat-lbl">Putri</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Pencarian -->
+            <div class="snt-search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="sntSearchInput" placeholder="Cari nama atau NIS santri..." oninput="handleStudentSearchInput()">
+              <span id="sntClearSearch" style="cursor:pointer; display:none; color:#94A3B8; font-size:16px;" onclick="clearStudentSearch()">&times;</span>
+            </div>
+
+            <!-- 4. Filter Kelas (Termasuk Kelas X, XI, XII) -->
+            <div class="snt-filter-scroll">
+              <div class="snt-chip active" id="chipGradeAll" onclick="setGradeFilter('Semua')">Semua Kelas</div>
+              <div class="snt-chip" id="chipGradeVII" onclick="setGradeFilter('VII')">Kelas VII</div>
+              <div class="snt-chip" id="chipGradeVIII" onclick="setGradeFilter('VIII')">Kelas VIII</div>
+              <div class="snt-chip" id="chipGradeIX" onclick="setGradeFilter('IX')">Kelas IX</div>
+              <div class="snt-chip" id="chipGradeX" onclick="setGradeFilter('X')">Kelas X</div>
+              <div class="snt-chip" id="chipGradeXI" onclick="setGradeFilter('XI')">Kelas XI</div>
+              <div class="snt-chip" id="chipGradeXII" onclick="setGradeFilter('XII')">Kelas XII</div>
+            </div>
+
+            <!-- Filter Gender -->
+            <div class="snt-gender-row">
+              <div class="snt-gchip" id="chipGendPutra" onclick="setGenderFilter('Putra')">👦 Santri Putra</div>
+              <div class="snt-gchip" id="chipGendPutri" onclick="setGenderFilter('Putri')">👧 Santri Putri</div>
+            </div>
+
+            <!-- List Keterangan -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span style="font-size:13.5px; font-weight:700; color:var(--text-main);" id="sntResultCount">Daftar Santri (12)</span>
+            </div>
+
+            <!-- 5. Cards List -->
+            <div class="snt-list" id="sntListContainer">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= HALAMAN 5: DETAIL SANTRI ================= -->
+        <div class="screen-page" id="pageStudentDetail">
+          <!-- Top Bar -->
+          <div class="sub-app-bar">
+            <div class="sub-app-bar-left">
+              <button class="btn-icon-back" onclick="backFromStudentDetail()" title="Kembali ke Daftar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="sub-app-bar-title">Detail Santri</span>
+            </div>
+            <!-- Aksi Khusus Admin -->
+            <div class="sub-app-bar-actions" id="sntDetailAdminActions">
+              <button class="btn-icon-back" onclick="openEditStudentForm()" title="Edit Data" style="color:var(--primary); background:#F0FDF4; border:none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+              </button>
+              <button class="btn-icon-back" onclick="confirmDeleteStudent()" title="Hapus Santri" style="color:#DC2626; background:#FEE2E2; border:none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Body Detail Content -->
+          <div class="snt-content">
+            <!-- Profil Singkat Card -->
+            <div class="snt-detail-profile">
+              <div class="snt-avatar-wrapper">
+                <img id="detailAvatarImg" src="assets/images/santri_ahmad.png" class="snt-detail-avatar" onerror="this.src='assets/images/logo.png'">
+                <button type="button" id="sntChangePhotoBtn" class="snt-avatar-badge" onclick="openPhotoPickerModal('detail')" title="Ubah Foto Profil Santri">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                    <circle cx="12" cy="13" r="4"/>
+                  </svg>
+                </button>
+              </div>
+              <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:4px;" id="detailFullName">Ahmad Fauzi</div>
+              <div style="display:flex; justify-content:center; gap:8px; align-items:center;">
+                <span style="font-size:12px; font-weight:700; color:var(--text-secondary); background:#F1F5F9; padding:2px 8px; border-radius:6px;" id="detailNisBadge">NIS: 2024001</span>
+                <span class="snt-badge-status aktif" id="detailStatusBadge">Aktif</span>
+              </div>
+            </div>
+
+            <!-- Section 1: Akademik & Asrama -->
+            <div class="snt-section-box">
+              <div class="snt-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                <span>Informasi Akademik &amp; Asrama</span>
+              </div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Nomor Induk Santri</span><span class="snt-prop-val" id="detailNisVal">2024001</span></div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Kelas</span><span class="snt-prop-val" id="detailClassVal">VII A</span></div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Kamar Asrama</span><span class="snt-prop-val" id="detailRoomVal">Al-Fatih 01</span></div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Tanggal Masuk</span><span class="snt-prop-val" id="detailEnrollVal">15-07-2024</span></div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Status</span><span class="snt-prop-val" id="detailStatusVal">Aktif</span></div>
+            </div>
+
+            <!-- Section 2: Data Pribadi -->
+            <div class="snt-section-box">
+              <div class="snt-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Data Pribadi Santri</span>
+              </div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Jenis Kelamin</span><span class="snt-prop-val" id="detailGenderVal">Santri Putra</span></div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Tempat, Tgl Lahir</span><span class="snt-prop-val" id="detailTtlVal">Sumenep, 12-04-2011</span></div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Alamat Domisili</span><span class="snt-prop-val" id="detailAddressVal" style="max-width:200px; text-align:right;">Arjasa, Kangean, Sumenep</span></div>
+            </div>
+
+            <!-- Section 3: Orang Tua / Wali -->
+            <div class="snt-section-box">
+              <div class="snt-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span>Data Orang Tua / Wali</span>
+              </div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Nama Wali</span><span class="snt-prop-val" id="detailParentNameVal">H. Muhammad Syukri</span></div>
+              <div class="snt-prop-row"><span class="snt-prop-lbl">Telepon Wali</span><span class="snt-prop-val" id="detailParentPhoneVal" style="color:var(--primary);">081234567891</span></div>
+            </div>
+
+            <!-- Bottom Action Buttons Khusus Admin -->
+            <div id="detailBottomAdminActions" style="display:flex; gap:10px; margin-top:20px;">
+              <button onclick="confirmDeleteStudent()" style="flex:1; height:44px; background:#fff; border:1px solid #DC2626; color:#DC2626; border-radius:10px; font-weight:700; cursor:pointer;">Hapus Santri</button>
+              <button onclick="openEditStudentForm()" style="flex:1; height:44px; background:var(--primary); border:none; color:#fff; border-radius:10px; font-weight:700; cursor:pointer;">Edit Data</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= HALAMAN 6: FORMULIR SANTRI (TAMBAH / EDIT) ================= -->
+        <div class="screen-page" id="pageStudentForm">
+          <!-- Top Bar -->
+          <div class="sub-app-bar">
+            <div class="sub-app-bar-left">
+              <button class="btn-icon-back" onclick="backFromStudentForm()" title="Batal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="sub-app-bar-title" id="sntFormPageTitle">Tambah Santri Baru</span>
+            </div>
+          </div>
+
+          <!-- Body Form Content -->
+          <div class="snt-content">
+            <form id="studentFormData" onsubmit="handleStudentFormSubmit(event)">
+              <!-- Foto Profil Santri Preview & Picker (Khusus Admin) -->
+              <div style="text-align:center; margin-bottom:14px; background:#FFFFFF; border-radius:14px; padding:14px; border:1px solid #F1F5F9; box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+                <div class="snt-avatar-wrapper">
+                  <img id="formAvatarImg" src="assets/images/santri_ahmad.png" class="snt-detail-avatar" onerror="this.src='assets/images/logo.png'">
+                  <button type="button" class="snt-avatar-badge" onclick="openPhotoPickerModal('form')" title="Pilih Foto Profil Santri">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                  </button>
+                </div>
+                <div style="font-size:12px; font-weight:700; color:var(--text-main); margin-top:2px;">Foto Profil Santri</div>
+                <div style="font-size:11px; color:var(--text-secondary);">Klik ikon kamera untuk memilih foto preset atau upload baru</div>
+              </div>
+
+              <!-- Section 1 -->
+              <div class="snt-section-box">
+                <div class="snt-section-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span>Identitas &amp; Akademik Santri</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Nomor Induk Santri (NIS) *</label>
+                  <div class="input-wrapper" id="formNisWrapper">
+                    <input type="number" id="formNis" class="input-field" placeholder="Contoh: 2024015">
+                  </div>
+                  <div class="field-error" id="formNisError">NIS wajib diisi</div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Nama Lengkap Santri *</label>
+                  <div class="input-wrapper" id="formNameWrapper">
+                    <input type="text" id="formName" class="input-field" placeholder="Masukkan nama santri">
+                  </div>
+                  <div class="field-error" id="formNameError">Nama wajib diisi minimal 3 karakter</div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Jenis Kelamin *</label>
+                  <div style="display:flex; gap:10px;">
+                    <label style="flex:1; border:1.2px solid var(--border); border-radius:10px; padding:8px 12px; display:flex; align-items:center; gap:6px; cursor:pointer;" id="labelGenderPutra">
+                      <input type="radio" name="formGender" value="Putra" id="genderPutraRadio" checked onchange="updateFormGenderStyle()">
+                      <span style="font-size:12.5px; font-weight:600;">👦 Putra</span>
+                    </label>
+                    <label style="flex:1; border:1.2px solid var(--border); border-radius:10px; padding:8px 12px; display:flex; align-items:center; gap:6px; cursor:pointer;" id="labelGenderPutri">
+                      <input type="radio" name="formGender" value="Putri" id="genderPutriRadio" onchange="updateFormGenderStyle()">
+                      <span style="font-size:12.5px; font-weight:600;">👧 Putri</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Kelas *</label>
+                  <div class="input-wrapper" style="padding:0 12px;">
+                    <select id="formClass" style="width:100%; border:none; outline:none; background:transparent; font-size:13.5px; color:var(--text-main); cursor:pointer;">
+                      <option value="VII A">Kelas VII A (SMP)</option>
+                      <option value="VII B">Kelas VII B (SMP)</option>
+                      <option value="VIII A">Kelas VIII A (SMP)</option>
+                      <option value="VIII B">Kelas VIII B (SMP)</option>
+                      <option value="IX A">Kelas IX A (SMP)</option>
+                      <option value="IX B">Kelas IX B (SMP)</option>
+                      <option value="X A">Kelas X A (SMA)</option>
+                      <option value="X B">Kelas X B (SMA)</option>
+                      <option value="XI A">Kelas XI A (SMA)</option>
+                      <option value="XI B">Kelas XI B (SMA)</option>
+                      <option value="XII A">Kelas XII A (SMA)</option>
+                      <option value="XII B">Kelas XII B (SMA)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Kamar Asrama *</label>
+                  <div class="input-wrapper" id="formRoomWrapper">
+                    <input type="text" id="formRoom" class="input-field" placeholder="Kamar Asrama">
+                  </div>
+                  <div class="field-error" id="formRoomError">Kamar wajib diisi</div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:6px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Tanggal Masuk Pondok *</label>
+                  <div class="input-wrapper">
+                    <input type="date" id="formEnrollDate" class="input-field">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2 -->
+              <div class="snt-section-box">
+                <div class="snt-section-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0E6838" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                  <span>Data Pribadi &amp; Orang Tua/Wali</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Kota Kelahiran</label>
+                  <div class="input-wrapper">
+                    <input type="text" id="formBirthPlace" class="input-field" placeholder="Contoh: Sumenep">
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Tanggal Lahir</label>
+                  <div class="input-wrapper" style="position:relative; cursor:pointer;" onclick="triggerBirthDatePicker()">
+                    <input type="text" id="formBirthDate" class="input-field" placeholder="17/08/1945" autocomplete="off" oninput="syncBirthDateToNative(this.value)">
+                    <span class="date-picker-icon" style="color:var(--text-hint); cursor:pointer; display:flex; align-items:center;" title="Pilih Tanggal">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </span>
+                    <input type="date" id="nativeBirthDatePicker" tabindex="-1" style="position:absolute; right:10px; opacity:0; width:30px; height:30px; cursor:pointer;" onchange="handleNativeBirthDateChange(this.value)">
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Alamat Domisili Asal</label>
+                  <div class="input-wrapper">
+                    <input type="text" id="formAddress" class="input-field" placeholder="Desa / Kecamatan / Kabupaten">
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Nama Orang Tua / Wali</label>
+                  <div class="input-wrapper">
+                    <input type="text" id="formParentName" class="input-field" placeholder="Nama wali santri">
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                  <label style="font-size:12px; font-weight:700; color:var(--text-main); margin-bottom:4px; display:block;">Nomor Telepon / WhatsApp Wali</label>
+                  <div class="input-wrapper">
+                    <input type="tel" id="formParentPhone" class="input-field" placeholder="081234567890">
+                  </div>
+                </div>
+
+                <!-- Status Aktif Toggle (Switch Button Interaktif) -->
+                <div class="snt-toggle-row" onclick="toggleFormStatusSantri(event)">
+                  <div class="snt-toggle-info">
+                    <div class="snt-toggle-title">Status Santri Aktif</div>
+                    <div class="snt-toggle-desc" id="formActiveStatusDesc">Santri aktif menempuh pendidikan di pondok</div>
+                  </div>
+                  <label class="snt-switch" onclick="event.stopPropagation()">
+                    <input type="checkbox" id="formIsActiveCheck" checked onchange="updateFormStatusSwitchUI()">
+                    <span class="snt-switch-track">
+                      <span class="snt-switch-thumb"></span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn-primary" id="btnSaveStudent" style="margin-top:14px; margin-bottom:20px;">
+                <span>Simpan Data Santri</span>
+              </button>
+            </form>
+          </div>
+        </div>

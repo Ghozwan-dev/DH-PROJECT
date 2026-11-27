@@ -1,0 +1,285 @@
+        <!-- ======================================================== -->
+        <!-- HALAMAN 6: MANAJEMEN JADWAL PELAJARAN (SESUAI BUTIR C & E)-->
+        <!-- ======================================================== -->
+        <div class="screen-page" id="pageScheduleList">
+          <!-- Top Sticky App Bar -->
+          <div class="sub-app-bar">
+            <div class="sub-app-bar-left">
+              <button class="btn-icon-back" onclick="backFromScheduleList()" title="Kembali">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="sub-app-bar-title">Absensi Santri</span>
+            </div>
+            <div class="sub-app-bar-actions">
+              <button class="btn-app-bar-action" id="schTopAddBtn" onclick="openAddScheduleForm()" title="Tambah Jadwal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Tambah</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Page Content -->
+          <div class="snt-content">
+            <!-- Header Banner / Profil Pengajar (Hanya untuk Guru; Bagian Admin dihapus) -->
+            <div class="sch-header-banner" id="schHeaderBanner">
+              <div class="sch-header-icon" id="schHeaderIcon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center;">
+                  <span style="font-size:15px; font-weight:700; color:var(--text-main);" id="schBannerTitle">Profil Guru Pengampu</span>
+                </div>
+                <div style="font-size:12px; color:var(--text-muted); margin-top:3px; line-height:1.35;" id="schRoleDesc">
+                  Jadwal pelajaran yang ditugaskan kepada Anda (Ustadz Ahmad Fauzi).
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 1: Manajemen Jadwal -->
+            <div id="schTabScheduleSection">
+
+            <!-- Summary 3 Cards -->
+            <div class="sch-summary-grid">
+              <div class="sch-stat-card">
+                <div class="sch-stat-val" id="schStatTotal">0</div>
+                <div class="sch-stat-lbl">Total Jadwal</div>
+              </div>
+              <div class="sch-stat-card">
+                <div class="sch-stat-val" id="schStatClass">0</div>
+                <div class="sch-stat-lbl">Total Kelas</div>
+              </div>
+              <div class="sch-stat-card">
+                <div class="sch-stat-val" id="schStatTeacher">0</div>
+                <div class="sch-stat-lbl">Guru Pengampu</div>
+              </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="snt-search-box" style="margin-bottom:12px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="schSearchInput" placeholder="Cari mapel atau nama guru..." oninput="handleScheduleSearchInput()">
+              <button id="schClearSearch" onclick="clearScheduleSearch()" style="display:none; background:none; border:none; color:var(--text-muted); cursor:pointer;">&times;</button>
+            </div>
+
+            <!-- Day Filter Chips Horizontal -->
+            <div style="font-size:11.5px; font-weight:700; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.5px;">Pilih Hari</div>
+            <div class="sch-chips-scroll" id="schDayChipsContainer">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Class Filter Chips Horizontal -->
+            <div style="font-size:11.5px; font-weight:700; color:var(--text-muted); margin-bottom:5px; text-transform:uppercase; letter-spacing:0.5px;">Pilih Kelas</div>
+            <div class="sch-chips-scroll" id="schClassChipsContainer">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Section Title / Counter -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:14px 0 10px 0;">
+              <span style="font-size:13.5px; font-weight:700; color:var(--text-main);" id="schResultCount">Daftar Jadwal (0)</span>
+              <button onclick="resetScheduleFilters()" style="background:none; border:none; font-size:12px; color:var(--primary); font-weight:600; cursor:pointer;">Reset Filter</button>
+            </div>
+
+            <!-- Schedule List Container -->
+            <div id="schListContainer">
+              <!-- Dynamically populated -->
+            </div>
+            </div> <!-- End #schTabScheduleSection -->
+
+            <!-- Tab 2: Riwayat & Rekap Absensi Santri -->
+            <div id="schTabAttendanceSection" style="display:none;">
+              <!-- 1. Header Ringkasan Riwayat Sesi & Santri Tercatat (Butir 2) -->
+              <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+                <div style="background:#FFFFFF; border-radius:12px; padding:12px 14px; border:1px solid #E2E8F0; display:flex; align-items:center; gap:10px;">
+                  <div style="width:36px; height:36px; border-radius:10px; background:#EFF6FF; color:#2563EB; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-size:18px; font-weight:800; color:var(--text-main);" id="attRecapSessions">0</div>
+                    <div style="font-size:11.5px; color:var(--text-secondary); font-weight:600;">Total Sesi</div>
+                  </div>
+                </div>
+                <div style="background:#FFFFFF; border-radius:12px; padding:12px 14px; border:1px solid #E2E8F0; display:flex; align-items:center; gap:10px;">
+                  <div style="width:36px; height:36px; border-radius:10px; background:#DCFCE7; color:#16A34A; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  </div>
+                  <div>
+                    <div style="font-size:18px; font-weight:800; color:var(--text-main);" id="attRecapStudents">0</div>
+                    <div style="font-size:11.5px; color:var(--text-secondary); font-weight:600;">Santri Tercatat</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Recap 4 Status (Hadir, Izin, Sakit, Alfa) -->
+              <div class="att-recap-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:12px;">
+                <div class="att-recap-card hadir">
+                  <div class="att-recap-val" id="attRecapHadir">0</div>
+                  <div class="att-recap-lbl">Hadir</div>
+                </div>
+                <div class="att-recap-card izin">
+                  <div class="att-recap-val" id="attRecapIzin">0</div>
+                  <div class="att-recap-lbl">Izin</div>
+                </div>
+                <div class="att-recap-card sakit">
+                  <div class="att-recap-val" id="attRecapSakit">0</div>
+                  <div class="att-recap-lbl">Sakit</div>
+                </div>
+                <div class="att-recap-card alfa">
+                  <div class="att-recap-val" id="attRecapAlfa">0</div>
+                  <div class="att-recap-lbl">Alfa</div>
+                </div>
+              </div>
+
+              <!-- 3. Kotak Pencarian Mata Pelajaran atau Nama Guru (Butir 2) -->
+              <div class="snt-search-box" style="margin-bottom:12px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="attHistorySearchInput" placeholder="Cari mata pelajaran atau nama guru..." oninput="renderAttendanceHistory()">
+                <button id="attHistoryClearSearch" onclick="clearAttendanceSearch()" style="display:none; background:none; border:none; color:var(--text-muted); cursor:pointer;">&times;</button>
+              </div>
+
+              <!-- 4. Filter Bar untuk Riwayat Absensi (Tanggal, Kelas, Mapel, Guru) -->
+              <div style="background:#FFFFFF; border-radius:12px; padding:12px; border:1px solid #E2E8F0; margin-bottom:12px;">
+                <div style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">Filter Riwayat Absensi</div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Tanggal</label>
+                    <input type="date" id="attFilterDate" class="form-input" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceHistory()">
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Kelas</label>
+                    <select id="attFilterClass" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceHistory()">
+                      <option value="Semua">Semua Kelas</option>
+                      <option value="VII A">VII A</option>
+                      <option value="VII B">VII B</option>
+                      <option value="VIII A">VIII A</option>
+                      <option value="VIII B">VIII B</option>
+                      <option value="IX A">IX A</option>
+                      <option value="IX B">IX B</option>
+                      <option value="X A">X A</option>
+                      <option value="X B">X B</option>
+                      <option value="XI A">XI A</option>
+                      <option value="XI B">XI B</option>
+                      <option value="XII A">XII A</option>
+                      <option value="XII B">XII B</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Mata Pelajaran</label>
+                    <select id="attFilterSubject" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceHistory()">
+                      <option value="Semua">Semua Mapel</option>
+                      <option value="Fiqih">Fiqih</option>
+                      <option value="Al-Qur'an Hadits">Al-Qur'an Hadits</option>
+                      <option value="Bahasa Arab">Bahasa Arab</option>
+                      <option value="Akidah Akhlak">Akidah Akhlak</option>
+                      <option value="Sejarah Kebudayaan Islam (SKI)">SKI</option>
+                      <option value="Nahwu Shorof">Nahwu Shorof</option>
+                      <option value="Tahfidz Al-Qur'an">Tahfidz Al-Qur'an</option>
+                      <option value="Matematika">Matematika</option>
+                      <option value="Bahasa Inggris">Bahasa Inggris</option>
+                      <option value="IPA Terpadu">IPA Terpadu</option>
+                      <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                    </select>
+                  </div>
+                  <div id="attFilterTeacherWrapper">
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Guru Pengampu</label>
+                    <select id="attFilterTeacher" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderAttendanceHistory()">
+                      <option value="Semua">Semua Guru</option>
+                      <option value="Ustadz Ahmad Fauzi">Ustadz Ahmad Fauzi</option>
+                      <option value="Ustadzah Halimah">Ustadzah Halimah</option>
+                      <option value="Ustadz Mansyur Hidayat">Ustadz Mansyur Hidayat</option>
+                      <option value="Ustadz Zulkifli">Ustadz Zulkifli</option>
+                      <option value="Ustadzah Nurul Azizah">Ustadzah Nurul Azizah</option>
+                      <option value="Ustadz Abdullah Said">Ustadz Abdullah Said</option>
+                      <option value="Ustadz Lukman Hakim">Ustadz Lukman Hakim</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                  <button type="button" onclick="resetAttendanceFilters()" style="background:none; border:none; color:var(--primary); font-size:11.5px; font-weight:700; cursor:pointer;">Reset Filter Absensi</button>
+                </div>
+              </div>
+
+              <!-- 5. Header Counter & Daftar Riwayat -->
+              <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0 10px 0;">
+                <span style="font-size:13.5px; font-weight:700; color:var(--text-main);" id="attHistoryCountLabel">Riwayat Sesi Absensi (0)</span>
+              </div>
+
+              <!-- Container Kartu Riwayat -->
+              <div id="attHistoryListContainer">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Tab 3: Rekap Absensi Per Santri (Khusus Admin) -->
+            <div id="schTabRecapSection" style="display:none;">
+              <!-- 1. Ringkasan Global Metrik Rekap -->
+              <div class="sch-summary-grid" style="margin-bottom:12px;">
+                <div class="sch-stat-card">
+                  <div class="sch-stat-val" id="recapTotalStudents" style="color:var(--primary);">0</div>
+                  <div class="sch-stat-lbl">Santri Terdata</div>
+                </div>
+                <div class="sch-stat-card">
+                  <div class="sch-stat-val" id="recapTotalMeetings" style="color:#0284C7;">0</div>
+                  <div class="sch-stat-lbl">Total Sesi Santri</div>
+                </div>
+                <div class="sch-stat-card">
+                  <div class="sch-stat-val" id="recapAvgPercentage" style="color:#16A34A;">0%</div>
+                  <div class="sch-stat-lbl">Rata-rata Hadir</div>
+                </div>
+              </div>
+
+              <!-- 2. Kotak Pencarian Nama Santri atau NIS -->
+              <div class="snt-search-box" style="margin-bottom:10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="recapSearchInput" placeholder="Cari nama santri atau NIS..." oninput="renderStudentRecapList()">
+                <button id="recapClearSearch" onclick="clearRecapSearch()" style="display:none; background:none; border:none; color:var(--text-muted); cursor:pointer;">&times;</button>
+              </div>
+
+              <!-- 3. Filter Bar (Kelas & Rentang Tanggal) -->
+              <div style="background:#FFFFFF; border-radius:12px; padding:12px; border:1px solid #E2E8F0; margin-bottom:12px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Filter Kelas</label>
+                    <select id="recapFilterClass" class="form-select" style="padding:6px 8px; font-size:12px; width:100%; box-sizing:border-box;" onchange="renderStudentRecapList()">
+                      <option value="Semua">Semua Kelas</option>
+                      <option value="VII A">Kelas VII A</option>
+                      <option value="VII B">Kelas VII B</option>
+                      <option value="VIII A">Kelas VIII A</option>
+                      <option value="VIII B">Kelas VIII B</option>
+                      <option value="IX A">Kelas IX A</option>
+                      <option value="IX B">Kelas IX B</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Dari Tanggal</label>
+                    <input type="date" id="recapFilterStartDate" class="form-input" style="padding:5px 8px; font-size:11.5px; width:100%; box-sizing:border-box;" onchange="renderStudentRecapList()">
+                  </div>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px;">
+                  <div>
+                    <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:3px;">Sampai Tanggal</label>
+                    <input type="date" id="recapFilterEndDate" class="form-input" style="padding:5px 8px; font-size:11.5px; width:100%; box-sizing:border-box;" onchange="renderStudentRecapList()">
+                  </div>
+                  <div style="display:flex; align-items:flex-end;">
+                    <button type="button" onclick="resetRecapFilters()" style="background:#F1F5F9; border:1px solid #CBD5E1; color:var(--text-main); font-size:11.5px; font-weight:700; padding:6px 10px; border-radius:6px; cursor:pointer; width:100%;">Reset Filter</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Header Baris Hasil & Daftar -->
+              <div style="display:flex; justify-content:space-between; align-items:center; margin:12px 0 10px 0;">
+                <span style="font-size:13.5px; font-weight:700; color:var(--text-main);" id="recapStudentCountLabel">Daftar Rekap Santri (0)</span>
+              </div>
+
+              <!-- Container Kartu Rekap Santri -->
+              <div id="recapStudentListContainer">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            
+          </div>
+        </div>

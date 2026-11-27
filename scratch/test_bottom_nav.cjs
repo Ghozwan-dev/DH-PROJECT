@@ -4,7 +4,7 @@ const path = require('path');
 console.log('=== VERIFYING BOTTOM NAVIGATION IMPLEMENTATION ===');
 
 // 1. Read preview.html and inspect bottom-nav-fixed
-const previewHtml = fs.readFileSync(path.join(__dirname, '..', 'preview.html'), 'utf-8');
+const previewHtml = require('../scripts/html-assembler').loadPreviewHtml();
 const startIdx = previewHtml.indexOf('<div class="bottom-nav-fixed">');
 if (startIdx === -1) {
   console.error('FAIL: .bottom-nav-fixed block not found in preview.html');

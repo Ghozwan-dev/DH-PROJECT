@@ -3,7 +3,7 @@ const path = require('path');
 
 console.log('=== TEST: TOP NAVBAR CLEANUP (DEMO BUTTONS, AVATAR, & DESKTOP NAV REMOVED) ===');
 
-const previewHtml = fs.readFileSync(path.join(__dirname, '..', 'preview.html'), 'utf-8');
+const previewHtml = require('../scripts/html-assembler').loadPreviewHtml();
 
 // 1. Verify demo buttons are removed from top navbar
 if (previewHtml.includes('id="demoBtnAdmin"') || previewHtml.includes('id="demoBtnGuru"') || previewHtml.includes('class="demo-buttons"')) {
@@ -26,9 +26,15 @@ if (previewHtml.includes('id="navbarDesktopLinks"') || previewHtml.includes('cla
 }
 console.log('PASS: Top navbar desktop nav links successfully removed!');
 
-// 4. Verify essential brand and navigation elements are preserved
+// 4. Verify hamburger toggle button is removed as requested
+if (previewHtml.includes('id="btnToggleSidebar"') || previewHtml.includes('class="btn-sidebar-toggle"')) {
+  console.error('FAIL: btnToggleSidebar / btn-sidebar-toggle is still present in top navbar');
+  process.exit(1);
+}
+console.log('PASS: Top navbar hamburger toggle button successfully removed!');
+
+// 5. Verify essential brand and navigation elements are preserved
 const requiredElements = [
-  'id="btnToggleSidebar"',
   'class="navbar-brand"',
   'assets/images/logo.png',
   'Darul Hikmah',
@@ -42,7 +48,7 @@ requiredElements.forEach(item => {
     process.exit(1);
   }
 });
-console.log('PASS: Brand logo, title, hamburger toggle, sidebar, and bottom navbar are all intact!');
+console.log('PASS: Brand logo, title, sidebar, and bottom navbar are all intact!');
 
 console.log('\n==============================================');
 console.log('ALL TOP NAVBAR TESTS PASSED (100%)!');

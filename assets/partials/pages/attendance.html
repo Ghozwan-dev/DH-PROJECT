@@ -1,0 +1,78 @@
+        <!-- ======================================================== -->
+        <!-- HALAMAN 9: INPUT / EDIT ABSENSI SANTRI PER MAPEL         -->
+        <!-- ======================================================== -->
+        <div class="screen-page" id="pageAttendanceForm">
+          <div class="sub-app-bar">
+            <div class="sub-app-bar-left">
+              <button class="btn-icon-back" onclick="backFromAttendanceForm()" title="Kembali">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="sub-app-bar-title" id="attFormTitle">Input Absensi Santri</span>
+            </div>
+            <div class="sub-app-bar-actions">
+              <span class="sch-card-class-badge" id="attFormClassHeaderBadge">VII A</span>
+            </div>
+          </div>
+
+          <div class="snt-content" style="padding-bottom:80px;">
+            <!-- Session Info Card -->
+            <div class="att-info-card">
+              <div class="att-info-top">
+                <div>
+                  <div class="att-info-subject" id="attFormSubject">Al-Qur'an Hadits</div>
+                  <div class="att-info-teacher" id="attFormTeacher">Ustadz Ahmad Fauzi</div>
+                </div>
+                <span class="att-info-period-badge" id="attFormPeriod">Jam Ke-1 (07:30 - 08:15)</span>
+              </div>
+              <div class="att-info-divider"></div>
+              <div class="att-date-row">
+                <label class="form-label" style="margin-bottom:0; font-size:12px; font-weight:700;">Tanggal Pertemuan:</label>
+                <input type="date" id="attFormDate" class="form-input" style="padding:6px 10px; width:auto; font-size:12.5px;" onchange="handleAttendanceDateChange()">
+              </div>
+            </div>
+
+            <!-- Banner Peringatan Santri Belum Memiliki Status (Butir 2) -->
+            <div id="attValidationBanner" style="display:none; margin-bottom:12px; padding:10px 14px; background:#FEF2F2; border:1px solid #FCA5A5; border-radius:10px; align-items:center; justify-content:space-between; gap:10px;">
+              <div style="display:flex; align-items:center; gap:8px; color:#991B1B; font-size:12.5px; font-weight:600;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span id="attValidationBannerText">Masih ada santri yang belum memiliki status kehadiran.</span>
+              </div>
+              <button type="button" onclick="scrollToFirstUnassignedStudent()" style="background:#DC2626; color:#FFF; border:none; border-radius:6px; padding:5px 12px; font-size:11.5px; font-weight:700; cursor:pointer; flex-shrink:0;">Tunjukkan</button>
+            </div>
+
+            <!-- Quick Action Toolbar -->
+            <div class="att-quick-bar">
+              <span style="font-size:11.5px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Tandai Cepat:</span>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button type="button" class="att-quick-btn hadir" onclick="quickMarkAllStatus('hadir')">Semua Hadir</button>
+                <button type="button" class="att-quick-btn izin" onclick="quickMarkAllStatus('izin')">Semua Izin</button>
+                <button type="button" class="att-quick-btn sakit" onclick="quickMarkAllStatus('sakit')">Semua Sakit</button>
+              </div>
+            </div>
+
+            <!-- Students Attendance List -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin:14px 0 8px 0;">
+              <span style="font-size:13px; font-weight:700; color:var(--text-main);" id="attStudentCountLabel">Daftar Santri (0)</span>
+              <span style="font-size:11.5px; color:var(--text-muted);">Pilih status per santri</span>
+            </div>
+
+            <div id="attStudentListContainer" class="att-student-list">
+              <!-- Dynamically generated student attendance cards -->
+            </div>
+          </div>
+
+          <!-- Sticky Bottom Summary and Save Bar -->
+          <div class="att-bottom-bar">
+            <div class="att-bottom-stats">
+              <span class="att-mini-stat hadir">H: <b id="attStatH">0</b></span>
+              <span class="att-mini-stat izin">I: <b id="attStatI">0</b></span>
+              <span class="att-mini-stat sakit">S: <b id="attStatS">0</b></span>
+              <span class="att-mini-stat alfa">A: <b id="attStatA">0</b></span>
+              <span class="att-mini-stat" id="attStatUnassignedWrap" style="display:none; background:#FEE2E2; color:#DC2626; border:1px solid #FCA5A5;">Belum: <b id="attStatU">0</b></span>
+            </div>
+            <button class="btn-primary" style="margin-bottom:0; padding:10px 18px; font-size:13px;" onclick="saveAttendanceForm()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Simpan Absensi</span>
+            </button>
+          </div>
+        </div>

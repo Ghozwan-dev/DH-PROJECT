@@ -10,3 +10,7 @@ if (typeof navigateToHome === 'function' && typeof mockUsers !== 'undefined' && 
 if (typeof renderRecentActivities === 'function') {
   renderRecentActivities();
 }
+
+if (typeof initTeacherReminderSystem === 'function') {
+  initTeacherReminderSystem();
+}

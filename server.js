@@ -2,6 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
+const { resolveHtmlIncludes } = require('./scripts/html-assembler');
 
 let port = 3000;
 const rootDir = __dirname;
@@ -22,7 +23,7 @@ const mimeTypes = {
   '.ttf': 'font/ttf',
 };
 
-const server = http.createServer((req, res) => {
+const requestHandler = (req, res) => {
   // Parsing URL
   let reqPath = decodeURI(req.url.split('?')[0]);
   if (reqPath === '/' || reqPath === '') {
@@ -61,16 +62,38 @@ const server = http.createServer((req, res) => {
         return res.end('500 Internal Server Error');
       }
 
+      let body = content;
+      if (ext === '.html') {
+        try {
+          body = resolveHtmlIncludes(content.toString('utf8'), rootDir, new Set([filePath]));
+        } catch (includeErr) {
+          res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' });
+          return res.end('500 Partial Include Error: ' + includeErr.message);
+        }
+      }
+
       res.writeHead(200, {
         'Content-Type': contentType,
         'Cache-Control': 'no-cache',
       });
-      res.end(content);
+      res.end(body);
     });
   });
-});
+};
 
 function startServer(attemptPort) {
+  const maxPort = port + 20;
+  const server = http.createServer(requestHandler);
+
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE' && attemptPort < maxPort) {
+      console.log(`Port ${attemptPort} sedang digunakan, mencoba port ${attemptPort + 1}...`);
+      startServer(attemptPort + 1);
+    } else {
+      console.error('Server error:', err);
+    }
+  });
+
   server.listen(attemptPort, () => {
     const url = `http://localhost:${attemptPort}`;
     console.log('\n======================================================');
@@ -88,15 +111,6 @@ function startServer(attemptPort) {
     exec(openCmd, () => {
       // Browser dibuka
     });
-  });
-
-  server.on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.log(`Port ${attemptPort} sedang digunakan, mencoba port ${attemptPort + 1}...`);
-      startServer(attemptPort + 1);
-    } else {
-      console.error('Server error:', err);
-    }
   });
 }
 

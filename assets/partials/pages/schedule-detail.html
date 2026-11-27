@@ -1,0 +1,116 @@
+        <!-- ======================================================== -->
+        <!-- HALAMAN 7: DETAIL JADWAL PELAJARAN (SESUAI BUTIR C.5 & D) -->
+        <!-- ======================================================== -->
+        <div class="screen-page" id="pageScheduleDetail">
+          <!-- Top Sticky App Bar -->
+          <div class="sub-app-bar">
+            <div class="sub-app-bar-left">
+              <button class="btn-icon-back" onclick="backFromScheduleDetail()" title="Kembali">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="sub-app-bar-title">Detail Jadwal Pelajaran</span>
+            </div>
+            <div class="sub-app-bar-actions" id="schDetailTopActions">
+              <button class="btn-icon-back" onclick="editScheduleFromDetail()" title="Edit Jadwal" style="color:var(--primary); background:#F0FDF4; border:none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="btn-icon-back" onclick="deleteScheduleFromDetail()" title="Hapus Jadwal" style="color:#DC2626; background:#FEE2E2; border:none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="snt-content">
+            <!-- Header Card -->
+            <div class="snt-section-box" style="padding:16px;">
+              <div style="display:flex; gap:12px; align-items:flex-start;">
+                <div style="width:48px; height:48px; border-radius:12px; background:#E8F5E9; display:flex; align-items:center; justify-content:center; color:var(--primary); flex-shrink:0;">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                </div>
+                <div style="flex:1;">
+                  <div style="display:flex; gap:6px; margin-bottom:6px;">
+                    <span class="sch-card-class-badge" id="schDetClassBadge">Kelas VII A</span>
+                    <span style="background:#F1F5F9; color:#475569; font-size:11px; font-weight:600; padding:3px 8px; border-radius:6px;" id="schDetDayBadge">Senin</span>
+                  </div>
+                  <div style="font-size:18px; font-weight:800; color:var(--text-main); line-height:1.25;" id="schDetSubject">Mata Pelajaran</div>
+                  <div style="font-size:12.5px; color:var(--text-muted); margin-top:6px; display:flex; align-items:center; gap:5px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span id="schDetTeacher">Guru Pengampu</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 1: Waktu & Jam Pelajaran -->
+            <div class="snt-section-box">
+              <div class="snt-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Waktu & Alokasi Pelajaran</span>
+              </div>
+              <div class="snt-prop-row">
+                <span class="snt-prop-lbl">Hari Pelajaran</span>
+                <span class="snt-prop-val" id="schDetDayVal">-</span>
+              </div>
+              <div class="snt-prop-row">
+                <span class="snt-prop-lbl">Nomor Jam Pelajaran</span>
+                <span class="snt-prop-val" id="schDetPeriodVal">-</span>
+              </div>
+              <div class="snt-prop-row">
+                <span class="snt-prop-lbl">Jam Mulai</span>
+                <span class="snt-prop-val" id="schDetStartVal">-</span>
+              </div>
+              <div class="snt-prop-row">
+                <span class="snt-prop-lbl">Jam Selesai</span>
+                <span class="snt-prop-val" id="schDetEndVal">-</span>
+              </div>
+              <div class="snt-prop-row" style="background:#F0FDF4; padding:8px 10px; border-radius:8px; margin-top:4px;">
+                <span class="snt-prop-lbl" style="color:var(--primary); font-weight:700;">Durasi Pembelajaran</span>
+                <span class="snt-prop-val" style="color:var(--primary); font-weight:800;" id="schDetDurationVal">-</span>
+              </div>
+            </div>
+
+            <!-- Section 2: Tenaga Pengajar & Lokasi -->
+            <div class="snt-section-box">
+              <div class="snt-section-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>Tenaga Pengajar & Lokasi</span>
+              </div>
+              <div class="snt-prop-row">
+                <span class="snt-prop-lbl">Guru Pengampu</span>
+                <span class="snt-prop-val" id="schDetTeacherVal">-</span>
+              </div>
+              <div class="snt-prop-row">
+                <span class="snt-prop-lbl">Kelas</span>
+                <span class="snt-prop-val" id="schDetClassVal">-</span>
+              </div>
+              <div class="snt-prop-row">
+                <span class="snt-prop-lbl">Ruangan Belajar</span>
+                <span class="snt-prop-val" id="schDetRoomVal">-</span>
+              </div>
+              <div class="snt-prop-row" id="schDetNotesRow">
+                <span class="snt-prop-lbl">Catatan Khusus</span>
+                <span class="snt-prop-val" id="schDetNotesVal">-</span>
+              </div>
+            </div>
+
+            <!-- Tombol Aksi Langsung: Isi Absensi Santri -->
+            <div style="margin-top:14px; margin-bottom:10px;">
+              <button type="button" class="btn-primary" style="width:100%; background:#0E6838; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; font-size:13.5px; font-weight:700; margin:0;" onclick="backFromScheduleDetail(); openAttendanceForm(currentDetailScheduleId);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                <span>Isi Absensi Santri</span>
+              </button>
+            </div>
+
+            <!-- Bottom Action Buttons (Khusus Admin) -->
+            <div id="schDetBottomActions" style="margin-top:14px; margin-bottom:20px;">
+              <div style="display:flex; gap:10px;">
+                <button type="button" class="btn-primary" style="flex:1; background:#FFFFFF; color:#DC2626; border:1px solid #DC2626;" onclick="deleteScheduleFromDetail()">
+                  <span>Hapus Jadwal</span>
+                </button>
+                <button type="button" class="btn-primary" style="flex:1;" onclick="editScheduleFromDetail()">
+                  <span>Edit Jadwal</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>

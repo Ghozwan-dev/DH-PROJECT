@@ -3,7 +3,7 @@ const path = require('path');
 
 console.log('=== TEST: AKTIVITAS REAL USTADZ SETIAP HARINYA & DYNAMIC UPDATE ===\n');
 
-const previewHtml = fs.readFileSync(path.join(__dirname, '..', 'preview.html'), 'utf-8');
+const previewHtml = require('../scripts/html-assembler').loadPreviewHtml();
 const authJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'auth.js'), 'utf-8');
 const attendanceJs = fs.readFileSync(path.join(__dirname, '..', 'assets', 'js', 'attendance.js'), 'utf-8');
 
@@ -35,7 +35,7 @@ if (!attendanceJs.includes("addUstadzActivity({") || !attendanceJs.includes("Abs
 console.log('[PASS] attendance.js successfully calls addUstadzActivity when attendance is confirmed & saved!');
 
 // 4. Verify openViewAllActivities shows real Ustadz history modal
-if (!authJs.includes('Aktivitas Ustadz Hari Ini') || !authJs.includes('item.teacherName')) {
+if ((!authJs.includes('Pengajar Hari Ini') && !authJs.includes('Aktivitas Ustadz Hari Ini')) || !authJs.includes('item.teacherName')) {
   console.error('FAIL: openViewAllActivities does not render Ustadz activities in modal');
   process.exit(1);
 }
