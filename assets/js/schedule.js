@@ -902,3 +902,37 @@
       }
     }
 
+    // Tactile Press Effect (Desktop & Mobile Quick-Tap Hold) untuk Tombol Detail Jadwal
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      const releasePressedBtn = (btn) => {
+        if (!btn || !btn.classList) return;
+        const pressedAt = Number(btn.dataset.pressedAt || 0);
+        const elapsed = Date.now() - pressedAt;
+        const remaining = Math.max(0, 130 - elapsed);
+        if (btn._pressReleaseTimer) clearTimeout(btn._pressReleaseTimer);
+        btn._pressReleaseTimer = setTimeout(() => {
+          btn.classList.remove('is-pressed');
+          btn._pressReleaseTimer = null;
+        }, remaining);
+      };
+
+      const pressStartEvent = (typeof window !== 'undefined' && 'PointerEvent' in window) ? 'pointerdown' : 'touchstart';
+      document.addEventListener(pressStartEvent, (e) => {
+        const target = e.target;
+        const btn = target && typeof target.closest === 'function' ? target.closest('.sch-det-press-btn') : null;
+        if (!btn || btn.disabled) return;
+        if (btn._pressReleaseTimer) {
+          clearTimeout(btn._pressReleaseTimer);
+          btn._pressReleaseTimer = null;
+        }
+        btn.dataset.pressedAt = String(Date.now());
+        btn.classList.add('is-pressed');
+      }, { passive: true });
+
+      ['pointerup', 'pointercancel', 'touchend', 'touchcancel'].forEach((evName) => {
+        document.addEventListener(evName, () => {
+          document.querySelectorAll('.sch-det-press-btn.is-pressed').forEach(releasePressedBtn);
+        }, { passive: true });
+      });
+    }
+

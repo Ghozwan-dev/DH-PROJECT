@@ -31,6 +31,57 @@
       suaraNotifikasi: true
     };
 
+    let teacherMasterList = [
+      'Ustadz Ahmad Fauzi',
+      'Ustadzah Halimah',
+      'Ustadz Mansyur Hidayat',
+      'Ustadz Zulkifli',
+      'Ustadzah Nurul Azizah',
+      'Ustadz Abdullah Said',
+      'Ustadz Lukman Hakim'
+    ];
+    let editingTeacherMasterIdx = -1;
+
+    function getMergedTeacherMasterList() {
+      if (typeof mockSchedules !== 'undefined' && Array.isArray(mockSchedules)) {
+        mockSchedules.forEach(function(s) {
+          const name = s && s.teacherName ? String(s.teacherName).trim() : '';
+          if (name && !teacherMasterList.some(t => t.toLowerCase() === name.toLowerCase())) {
+            teacherMasterList.push(name);
+          }
+        });
+      }
+      return teacherMasterList;
+    }
+
+    function escapeTeacherHtml(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function syncTeacherSelectOptions() {
+      if (typeof document === 'undefined') return;
+      const list = getMergedTeacherMasterList();
+
+      const formSel = document.getElementById('schFormTeacher');
+      if (formSel) {
+        const prevVal = formSel.value;
+        formSel.innerHTML = list.map(name => `<option value="${escapeTeacherHtml(name)}">${escapeTeacherHtml(name)}</option>`).join('');
+        if (prevVal && list.includes(prevVal)) {
+          formSel.value = prevVal;
+        } else if (list.length > 0) {
+          formSel.value = list[0];
+        }
+      }
+
+      const filterSel = document.getElementById('attFilterTeacher');
+      if (filterSel) {
+        const prevFilter = filterSel.value || 'Semua';
+        filterSel.innerHTML = '<option value="Semua">Semua Guru</option>' +
+          list.map(name => `<option value="${escapeTeacherHtml(name)}">${escapeTeacherHtml(name)}</option>`).join('');
+        filterSel.value = (prevFilter === 'Semua' || list.includes(prevFilter)) ? prevFilter : 'Semua';
+      }
+    }
+
     function openSettingsPage() {
       if (!currentLoggedInUser) {
         currentLoggedInUser = mockUsers[0];
@@ -147,13 +198,24 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
 
-            <div onclick="openSettingDetail('attendance')" style="display:flex; align-items:center; padding:13px 16px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#FFFFFF'">
+            <div onclick="openSettingDetail('attendance')" style="display:flex; align-items:center; padding:13px 16px; cursor:pointer; border-bottom:1px solid #F1F5F9; transition:background 0.15s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#FFFFFF'">
               <div style="width:36px; height:36px; border-radius:8px; background:#F1F5F9; display:flex; align-items:center; justify-content:center; color:var(--primary); margin-right:14px; flex-shrink:0;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
               </div>
               <div style="flex:1;">
                 <div style="font-size:13.5px; font-weight:600; color:var(--text-main);">Pengaturan Absensi</div>
                 <div style="font-size:11.5px; color:#64748B; margin-top:1px;">Jam KBM, toleransi keterlambatan, dan izin edit</div>
+              </div>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+
+            <div onclick="openSettingDetail('teachers')" style="display:flex; align-items:center; padding:13px 16px; cursor:pointer; transition:background 0.15s;" onmouseover="this.style.background='#F8FAFC'" onmouseout="this.style.background='#FFFFFF'">
+              <div style="width:36px; height:36px; border-radius:8px; background:#F1F5F9; display:flex; align-items:center; justify-content:center; color:var(--primary); margin-right:14px; flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:13.5px; font-weight:600; color:var(--text-main);">Daftar Ustadz / Guru</div>
+                <div style="font-size:11.5px; color:#64748B; margin-top:1px;">Input dan kelola nama pengajar pondok</div>
               </div>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
             </div>
@@ -185,7 +247,7 @@
       const isAdmin = currentLoggedInUser && currentLoggedInUser.role === 'Admin';
 
       // Proteksi Hak Akses (RBAC Guard)
-      if ((type === 'pesantren' || type === 'attendance') && !isAdmin) {
+      if ((type === 'pesantren' || type === 'attendance' || type === 'teachers') && !isAdmin) {
         showToast('Akses ditolak: Menu ini hanya dapat diakses oleh Administrator Pondok.', 'error');
         return;
       }
@@ -510,9 +572,180 @@
             </div>
           </div>
         `;
+      } else if (type === 'teachers') {
+        titleEl.innerText = 'Daftar Ustadz / Guru';
+        if (subTitleEl) subTitleEl.innerText = 'Tambahkan dan kelola nama ustadz/guru untuk jadwal KBM';
+        if (iconEl) iconEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>`;
+        editingTeacherMasterIdx = -1;
+
+        bodyEl.innerHTML = `
+          <div class="settings-form-container">
+            <div class="form-group">
+              <label class="form-label" for="setTeacherNameInput">Tambah Nama Ustadz / Guru</label>
+              <div class="teacher-add-row">
+                <input type="text" id="setTeacherNameInput" class="form-input" placeholder="Contoh: Ustadz Hasan Basri, S.Pd.I" onkeydown="if(event.key==='Enter'){event.preventDefault();addTeacherMasterName();}">
+                <button type="button" id="btnAddTeacherMaster" class="btn-modal-submit teacher-add-btn" onclick="addTeacherMasterName()">+ Tambah</button>
+              </div>
+              <div id="setTeacherError" class="form-alert-error" style="display:none; margin-top:8px;"></div>
+            </div>
+
+            <div class="teacher-list-meta">
+              <span>Daftar Pengajar Aktif (<b id="setTeacherCount">0</b>)</span>
+            </div>
+
+            <div id="setTeacherListWrap" class="teacher-master-list"></div>
+
+            <div class="modal-btn-row">
+              <button type="button" class="btn-modal-submit" onclick="closeSettingDetail()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Selesai
+              </button>
+            </div>
+          </div>
+        `;
+        renderTeacherMasterList();
       }
 
       modal.style.display = 'flex';
+      if (type === 'teachers') {
+        const inp = document.getElementById('setTeacherNameInput');
+        if (inp && typeof inp.focus === 'function') setTimeout(() => inp.focus(), 60);
+      }
+    }
+
+    function renderTeacherMasterList() {
+      const listWrap = document.getElementById('setTeacherListWrap');
+      const countEl = document.getElementById('setTeacherCount');
+      const list = getMergedTeacherMasterList();
+      if (countEl) countEl.innerText = String(list.length);
+      if (!listWrap) return;
+
+      if (list.length === 0) {
+        listWrap.innerHTML = '<div style="text-align:center; padding:18px; color:#64748B; font-size:12.5px;">Belum ada nama ustadz/guru terdaftar.</div>';
+        return;
+      }
+
+      listWrap.innerHTML = list.map((name, idx) => {
+        const cleanLabel = name.replace(/^(Ustadz|Ustadzah)\s+/i, '').trim() || name;
+        const initials = cleanLabel.split(/\s+/).map(w => w[0] || '').slice(0, 2).join('').toUpperCase() || 'U';
+        if (editingTeacherMasterIdx === idx) {
+          return `
+            <div class="teacher-master-item">
+              <div class="teacher-master-avatar">${initials}</div>
+              <input type="text" id="setTeacherEditInput_${idx}" class="form-input teacher-edit-input" value="${escapeTeacherHtml(name)}" onkeydown="if(event.key==='Enter'){event.preventDefault();saveTeacherMasterEdit(${idx});}else if(event.key==='Escape'){cancelTeacherMasterEdit();}">
+              <div class="teacher-item-actions">
+                <button type="button" class="teacher-icon-btn edit" onclick="saveTeacherMasterEdit(${idx})" title="Simpan">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button type="button" class="teacher-icon-btn" onclick="cancelTeacherMasterEdit()" title="Batal">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            </div>
+          `;
+        }
+        return `
+          <div class="teacher-master-item">
+            <div class="teacher-master-avatar">${initials}</div>
+            <div class="teacher-master-name" title="${escapeTeacherHtml(name)}">${escapeTeacherHtml(name)}</div>
+            <div class="teacher-item-actions">
+              <button type="button" class="teacher-icon-btn edit" onclick="editTeacherMasterItem(${idx})" title="Ubah nama">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button type="button" class="teacher-icon-btn delete" onclick="deleteTeacherMasterItem(${idx})" title="Hapus dari daftar">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addTeacherMasterName() {
+      const inp = document.getElementById('setTeacherNameInput');
+      const errEl = document.getElementById('setTeacherError');
+      if (!inp) return;
+      const val = inp.value.trim();
+      if (errEl) errEl.style.display = 'none';
+
+      if (val.length < 3) {
+        if (errEl) {
+          errEl.innerText = 'Nama ustadz / guru minimal 3 karakter.';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+
+      const list = getMergedTeacherMasterList();
+      if (list.some(t => t.toLowerCase() === val.toLowerCase())) {
+        if (errEl) {
+          errEl.innerText = `Nama "${val}" sudah ada dalam daftar.`;
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+
+      teacherMasterList.unshift(val);
+      inp.value = '';
+      syncTeacherSelectOptions();
+      renderTeacherMasterList();
+      if (typeof showToast === 'function') {
+        showToast(`"${val}" berhasil ditambahkan ke daftar ustadz/guru.`, 'success');
+      }
+    }
+
+    function editTeacherMasterItem(idx) {
+      editingTeacherMasterIdx = idx;
+      renderTeacherMasterList();
+      const inp = document.getElementById('setTeacherEditInput_' + idx);
+      if (inp && typeof inp.focus === 'function') inp.focus();
+    }
+
+    function cancelTeacherMasterEdit() {
+      editingTeacherMasterIdx = -1;
+      renderTeacherMasterList();
+    }
+
+    function saveTeacherMasterEdit(idx) {
+      const inp = document.getElementById('setTeacherEditInput_' + idx);
+      const errEl = document.getElementById('setTeacherError');
+      if (!inp) return;
+      const newVal = inp.value.trim();
+      if (errEl) errEl.style.display = 'none';
+
+      if (newVal.length < 3) {
+        if (errEl) {
+          errEl.innerText = 'Nama ustadz / guru minimal 3 karakter.';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+      if (teacherMasterList.some((t, i) => i !== idx && t.toLowerCase() === newVal.toLowerCase())) {
+        if (errEl) {
+          errEl.innerText = `Nama "${newVal}" sudah digunakan.`;
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+
+      teacherMasterList[idx] = newVal;
+      editingTeacherMasterIdx = -1;
+      syncTeacherSelectOptions();
+      renderTeacherMasterList();
+      if (typeof showToast === 'function') {
+        showToast(`Nama pengajar diperbarui menjadi "${newVal}".`, 'success');
+      }
+    }
+
+    function deleteTeacherMasterItem(idx) {
+      if (idx < 0 || idx >= teacherMasterList.length) return;
+      const removed = teacherMasterList.splice(idx, 1)[0];
+      if (editingTeacherMasterIdx === idx) editingTeacherMasterIdx = -1;
+      syncTeacherSelectOptions();
+      renderTeacherMasterList();
+      if (typeof showToast === 'function') {
+        showToast(`"${removed}" dihapus dari daftar ustadz/guru.`, 'info');
+      }
     }
 
     function closeSettingDetail() {
@@ -632,5 +865,23 @@
       backFromSettings();
       logoutFromHome();
       showToast('Anda telah berhasil keluar dari akun.', 'info');
+    }
+
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncTeacherSelectOptions);
+      } else {
+        syncTeacherSelectOptions();
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.teacherMasterList = teacherMasterList;
+      window.addTeacherMasterName = addTeacherMasterName;
+      window.editTeacherMasterItem = editTeacherMasterItem;
+      window.cancelTeacherMasterEdit = cancelTeacherMasterEdit;
+      window.saveTeacherMasterEdit = saveTeacherMasterEdit;
+      window.deleteTeacherMasterItem = deleteTeacherMasterItem;
+      window.syncTeacherSelectOptions = syncTeacherSelectOptions;
     }
 

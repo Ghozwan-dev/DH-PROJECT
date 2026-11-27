@@ -27,7 +27,74 @@
               <div class="att-info-divider"></div>
               <div class="att-date-row">
                 <label class="form-label" style="margin-bottom:0; font-size:12px; font-weight:700;">Tanggal Pertemuan:</label>
-                <input type="date" id="attFormDate" class="form-input" style="padding:6px 10px; width:auto; font-size:12.5px;" onchange="handleAttendanceDateChange()">
+                <div class="att-date-stepper-wrap" id="attDateStepperWrap">
+                  <div class="att-date-stepper" id="attDateStepper" tabindex="0" onkeydown="handleAttendanceStepperKeydown(event)" aria-label="Pilih tanggal pertemuan">
+                    <button type="button" class="att-stepper-center" id="attDateStepperCenter" onclick="toggleAttendanceCalendarPopover()" aria-haspopup="dialog" aria-expanded="false" title="Buka kalender & stepper bulan/tahun">
+                      <span class="att-stepper-cal-icon" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      </span>
+                      <span class="att-stepper-date-text">
+                        <span class="att-stepper-day-slot">
+                          <span class="att-stepper-day" id="attStepperDayNum">27</span>
+                        </span>
+                        <span class="att-stepper-my" id="attStepperMonthYear">Nov 2026</span>
+                      </span>
+                      <svg class="att-stepper-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <div class="att-stepper-controls" role="group" aria-label="Geser hari">
+                      <button type="button" class="att-stepper-btn" id="attDateStepPrev" title="Kurangi 1 hari" aria-label="Mundur 1 hari"
+                        onpointerdown="startDateStepperHold(-1)" onpointerup="stopDateStepperHold()" onpointerleave="stopDateStepperHold()" onpointercancel="stopDateStepperHold()"
+                        onclick="handleDateStepperClick(-1)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      </button>
+                      <span class="att-stepper-divider" aria-hidden="true"></span>
+                      <button type="button" class="att-stepper-btn" id="attDateStepNext" title="Tambah 1 hari" aria-label="Maju 1 hari"
+                        onpointerdown="startDateStepperHold(1)" onpointerup="stopDateStepperHold()" onpointerleave="stopDateStepperHold()" onpointercancel="stopDateStepperHold()"
+                        onclick="handleDateStepperClick(1)">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                  <input type="date" id="attFormDate" class="att-date-hidden-input" tabindex="-1" aria-hidden="true" onchange="handleAttendanceDateChange()">
+
+                  <!-- Custom Calendar Popover with Month & Year Number Steppers -->
+                  <div class="att-calendar-popover" id="attCalendarPopover" role="dialog" aria-label="Kalender Tanggal Pertemuan" aria-hidden="true">
+                    <div class="att-cal-steppers-bar">
+                      <div class="att-cal-mini-stepper" aria-label="Stepper Bulan">
+                        <button type="button" class="att-cal-step-btn" onclick="stepCalendarViewMonth(-1)" title="Bulan sebelumnya" aria-label="Bulan sebelumnya">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <span class="att-cal-step-value-wrap">
+                          <span class="att-cal-step-value" id="attCalMonthLabel">November</span>
+                        </span>
+                        <button type="button" class="att-cal-step-btn" onclick="stepCalendarViewMonth(1)" title="Bulan berikutnya" aria-label="Bulan berikutnya">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                      </div>
+                      <div class="att-cal-mini-stepper is-year" aria-label="Stepper Tahun">
+                        <button type="button" class="att-cal-step-btn" onclick="stepCalendarViewYear(-1)" title="Kurangi tahun" aria-label="Kurangi tahun">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                        <span class="att-cal-step-value-wrap">
+                          <span class="att-cal-step-value" id="attCalYearLabel">2026</span>
+                        </span>
+                        <button type="button" class="att-cal-step-btn" onclick="stepCalendarViewYear(1)" title="Tambah tahun" aria-label="Tambah tahun">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="att-cal-weekdays">
+                      <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+                    </div>
+                    <div class="att-cal-days-grid" id="attCalDaysGrid">
+                      <!-- Rendered via JS -->
+                    </div>
+                    <div class="att-cal-footer">
+                      <button type="button" class="att-cal-footer-btn subtle" onclick="closeAttendanceCalendarPopover()">Tutup</button>
+                      <button type="button" class="att-cal-footer-btn primary" onclick="jumpAttendanceDateToToday()">Hari Ini</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

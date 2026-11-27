@@ -55,9 +55,12 @@
             </div>
 
             <!-- Search Bar -->
-            <div class="snt-search-box" style="margin-bottom:12px;">
+            <div class="snt-search-box floating-field" style="margin-bottom:12px;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" id="schSearchInput" placeholder="Cari mapel atau nama guru..." oninput="handleScheduleSearchInput()">
+              <div class="floating-field-control">
+                <input type="text" id="schSearchInput" class="floating-input" placeholder=" " oninput="handleScheduleSearchInput()">
+                <label for="schSearchInput" class="floating-label">Cari mapel atau nama guru...</label>
+              </div>
               <button id="schClearSearch" onclick="clearScheduleSearch()" style="display:none; background:none; border:none; color:var(--text-muted); cursor:pointer;">&times;</button>
             </div>
 
@@ -130,9 +133,12 @@
               </div>
 
               <!-- 3. Kotak Pencarian Mata Pelajaran atau Nama Guru (Butir 2) -->
-              <div class="snt-search-box" style="margin-bottom:12px;">
+              <div class="snt-search-box floating-field" style="margin-bottom:12px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="attHistorySearchInput" placeholder="Cari mata pelajaran atau nama guru..." oninput="renderAttendanceHistory()">
+                <div class="floating-field-control">
+                  <input type="text" id="attHistorySearchInput" class="floating-input" placeholder=" " oninput="renderAttendanceHistory()">
+                  <label for="attHistorySearchInput" class="floating-label">Cari mata pelajaran atau nama guru...</label>
+                </div>
                 <button id="attHistoryClearSearch" onclick="clearAttendanceSearch()" style="display:none; background:none; border:none; color:var(--text-muted); cursor:pointer;">&times;</button>
               </div>
 
@@ -232,9 +238,12 @@
               </div>
 
               <!-- 2. Kotak Pencarian Nama Santri atau NIS -->
-              <div class="snt-search-box" style="margin-bottom:10px;">
+              <div class="snt-search-box floating-field" style="margin-bottom:10px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" id="recapSearchInput" placeholder="Cari nama santri atau NIS..." oninput="renderStudentRecapList()">
+                <div class="floating-field-control">
+                  <input type="text" id="recapSearchInput" class="floating-input" placeholder=" " oninput="renderStudentRecapList()">
+                  <label for="recapSearchInput" class="floating-label">Cari nama santri atau NIS...</label>
+                </div>
                 <button id="recapClearSearch" onclick="clearRecapSearch()" style="display:none; background:none; border:none; color:var(--text-muted); cursor:pointer;">&times;</button>
               </div>
 

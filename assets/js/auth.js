@@ -1,5 +1,8 @@
     // Alur Navigasi Alami: Buka Register hanya setelah klik Daftar
     function openRegisterPage() {
+      document.querySelectorAll('.screen-page').forEach(function(p) {
+        if (p.id !== 'pageRegister') p.classList.remove('active');
+      });
       document.getElementById('pageRegister').classList.add('active');
       document.getElementById('pageLogin').classList.add('slide-out');
       document.getElementById('pageRegister').scrollTop = 0;
@@ -7,7 +10,9 @@
 
     // Kembali ke Halaman Login saat klik tombol kembali (<) atau teks "Masuk"
     function backToLoginPage() {
-      document.getElementById('pageRegister').classList.remove('active');
+      document.querySelectorAll('.screen-page').forEach(function(p) {
+        p.classList.remove('active');
+      });
       document.getElementById('pageLogin').classList.remove('slide-out');
       document.getElementById('pageLogin').scrollTop = 0;
     }
@@ -88,9 +93,11 @@
     function showOnlyScreenPage(targetPageId) {
       const shell = document.querySelector('.device-shell');
       if (shell) {
-        shell.classList.remove('on-students', 'on-schedule', 'on-report', 'on-settings');
+        shell.classList.remove('on-home', 'on-students', 'on-schedule', 'on-report', 'on-settings');
         if (targetPageId === 'pageHome') shell.classList.add('on-home');
-        else if (targetPageId.startsWith('pageStudent')) shell.classList.add('on-students');
+        else if (targetPageId !== 'pageLogin' && targetPageId !== 'pageRegister') shell.classList.add('on-home');
+
+        if (targetPageId.startsWith('pageStudent')) shell.classList.add('on-students');
         else if (targetPageId.startsWith('pageSchedule') || targetPageId.startsWith('pageAttendanceForm')) shell.classList.add('on-schedule');
         else if (targetPageId.startsWith('pageAttendanceReport') || targetPageId.startsWith('pageStudentRecap')) shell.classList.add('on-report');
         else if (targetPageId.startsWith('pageSetting')) shell.classList.add('on-settings');
@@ -98,8 +105,13 @@
 
       // Pastikan slide login tertutup jika masuk ke halaman dalam
       const pageLogin = document.getElementById('pageLogin');
-      if (pageLogin && targetPageId !== 'pageLogin' && targetPageId !== 'pageRegister') {
-        pageLogin.classList.add('slide-out');
+      if (pageLogin) {
+        if (targetPageId === 'pageLogin') {
+          pageLogin.classList.remove('slide-out');
+          pageLogin.scrollTop = 0;
+        } else {
+          pageLogin.classList.add('slide-out');
+        }
       }
 
       // Sembunyikan SEMUA screen-page, hanya aktifkan targetPageId
@@ -1216,35 +1228,184 @@
       container.innerHTML = html;
     }
 
-    // Toggle Tampilan Jadwal Mengajar Ustadz di Kartu Beranda (1 button kecil rapi)
+    function setTeachingToggleBtnState(btn, isExpanded) {
+      if (!btn) return;
+      if (isExpanded) {
+        btn.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+        const label = btn.querySelector('.btn-toggle-label');
+        if (label) {
+          if (!btn.dataset.prevLabel) {
+            btn.dataset.prevLabel = label.innerText;
+          }
+          label.innerText = 'Tutup Jadwal';
+        }
+      } else {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-expanded', 'false');
+        const label = btn.querySelector('.btn-toggle-label');
+        if (label) {
+          label.innerText = btn.dataset.prevLabel || 'Lihat Jadwal';
+        }
+      }
+    }
+
+    function clearTeachingAccordionStyles(box) {
+      if (!box || !box.style) return;
+      box.style.transition = '';
+      box.style.maxHeight = '';
+      box.style.opacity = '';
+      box.style.transform = '';
+      box.style.marginTop = '';
+      box.style.paddingTop = '';
+      box.style.paddingBottom = '';
+      box.style.overflow = '';
+    }
+
+    function expandTeachingAccordionBox(box, btn) {
+      if (box._accordionTimer) {
+        clearTimeout(box._accordionTimer);
+        box._accordionTimer = null;
+      }
+      box.style.display = 'block';
+      box.classList.add('is-open');
+      setTeachingToggleBtnState(btn, true);
+
+      const canAnimate =
+        typeof box.scrollHeight === 'number' &&
+        box.scrollHeight > 0 &&
+        typeof requestAnimationFrame === 'function';
+
+      if (!canAnimate) {
+        clearTeachingAccordionStyles(box);
+        return;
+      }
+
+      box.style.transition = 'none';
+      box.style.overflow = 'hidden';
+      box.style.maxHeight = 'none';
+      box.style.paddingTop = '';
+      box.style.paddingBottom = '';
+      box.style.marginTop = '';
+      const targetHeight = box.scrollHeight;
+
+      box.style.maxHeight = '0px';
+      box.style.opacity = '0';
+      box.style.transform = 'translateY(-6px) scaleY(0.96)';
+      box.style.paddingTop = '0px';
+      box.style.paddingBottom = '0px';
+      box.style.marginTop = '0px';
+      void box.offsetHeight;
+
+      box.style.transition = '';
+      requestAnimationFrame(() => {
+        box.style.maxHeight = targetHeight + 'px';
+        box.style.opacity = '1';
+        box.style.transform = 'translateY(0) scaleY(1)';
+        box.style.paddingTop = '';
+        box.style.paddingBottom = '';
+        box.style.marginTop = '';
+      });
+
+      const finishExpand = () => {
+        if (box.classList.contains('is-open')) {
+          box.style.maxHeight = 'none';
+          box.style.overflow = '';
+        }
+      };
+      if (typeof box.addEventListener === 'function') {
+        const onEnd = (e) => {
+          if (e.target === box && e.propertyName === 'max-height') {
+            box.removeEventListener('transitionend', onEnd);
+            finishExpand();
+          }
+        };
+        box.addEventListener('transitionend', onEnd);
+      }
+      box._accordionTimer = setTimeout(finishExpand, 390);
+    }
+
+    function collapseTeachingAccordionBox(box, btn) {
+      if (box._accordionTimer) {
+        clearTimeout(box._accordionTimer);
+        box._accordionTimer = null;
+      }
+      box.classList.remove('is-open');
+      setTeachingToggleBtnState(btn, false);
+
+      const canAnimate =
+        typeof box.addEventListener === 'function' &&
+        typeof box.offsetHeight === 'number' &&
+        box.offsetHeight > 0 &&
+        typeof requestAnimationFrame === 'function';
+
+      if (!canAnimate) {
+        clearTeachingAccordionStyles(box);
+        box.style.display = 'none';
+        return;
+      }
+
+      const currentHeight = box.scrollHeight || box.offsetHeight;
+      box.style.transition = 'none';
+      box.style.overflow = 'hidden';
+      box.style.maxHeight = currentHeight + 'px';
+      box.style.opacity = '1';
+      box.style.transform = 'translateY(0) scaleY(1)';
+      void box.offsetHeight;
+
+      box.style.transition = '';
+      requestAnimationFrame(() => {
+        box.style.maxHeight = '0px';
+        box.style.opacity = '0';
+        box.style.transform = 'translateY(-6px) scaleY(0.96)';
+        box.style.paddingTop = '0px';
+        box.style.paddingBottom = '0px';
+        box.style.marginTop = '0px';
+      });
+
+      const finishCollapse = () => {
+        if (!box.classList.contains('is-open')) {
+          clearTeachingAccordionStyles(box);
+          box.style.display = 'none';
+        }
+      };
+      const onEnd = (e) => {
+        if (e.target === box && e.propertyName === 'max-height') {
+          box.removeEventListener('transitionend', onEnd);
+          finishCollapse();
+        }
+      };
+      box.addEventListener('transitionend', onEnd);
+      box._accordionTimer = setTimeout(finishCollapse, 390);
+    }
+
+    // Accordion Expand / Collapse Jadwal Mengajar Ustadz di Kartu Beranda
     function toggleTeachingBox(boxId, btn) {
       if (typeof document === 'undefined') return;
       const box = document.getElementById(boxId);
       if (!box) return;
       const isHidden = box.style.display === 'none' || (typeof getComputedStyle !== 'undefined' && getComputedStyle(box).display === 'none');
+
       if (isHidden) {
-        box.style.display = 'block';
-        if (btn) {
-          btn.classList.add('active');
-          btn.setAttribute('aria-expanded', 'true');
-          const label = btn.querySelector('.btn-toggle-label');
-          if (label) {
-            if (!btn.dataset.prevLabel) {
-              btn.dataset.prevLabel = label.innerText;
+        // Tutup accordion jadwal lain yang sedang terbuka di daftar yang sama
+        const listContainer = (typeof box.closest === 'function' ? box.closest('#homeActivitiesList') : null) || document.getElementById('homeActivitiesList');
+        if (listContainer && typeof listContainer.querySelectorAll === 'function') {
+          listContainer.querySelectorAll('.btn-teaching-toggle.active').forEach((otherBtn) => {
+            if (otherBtn === btn) return;
+            const infoWrap = typeof otherBtn.closest === 'function' ? otherBtn.closest('.activity-info') : null;
+            const otherBox = infoWrap && typeof infoWrap.querySelector === 'function'
+              ? infoWrap.querySelector('.activity-teaching-box')
+              : null;
+            if (otherBox && otherBox !== box) {
+              collapseTeachingAccordionBox(otherBox, otherBtn);
+            } else {
+              setTeachingToggleBtnState(otherBtn, false);
             }
-            label.innerText = 'Tutup Jadwal';
-          }
+          });
         }
+        expandTeachingAccordionBox(box, btn);
       } else {
-        box.style.display = 'none';
-        if (btn) {
-          btn.classList.remove('active');
-          btn.setAttribute('aria-expanded', 'false');
-          const label = btn.querySelector('.btn-toggle-label');
-          if (label) {
-            label.innerText = btn.dataset.prevLabel || 'Lihat Jadwal';
-          }
-        }
+        collapseTeachingAccordionBox(box, btn);
       }
     }
 
@@ -1445,16 +1606,36 @@
       openMenuModal(names[index], codes[index]);
     }
 
-    // Logout dari Homepage
+    // Logout dari Homepage / Halaman mana pun kembali ke Login secara bersih
     function logoutFromHome() {
       closeRoleDropdown();
       if (typeof closeTeacherNotifPanel === 'function') closeTeacherNotifPanel();
       if (typeof hideReminderFloatingToast === 'function') hideReminderFloatingToast();
-      document.querySelector('.device-shell').classList.remove('on-home');
-      document.getElementById('pageHome').classList.remove('active');
-      document.getElementById('pageRegister').classList.remove('active');
-      document.getElementById('pageLogin').classList.remove('slide-out');
-      document.getElementById('pageLogin').scrollTop = 0;
+      if (typeof closeSettingDetail === 'function') closeSettingDetail();
+      if (typeof cancelLogoutModal === 'function') cancelLogoutModal();
+
+      const shell = document.querySelector('.device-shell');
+      if (shell) {
+        shell.classList.remove('on-home', 'on-students', 'on-schedule', 'on-report', 'on-settings');
+      }
+
+      document.querySelectorAll('.screen-page').forEach(function(p) {
+        p.classList.remove('active');
+      });
+
+      const pageReg = document.getElementById('pageRegister');
+      if (pageReg) pageReg.classList.remove('active');
+
+      const pageLogin = document.getElementById('pageLogin');
+      if (pageLogin) {
+        pageLogin.classList.remove('slide-out');
+        pageLogin.scrollTop = 0;
+      }
+
+      if (typeof window !== 'undefined' && window.scrollTo) {
+        try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
+      }
+
       const bNav = document.getElementById('bottomNavFixed') || document.querySelector('.bottom-nav-fixed');
       if (bNav) bNav.style.display = 'none';
       showToast('Anda telah keluar dari sesi akun.', 'success');
@@ -1481,18 +1662,44 @@
 
     // Clear validation errors
     function clearErrors(prefix) {
-      document.querySelectorAll(`[id^="${prefix}"][id$="Wrapper"]`).forEach(w => w.classList.remove('error'));
+      document.querySelectorAll(`[id^="${prefix}"][id$="Wrapper"]`).forEach(w => w.classList.remove('error', 'error-shake'));
       document.querySelectorAll(`[id^="${prefix}"][id$="Error"]`).forEach(e => e.style.display = 'none');
     }
 
     function setFieldError(wrapperId, errorId, msg) {
       const wrap = document.getElementById(wrapperId);
       const err = document.getElementById(errorId);
-      if (wrap) wrap.classList.add('error');
+      if (wrap) {
+        wrap.classList.add('error');
+        wrap.classList.remove('error-shake');
+        if (typeof wrap.offsetWidth === 'number') {
+          void wrap.offsetWidth;
+        }
+        wrap.classList.add('error-shake');
+        if (wrap._shakeTimer) clearTimeout(wrap._shakeTimer);
+        wrap._shakeTimer = setTimeout(() => {
+          wrap.classList.remove('error-shake');
+          wrap._shakeTimer = null;
+        }, 480);
+      }
       if (err) {
         if (msg) err.innerText = msg;
         err.style.display = 'block';
       }
+    }
+
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      document.addEventListener('input', (e) => {
+        const target = e.target;
+        if (!target || !target.classList || !target.classList.contains('floating-input')) return;
+        const wrap = typeof target.closest === 'function' ? target.closest('.input-wrapper.error') : null;
+        if (wrap) {
+          wrap.classList.remove('error', 'error-shake');
+          const group = typeof wrap.closest === 'function' ? wrap.closest('.form-group') : null;
+          const errEl = group && typeof group.querySelector === 'function' ? group.querySelector('.field-error') : null;
+          if (errEl) errEl.style.display = 'none';
+        }
+      });
     }
 
     // Handle Login Submit

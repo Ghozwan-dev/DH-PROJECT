@@ -54,7 +54,7 @@
       return (teacherName.length > 0 && teacherName === userFullName) || (schedule.teacherId && schedule.teacherId === currentLoggedInUser.id) || (teacherName.includes("ahmad fauzi") && userFullName.includes("ahmad fauzi"));
     }
 
-    function openAttendanceForm(scheduleId, targetDate) {
+    function openAttendanceForm(scheduleId, targetDate, stepDirection) {
       const schedule = mockSchedules.find(s => s.id === scheduleId);
       if (!schedule) {
         showToast("Jadwal pelajaran tidak ditemukan.", "error");
@@ -68,7 +68,7 @@
       }
 
       currentAttendanceScheduleId = scheduleId;
-      const todayIso = new Date().toISOString().split("T")[0];
+      const todayIso = typeof getTodayLocalIsoDate === 'function' ? getTodayLocalIsoDate() : new Date().toISOString().split("T")[0];
       currentAttendanceDate = targetDate || todayIso;
 
       // Reset state validasi
@@ -88,6 +88,9 @@
       if (teachEl) teachEl.innerText = schedule.teacherName;
       if (periodEl) periodEl.innerText = "Jam Ke-" + schedule.periodNumber + " (" + schedule.startTime + " - " + schedule.endTime + ")";
       if (dateInput) dateInput.value = currentAttendanceDate;
+      if (typeof syncAttendanceDateStepperUI === 'function') {
+        syncAttendanceDateStepperUI(currentAttendanceDate, stepDirection);
+      }
 
       // Ambil santri dari kelas jadwal ini (tanpa duplikasi - Butir 5)
       const studentsInClass = mockStudents.filter(s => s.className === schedule.className && s.isActive !== false);
@@ -141,6 +144,278 @@
       openAttendanceForm(currentAttendanceScheduleId, dateInput.value);
     }
 
+    const ATT_MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+    const ATT_MONTHS_FULL = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    let attCalendarViewYear = 2026;
+    let attCalendarViewMonth = 10; // 0-based (November)
+    let _attHoldDelayTimer = null;
+    let _attHoldRepeatTimer = null;
+    let _attHoldDidRepeat = false;
+
+    function parseIsoDateParts(isoStr) {
+      if (!isoStr || typeof isoStr !== 'string') return null;
+      const m = isoStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m) return null;
+      const year = parseInt(m[1], 10);
+      const month = parseInt(m[2], 10);
+      const day = parseInt(m[3], 10);
+      if (!year || month < 1 || month > 12 || day < 1 || day > 31) return null;
+      return { year, month, day };
+    }
+
+    function formatIsoDateParts(year, month, day) {
+      const y = String(year).padStart(4, '0');
+      const m = String(month).padStart(2, '0');
+      const d = String(day).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getTodayLocalIsoDate() {
+      const now = new Date();
+      return formatIsoDateParts(now.getFullYear(), now.getMonth() + 1, now.getDate());
+    }
+
+    function addDaysToIsoDate(isoStr, deltaDays) {
+      const parts = parseIsoDateParts(isoStr) || parseIsoDateParts(getTodayLocalIsoDate());
+      const d = new Date(parts.year, parts.month - 1, parts.day + deltaDays, 12, 0, 0);
+      return formatIsoDateParts(d.getFullYear(), d.getMonth() + 1, d.getDate());
+    }
+
+    function triggerStepperRollAnim(el, direction) {
+      if (!el || !el.classList || !direction) return;
+      el.classList.remove('att-step-roll-up', 'att-step-roll-down');
+      if (typeof el.offsetWidth === 'number') {
+        void el.offsetWidth;
+      }
+      el.classList.add(direction === 'up' ? 'att-step-roll-up' : 'att-step-roll-down');
+    }
+
+    function syncAttendanceDateStepperUI(isoStr, direction) {
+      const parts = parseIsoDateParts(isoStr);
+      if (!parts) return;
+
+      const dayEl = document.getElementById('attStepperDayNum');
+      const myEl = document.getElementById('attStepperMonthYear');
+
+      const nextDayStr = String(parts.day);
+      const nextMyStr = `${ATT_MONTHS_SHORT[parts.month - 1]} ${parts.year}`;
+
+      if (dayEl) {
+        if (direction && dayEl.innerText !== nextDayStr) {
+          dayEl.innerText = nextDayStr;
+          triggerStepperRollAnim(dayEl, direction);
+        } else {
+          dayEl.innerText = nextDayStr;
+        }
+      }
+      if (myEl) {
+        if (direction && myEl.innerText !== nextMyStr) {
+          myEl.innerText = nextMyStr;
+          triggerStepperRollAnim(myEl, direction);
+        } else {
+          myEl.innerText = nextMyStr;
+        }
+      }
+
+      attCalendarViewYear = parts.year;
+      attCalendarViewMonth = parts.month - 1;
+
+      const popover = document.getElementById('attCalendarPopover');
+      if (popover && popover.classList.contains('open')) {
+        renderAttendanceCalendarGrid(direction);
+      }
+    }
+
+    function stepAttendanceDate(deltaDays) {
+      const dateInput = document.getElementById('attFormDate');
+      const baseIso = (dateInput && dateInput.value) || currentAttendanceDate || getTodayLocalIsoDate();
+      const nextIso = addDaysToIsoDate(baseIso, deltaDays);
+      const dir = deltaDays >= 0 ? 'up' : 'down';
+
+      if (dateInput) dateInput.value = nextIso;
+      if (currentAttendanceScheduleId) {
+        openAttendanceForm(currentAttendanceScheduleId, nextIso, dir);
+      } else {
+        currentAttendanceDate = nextIso;
+        syncAttendanceDateStepperUI(nextIso, dir);
+      }
+    }
+
+    function startDateStepperHold(deltaDays) {
+      stopDateStepperHold();
+      _attHoldDidRepeat = false;
+      _attHoldDelayTimer = setTimeout(() => {
+        _attHoldDidRepeat = true;
+        stepAttendanceDate(deltaDays);
+        _attHoldRepeatTimer = setInterval(() => {
+          stepAttendanceDate(deltaDays);
+        }, 120);
+      }, 420);
+    }
+
+    function stopDateStepperHold() {
+      if (_attHoldDelayTimer) {
+        clearTimeout(_attHoldDelayTimer);
+        _attHoldDelayTimer = null;
+      }
+      if (_attHoldRepeatTimer) {
+        clearInterval(_attHoldRepeatTimer);
+        _attHoldRepeatTimer = null;
+      }
+    }
+
+    function handleDateStepperClick(deltaDays) {
+      if (_attHoldDidRepeat) {
+        _attHoldDidRepeat = false;
+        return;
+      }
+      stepAttendanceDate(deltaDays);
+    }
+
+    function handleAttendanceStepperKeydown(e) {
+      if (!e) return;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        stepAttendanceDate(-1);
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        stepAttendanceDate(1);
+      } else if (e.key === 'Escape') {
+        closeAttendanceCalendarPopover();
+      }
+    }
+
+    function renderAttendanceCalendarGrid(stepDir) {
+      const monthEl = document.getElementById('attCalMonthLabel');
+      const yearEl = document.getElementById('attCalYearLabel');
+      const gridEl = document.getElementById('attCalDaysGrid');
+      if (!gridEl) return;
+
+      if (monthEl) {
+        const nextMonthName = ATT_MONTHS_FULL[attCalendarViewMonth];
+        if (stepDir && monthEl.innerText !== nextMonthName) {
+          monthEl.innerText = nextMonthName;
+          triggerStepperRollAnim(monthEl, stepDir);
+        } else {
+          monthEl.innerText = nextMonthName;
+        }
+      }
+      if (yearEl) {
+        const nextYearStr = String(attCalendarViewYear);
+        if (stepDir && yearEl.innerText !== nextYearStr) {
+          yearEl.innerText = nextYearStr;
+          triggerStepperRollAnim(yearEl, stepDir);
+        } else {
+          yearEl.innerText = nextYearStr;
+        }
+      }
+
+      const dateInput = document.getElementById('attFormDate');
+      const selectedIso = (dateInput && dateInput.value) || currentAttendanceDate || getTodayLocalIsoDate();
+      const todayIso = getTodayLocalIsoDate();
+
+      const firstWeekday = new Date(attCalendarViewYear, attCalendarViewMonth, 1).getDay();
+      const daysInMonth = new Date(attCalendarViewYear, attCalendarViewMonth + 1, 0).getDate();
+      const prevMonthDays = new Date(attCalendarViewYear, attCalendarViewMonth, 0).getDate();
+
+      const cells = [];
+      for (let i = firstWeekday - 1; i >= 0; i--) {
+        const d = prevMonthDays - i;
+        const m = attCalendarViewMonth === 0 ? 12 : attCalendarViewMonth;
+        const y = attCalendarViewMonth === 0 ? attCalendarViewYear - 1 : attCalendarViewYear;
+        cells.push({ day: d, iso: formatIsoDateParts(y, m, d), outside: true });
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        cells.push({ day: d, iso: formatIsoDateParts(attCalendarViewYear, attCalendarViewMonth + 1, d), outside: false });
+      }
+      const trailing = (7 - (cells.length % 7)) % 7;
+      for (let d = 1; d <= trailing; d++) {
+        const m = attCalendarViewMonth === 11 ? 1 : attCalendarViewMonth + 2;
+        const y = attCalendarViewMonth === 11 ? attCalendarViewYear + 1 : attCalendarViewYear;
+        cells.push({ day: d, iso: formatIsoDateParts(y, m, d), outside: true });
+      }
+
+      gridEl.innerHTML = cells.map(c => {
+        const classes = ['att-cal-day-btn'];
+        if (c.outside) classes.push('is-outside');
+        if (c.iso === todayIso) classes.push('is-today');
+        if (c.iso === selectedIso) classes.push('is-selected');
+        return `<button type="button" class="${classes.join(' ')}" data-date="${c.iso}" onclick="selectAttendanceCalendarDate('${c.iso}')">${c.day}</button>`;
+      }).join('');
+    }
+
+    function toggleAttendanceCalendarPopover() {
+      const popover = document.getElementById('attCalendarPopover');
+      if (!popover) return;
+      if (popover.classList.contains('open')) {
+        closeAttendanceCalendarPopover();
+        return;
+      }
+      const dateInput = document.getElementById('attFormDate');
+      const parts = parseIsoDateParts((dateInput && dateInput.value) || currentAttendanceDate || getTodayLocalIsoDate());
+      if (parts) {
+        attCalendarViewYear = parts.year;
+        attCalendarViewMonth = parts.month - 1;
+      }
+      renderAttendanceCalendarGrid();
+      popover.classList.add('open');
+      popover.setAttribute('aria-hidden', 'false');
+      const centerBtn = document.getElementById('attDateStepperCenter');
+      if (centerBtn) centerBtn.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeAttendanceCalendarPopover() {
+      const popover = document.getElementById('attCalendarPopover');
+      if (popover) {
+        popover.classList.remove('open');
+        popover.setAttribute('aria-hidden', 'true');
+      }
+      const centerBtn = document.getElementById('attDateStepperCenter');
+      if (centerBtn) centerBtn.setAttribute('aria-expanded', 'false');
+    }
+
+    function stepCalendarViewMonth(delta) {
+      const nextDate = new Date(attCalendarViewYear, attCalendarViewMonth + delta, 1);
+      attCalendarViewYear = nextDate.getFullYear();
+      attCalendarViewMonth = nextDate.getMonth();
+      renderAttendanceCalendarGrid(delta >= 0 ? 'up' : 'down');
+    }
+
+    function stepCalendarViewYear(delta) {
+      attCalendarViewYear += delta;
+      renderAttendanceCalendarGrid(delta >= 0 ? 'up' : 'down');
+    }
+
+    function selectAttendanceCalendarDate(isoStr) {
+      const dateInput = document.getElementById('attFormDate');
+      const prevIso = (dateInput && dateInput.value) || currentAttendanceDate || '';
+      const dir = prevIso && isoStr < prevIso ? 'down' : 'up';
+      if (dateInput) dateInput.value = isoStr;
+      if (currentAttendanceScheduleId) {
+        openAttendanceForm(currentAttendanceScheduleId, isoStr, dir);
+      } else {
+        currentAttendanceDate = isoStr;
+        syncAttendanceDateStepperUI(isoStr, dir);
+      }
+      closeAttendanceCalendarPopover();
+    }
+
+    function jumpAttendanceDateToToday() {
+      selectAttendanceCalendarDate(getTodayLocalIsoDate());
+    }
+
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      document.addEventListener('click', (e) => {
+        const popover = document.getElementById('attCalendarPopover');
+        const wrap = document.getElementById('attDateStepperWrap');
+        if (!popover || !popover.classList.contains('open')) return;
+        if (wrap && typeof wrap.contains === 'function' && !wrap.contains(e.target)) {
+          closeAttendanceCalendarPopover();
+        }
+      });
+    }
+
     // Scroll otomatis ke kartu santri pertama yang belum memiliki status (Ketentuan 2.5)
     function scrollToFirstUnassignedStudent() {
       const unassigned = currentAttendanceItems.find(it => !it.status);
@@ -149,6 +424,12 @@
       if (cardEl) {
         cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
       }
+    }
+
+    const ATT_STATUS_INDEX = { hadir: 0, izin: 1, sakit: 2, alfa: 3 };
+
+    function escapeAttrVal(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     // Render daftar santri pada form absensi
@@ -173,7 +454,7 @@
 
         const avatarHtml = item.avatar ?
           ('<img src="' + item.avatar + '" class="att-student-avatar" alt="' + item.studentName + '">') :
-          ('<div class="att-student-avatar-fallback ' + (item.gender === "Putri" ? "putri" : "putra") + ' ">' + item.studentName.charAt(0) + '</div>');
+          ('<div class="att-student-avatar-fallback ' + (item.gender === "Putri" ? "putri" : "putra") + '">' + item.studentName.charAt(0) + '</div>');
 
         const statuses = [
           { key: "hadir", label: "Hadir" },
@@ -182,22 +463,32 @@
           { key: "alfa", label: "Alfa" }
         ];
 
+        const activeIdx = ATT_STATUS_INDEX[item.status] !== undefined ? ATT_STATUS_INDEX[item.status] : -1;
+        const pillMod = activeIdx >= 0 ? (" is-" + item.status) : "";
+        const pillStyle = activeIdx >= 0
+          ? ("opacity:1; transform:translate3d(" + (activeIdx * 100) + "%, 0, 0);")
+          : "opacity:0; transform:translate3d(0%, 0, 0) scale(0.92);";
+
+        const pillHtml = '<span class="att-status-sliding-pill' + pillMod + '" id="attStatusPill_' + item.studentId + '" data-idx="' + (activeIdx >= 0 ? activeIdx : 0) + '" style="' + pillStyle + '" aria-hidden="true"></span>';
+
         const chipsHtml = statuses.map(function(s) {
           const isActive = item.status === s.key ? (" active-" + s.key) : "";
-          return '<button type="button" class="att-chip' + isActive + '" onclick="setAttendanceItemStatus(\''+ item.studentId + '\', \'' + s.key + '\')">' + s.label + '</button>';
+          return '<button type="button" class="att-chip' + isActive + '" data-status="' + s.key + '" onclick="setAttendanceItemStatus(\''+ item.studentId + '\', \'' + s.key + '\')">' + s.label + '</button>';
         }).join("");
 
         // Tanda peringatan khusus pada kartu santri yang belum diisi (Ketentuan 2.4)
-        const unassignedWarningHtml = hasError ?
-          '<div style="display:inline-flex; align-items:center; gap:5px; background:#FEE2E2; color:#DC2626; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; margin-bottom:8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Status kehadiran belum dipilih</div>' : "";
+        const unassignedWarningHtml =
+          '<div class="att-unassigned-warn" id="attUnassignedWarn_' + item.studentId + '" style="display:' + (hasError ? 'inline-flex' : 'none') + '; align-items:center; gap:5px; background:#FEE2E2; color:#DC2626; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; margin-bottom:8px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Status kehadiran belum dipilih</div>';
 
-        const unassignedBadgeHtml = isUnassigned ?
-          '<span style="font-size:10.5px; font-weight:700; color:#64748B; background:#F1F5F9; padding:2px 6px; border-radius:4px;">Belum Diisi</span>' : "";
+        const unassignedBadgeHtml =
+          '<span id="attUnassignedBadge_' + item.studentId + '" style="display:' + (isUnassigned ? 'inline-block' : 'none') + '; font-size:10.5px; font-weight:700; color:#64748B; background:#F1F5F9; padding:2px 6px; border-radius:4px;">Belum Diisi</span>';
 
-        const noteInputHtml = (item.status && item.status !== "hadir") ?
-          ('<input type="text" class="att-notes-input" placeholder="Catatan khusus (alasan ' + item.status + ', dsb)..." value="' + (item.note || "") + '" oninput="updateAttendanceItemNote(\''+ item.studentId + '\', this.value)">') : "";
+        const showNote = item.status && item.status !== "hadir";
+        const noteInputHtml = '<div id="attNotesWrap_' + item.studentId + '" style="display:' + (showNote ? 'block' : 'none') + ';">' +
+          (showNote ? ('<input type="text" class="att-notes-input" placeholder="Catatan khusus (alasan ' + item.status + ', dsb)..." value="' + escapeAttrVal(item.note) + '" oninput="updateAttendanceItemNote(\''+ item.studentId + '\', this.value)">') : '') +
+        '</div>';
 
-        return '<div class="' + cardClass + '" id="attCard_' + item.studentId + ' ">' +
+        return '<div class="' + cardClass + '" id="attCard_' + item.studentId + '">' +
           unassignedWarningHtml +
           '<div class="att-student-header">' +
             avatarHtml +
@@ -207,12 +498,72 @@
             '</div>' +
             unassignedBadgeHtml +
           '</div>' +
-          '<div class="att-status-chips">' + chipsHtml + '</div>' +
+          '<div class="att-status-chips" id="attChips_' + item.studentId + '">' + pillHtml + chipsHtml + '</div>' +
           noteInputHtml +
         '</div>';
       }).join("");
     }
-    // Set status absensi 1 santri (Bisa di-toggle / ubah status)
+
+    function syncAttendanceCardUI(item) {
+      if (!item) return false;
+      const chipsWrap = document.getElementById("attChips_" + item.studentId);
+      const pill = document.getElementById("attStatusPill_" + item.studentId);
+      if (!chipsWrap || !pill) return false;
+
+      const idx = ATT_STATUS_INDEX[item.status] !== undefined ? ATT_STATUS_INDEX[item.status] : -1;
+      const wasVisible = pill.style.opacity === '1';
+
+      if (idx >= 0) {
+        const targetTx = "translate3d(" + (idx * 100) + "%, 0, 0)";
+        pill.dataset.idx = String(idx);
+        pill.className = "att-status-sliding-pill is-" + item.status;
+        if (!wasVisible) {
+          pill.style.transition = 'none';
+          pill.style.transform = targetTx + " scale(0.92)";
+          if (typeof pill.offsetWidth === 'number') void pill.offsetWidth;
+          pill.style.transition = '';
+        }
+        pill.style.transform = targetTx;
+        pill.style.opacity = '1';
+      } else {
+        const lastIdx = pill.dataset && pill.dataset.idx ? pill.dataset.idx : '0';
+        pill.className = "att-status-sliding-pill";
+        pill.style.transform = "translate3d(" + (Number(lastIdx) * 100) + "%, 0, 0) scale(0.92)";
+        pill.style.opacity = '0';
+      }
+
+      chipsWrap.querySelectorAll('.att-chip').forEach(function(btn) {
+        const btnStatus = btn.getAttribute('data-status');
+        btn.className = 'att-chip' + (item.status === btnStatus ? (' active-' + btnStatus) : '');
+      });
+
+      const isUnassigned = !item.status;
+      const hasError = attendanceValidationActive && isUnassigned;
+      const cardEl = document.getElementById("attCard_" + item.studentId);
+      if (cardEl && cardEl.classList) {
+        cardEl.classList.toggle('unassigned-warning', hasError);
+      }
+
+      const warnEl = document.getElementById("attUnassignedWarn_" + item.studentId);
+      if (warnEl) warnEl.style.display = hasError ? 'inline-flex' : 'none';
+
+      const badgeEl = document.getElementById("attUnassignedBadge_" + item.studentId);
+      if (badgeEl) badgeEl.style.display = isUnassigned ? 'inline-block' : 'none';
+
+      const notesWrap = document.getElementById("attNotesWrap_" + item.studentId);
+      if (notesWrap) {
+        const showNote = Boolean(item.status && item.status !== "hadir");
+        notesWrap.style.display = showNote ? 'block' : 'none';
+        if (showNote) {
+          notesWrap.innerHTML = '<input type="text" class="att-notes-input" placeholder="Catatan khusus (alasan ' + item.status + ', dsb)..." value="' + escapeAttrVal(item.note) + '" oninput="updateAttendanceItemNote(\''+ item.studentId + '\', this.value)">';
+        } else {
+          notesWrap.innerHTML = '';
+        }
+      }
+      return true;
+    }
+
+    // Set status absensi 1 santri (Bisa di-toggle / ubah status dengan iPhone sliding thumb)
     function setAttendanceItemStatus(studentId, status) {
       const item = currentAttendanceItems.find(it => it.studentId === studentId);
       if (item) {
@@ -231,21 +582,29 @@
           }
         }
 
-        renderAttendanceStudentList();
+        if (!syncAttendanceCardUI(item)) {
+          renderAttendanceStudentList();
+        }
         updateAttendanceFormStats();
       }
     }
 
     // Tandai semua santri dengan status tertentu
     function quickMarkAllStatus(status) {
+      let syncedAll = currentAttendanceItems.length > 0;
       currentAttendanceItems.forEach(it => {
         it.status = status;
+        if (syncedAll && !syncAttendanceCardUI(it)) {
+          syncedAll = false;
+        }
       });
       attendanceValidationActive = false;
       const banner = document.getElementById("attValidationBanner");
       if (banner) banner.style.display = "none";
 
-      renderAttendanceStudentList();
+      if (!syncedAll) {
+        renderAttendanceStudentList();
+      }
       updateAttendanceFormStats();
       showToast("Seluruh santri ditandai " + status.toUpperCase(), "success");
     }
@@ -471,6 +830,7 @@
     }
     // Tutup Formulir Absensi
     function backFromAttendanceForm() {
+      if (typeof closeAttendanceCalendarPopover === 'function') closeAttendanceCalendarPopover();
       if (currentAttendanceScheduleId && typeof openScheduleDetail === 'function') {
         openScheduleDetail(currentAttendanceScheduleId);
       } else if (typeof openScheduleListPage === 'function') {

@@ -188,6 +188,26 @@
       padding: 0 12px;
       margin-bottom: 10px;
       gap: 8px;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .snt-search-box.floating-field {
+      position: relative;
+      overflow: visible;
+      height: 48px;
+      margin-top: 4px;
+    }
+    .snt-search-box.floating-field:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(14, 104, 56, 0.1);
+    }
+    .snt-search-box.floating-field > svg {
+      color: var(--text-hint, #94A3B8);
+      flex-shrink: 0;
+      transition: color 0.18s ease;
+    }
+    .snt-search-box.floating-field:focus-within > svg {
+      color: var(--primary);
     }
     .snt-search-box input {
       flex: 1;
@@ -195,21 +215,83 @@
       outline: none;
       font-size: 13.5px;
       color: var(--text-main);
+      background: transparent;
+      min-width: 0;
+    }
+    .snt-search-box.floating-field input.floating-input {
+      width: 100%;
+      height: 100%;
+      padding: 2px 0 0;
+    }
+    .snt-search-box.floating-field .floating-label {
+      font-size: 13.5px;
+      color: var(--text-hint, #94A3B8);
+    }
+    .snt-search-box.floating-field .floating-input:focus + .floating-label,
+    .snt-search-box.floating-field .floating-input:not(:placeholder-shown) + .floating-label {
+      top: 0;
+      left: -6px;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 0 6px;
+      background: linear-gradient(180deg, #F8FAFC 48%, #FFFFFF 52%);
+      color: var(--text-secondary);
+      border-radius: 4px;
+    }
+    .snt-search-box.floating-field:focus-within .floating-label {
+      color: var(--primary);
     }
 
     /* Filter Chips */
     .snt-filter-scroll {
+      position: relative;
+      isolation: isolate;
       display: flex;
+      align-items: center;
       gap: 6px;
       overflow-x: auto;
-      padding-bottom: 4px;
-      margin-bottom: 6px;
+      padding: 4px 2px 8px;
+      margin-bottom: 4px;
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
     }
     .snt-filter-scroll::-webkit-scrollbar { display: none; }
+    .snt-chip-sliding-pill,
+    .snt-gender-sliding-pill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      box-sizing: border-box;
+      backface-visibility: hidden;
+      transform: translate3d(0, 0, 0);
+      will-change: transform, width;
+    }
+    .snt-chip-sliding-pill {
+      border-radius: 10px;
+      background: linear-gradient(180deg, #117A42 0%, #0E6838 100%);
+      box-shadow: 0 4px 12px rgba(14, 104, 56, 0.24),
+                  0 1px 3px rgba(15, 23, 42, 0.08),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      transition: transform 0.46s cubic-bezier(0.22, 1.05, 0.36, 1),
+                  width 0.46s cubic-bezier(0.22, 1.05, 0.36, 1),
+                  height 0.28s ease,
+                  opacity 0.2s ease;
+      transition-timing-function:
+        linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.6%, 1.022 21.8%, 1.01 27.2%, 1.001 34%, 1 46%, 1),
+        linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.6%, 1.022 21.8%, 1.01 27.2%, 1.001 34%, 1 46%, 1),
+        ease,
+        ease;
+    }
     .snt-chip {
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
       padding: 5px 11px;
-      border-radius: 9px;
+      border-radius: 10px;
       font-size: 11.5px;
       font-weight: 600;
       background: #FFFFFF;
@@ -217,7 +299,11 @@
       color: var(--text-secondary);
       white-space: nowrap;
       cursor: pointer;
-      transition: all 0.15s;
+      user-select: none;
+      transition: color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                  background-color 0.2s ease,
+                  border-color 0.2s ease,
+                  transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .snt-chip.active {
       background: var(--primary);
@@ -226,13 +312,51 @@
     }
 
     .snt-gender-row {
+      position: relative;
+      isolation: isolate;
       display: flex;
+      align-items: center;
       gap: 6px;
-      margin-bottom: 14px;
+      padding: 4px 2px 6px;
+      margin-bottom: 12px;
+    }
+    .snt-gender-sliding-pill {
+      border-radius: 9px;
+      background: #E0F2FE;
+      border: 1.5px solid #0284C7;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.16), 0 1px 3px rgba(15, 23, 42, 0.05);
+      transition: transform 0.44s cubic-bezier(0.22, 1.05, 0.36, 1),
+                  width 0.44s cubic-bezier(0.22, 1.05, 0.36, 1),
+                  height 0.26s ease,
+                  opacity 0.22s ease,
+                  background-color 0.28s ease,
+                  border-color 0.28s ease,
+                  box-shadow 0.28s ease;
+      transition-timing-function:
+        linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.6%, 1.022 21.8%, 1.01 27.2%, 1.001 34%, 1 46%, 1),
+        linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.6%, 1.022 21.8%, 1.01 27.2%, 1.001 34%, 1 46%, 1),
+        ease,
+        ease,
+        ease,
+        ease,
+        ease;
+    }
+    .snt-gender-sliding-pill.is-putra {
+      background: #E0F2FE;
+      border-color: #0284C7;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.18), 0 1px 3px rgba(15, 23, 42, 0.05);
+    }
+    .snt-gender-sliding-pill.is-putri {
+      background: #FCE7F3;
+      border-color: #DB2777;
+      box-shadow: 0 4px 12px rgba(219, 39, 119, 0.18), 0 1px 3px rgba(15, 23, 42, 0.05);
     }
     .snt-gchip {
-      padding: 4px 10px;
-      border-radius: 8px;
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+      padding: 5px 11px;
+      border-radius: 9px;
       font-size: 11px;
       font-weight: 600;
       background: #FFFFFF;
@@ -242,10 +366,89 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      user-select: none;
+      transition: color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                  background-color 0.2s ease,
+                  border-color 0.2s ease;
     }
     .snt-gchip.active-all { background: rgba(14, 104, 56, 0.1); border-color: var(--primary); color: var(--primary); }
     .snt-gchip.active-putra { background: #E0F2FE; border-color: #0284C7; color: #0284C7; }
     .snt-gchip.active-putri { background: #FCE7F3; border-color: #DB2777; color: #DB2777; }
+
+    /* Layered iOS sliding pill overrides: chip shell z:1 -> pill z:2 -> chip text z:3 */
+    .snt-filter-scroll.has-sliding-pill .snt-chip,
+    .snt-gender-row.has-sliding-pill .snt-gchip {
+      z-index: auto;
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .snt-filter-scroll.has-sliding-pill .snt-chip::before,
+    .snt-gender-row.has-sliding-pill .snt-gchip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      z-index: 1;
+      pointer-events: none;
+      transition: background-color 0.2s ease,
+                  border-color 0.2s ease,
+                  opacity 0.22s ease,
+                  transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .snt-filter-scroll.has-sliding-pill .snt-chip:not(.active):hover::before,
+    .snt-gender-row.has-sliding-pill .snt-gchip:not(.active-putra):not(.active-putri):hover::before {
+      background: #F8FAFC;
+      border-color: #CBD5E1;
+    }
+    .snt-filter-scroll.has-sliding-pill .snt-chip:active::before,
+    .snt-gender-row.has-sliding-pill .snt-gchip:active::before {
+      transform: scale(0.95);
+    }
+    .snt-filter-scroll.has-sliding-pill .snt-chip-text,
+    .snt-gender-row.has-sliding-pill .snt-chip-text {
+      position: relative;
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .snt-filter-scroll.has-sliding-pill .snt-chip:active .snt-chip-text,
+    .snt-gender-row.has-sliding-pill .snt-gchip:active .snt-chip-text {
+      transform: scale(0.94);
+    }
+    .snt-filter-scroll.has-sliding-pill .snt-chip.active {
+      color: #FFFFFF;
+      transition: color 0.24s cubic-bezier(0.22, 1, 0.36, 1) 0.05s;
+    }
+    .snt-filter-scroll.has-sliding-pill .snt-chip.active::before,
+    .snt-gender-row.has-sliding-pill .snt-gchip.active-putra::before,
+    .snt-gender-row.has-sliding-pill .snt-gchip.active-putri::before {
+      opacity: 0;
+    }
+    .snt-gender-row.has-sliding-pill .snt-gchip.active-putra {
+      color: #0284C7;
+      transition: color 0.24s cubic-bezier(0.22, 1, 0.36, 1) 0.04s;
+    }
+    .snt-gender-row.has-sliding-pill .snt-gchip.active-putri {
+      color: #DB2777;
+      transition: color 0.24s cubic-bezier(0.22, 1, 0.36, 1) 0.04s;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .snt-chip-sliding-pill,
+      .snt-gender-sliding-pill,
+      .snt-chip,
+      .snt-gchip,
+      .snt-chip::before,
+      .snt-gchip::before,
+      .snt-chip-text {
+        transition: none !important;
+      }
+    }
 
     /* Student List Cards (Responsive Grid) */
     .snt-list {
@@ -385,29 +588,84 @@
 
     /* Detail Page Styles */
     .snt-detail-profile {
-      background: #FFFFFF;
+      background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
       border-radius: 16px;
-      padding: 18px;
-      border: 1px solid #F1F5F9;
-      text-align: center;
-      margin-bottom: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      padding: 20px 24px;
+      border: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      text-align: left;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
     }
     .snt-avatar-wrapper {
       position: relative;
       display: inline-block;
-      margin-bottom: 8px;
+      margin-bottom: 0;
       vertical-align: middle;
+      flex-shrink: 0;
     }
     .snt-detail-avatar {
-      width: 76px;
-      height: 76px;
+      width: 84px;
+      height: 84px;
       border-radius: 50%;
       object-fit: cover;
+      object-position: center 68%;
       margin-bottom: 0;
       display: block;
-      border: 2px solid #E2E8F0;
-      background: #F8FAFC;
+      border: 3px solid #FFFFFF;
+      background: radial-gradient(circle at 50% 60%, #ECFDF5, #F8FAFC);
+      box-shadow: 0 0 0 1.5px rgba(14, 104, 56, 0.18), 0 6px 16px rgba(15, 23, 42, 0.08);
+    }
+    .snt-detail-identity {
+      flex: 1;
+      min-width: 0;
+    }
+    .snt-detail-name {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1.25;
+      letter-spacing: -0.3px;
+      margin-bottom: 7px;
+      word-break: break-word;
+    }
+    .snt-detail-badges {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .snt-detail-nis-pill {
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      padding: 3px 10px;
+      border-radius: 7px;
+      font-variant-numeric: tabular-nums;
+    }
+    .snt-detail-profile .snt-badge-status {
+      font-size: 11.5px;
+      padding: 3px 10px;
+      border-radius: 7px;
+    }
+    @media (max-width: 679px) {
+      .snt-detail-profile {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        padding: 20px 16px;
+      }
+      .snt-detail-name {
+        font-size: 18px;
+      }
+      .snt-detail-badges {
+        justify-content: center;
+      }
     }
     .snt-avatar-badge {
       position: absolute;
@@ -483,13 +741,36 @@
     }
     .snt-section-box {
       background: #FFFFFF;
-      border-radius: 14px;
-      padding: 14px;
-      border: 1px solid #F1F5F9;
+      border-radius: 16px;
+      padding: 16px 18px;
+      border: 1px solid #E2E8F0;
       margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
       box-sizing: border-box;
       max-width: 100%;
+    }
+    .snt-detail-sections-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+      align-items: stretch;
+    }
+    .snt-detail-sections-grid .snt-section-box {
+      margin-bottom: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    @media (max-width: 1080px) {
+      .snt-detail-sections-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 679px) {
+      .snt-detail-sections-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
     }
     .snt-section-title {
       font-size: 13.5px;
@@ -497,19 +778,200 @@
       color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 9px;
       margin-bottom: 8px;
-      padding-bottom: 6px;
+      padding-bottom: 10px;
       border-bottom: 1px solid #F1F5F9;
+    }
+    .snt-section-icon-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #ECFDF5;
+      color: var(--primary, #0E6838);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .snt-prop-list {
+      display: flex;
+      flex-direction: column;
     }
     .snt-prop-row {
       display: flex;
       justify-content: space-between;
-      padding: 5px 0;
+      align-items: baseline;
+      gap: 16px;
+      padding: 8px 2px;
       font-size: 12.5px;
+      border-bottom: 1px solid #F8FAFC;
     }
-    .snt-prop-lbl { color: var(--text-muted); font-weight: 500; }
-    .snt-prop-val { color: var(--text-main); font-weight: 600; text-align: right; }
+    .snt-prop-row:last-child {
+      border-bottom: none;
+      padding-bottom: 2px;
+    }
+    .snt-prop-lbl {
+      color: #64748B;
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+    .snt-prop-val {
+      color: #0F172A;
+      font-weight: 600;
+      text-align: right;
+      min-width: 0;
+      word-break: break-word;
+    }
+    .snt-prop-val.is-multiline {
+      max-width: 62%;
+      line-height: 1.4;
+    }
+    .snt-prop-val.is-phone {
+      color: var(--primary, #0E6838);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .snt-prop-val.is-status {
+      color: #16A34A;
+      font-weight: 700;
+    }
+    .snt-detail-actions-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .snt-detail-btn {
+      flex: 1;
+      height: 44px;
+      border-radius: 11px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.2s cubic-bezier(0.22, 1.15, 0.36, 1),
+                  box-shadow 0.18s ease,
+                  background-color 0.18s ease;
+    }
+    .snt-detail-btn.danger {
+      background: #FFFFFF;
+      border: 1.5px solid #DC2626;
+      color: #DC2626;
+      box-shadow: 0 3px 8px rgba(220, 38, 38, 0.1);
+    }
+    .snt-detail-btn.danger:hover {
+      background: #FEF2F2;
+    }
+    .snt-detail-btn.primary {
+      background: var(--primary, #0E6838);
+      border: none;
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(14, 104, 56, 0.24);
+    }
+    .snt-detail-btn.primary:hover {
+      background: var(--primary-dark, #074724);
+    }
+    .snt-detail-btn:active {
+      transform: translateY(1.5px) scale(0.965);
+    }
+
+    /* Form Section & Status Toggle */
+    .snt-date-picker-wrapper {
+      position: relative;
+      cursor: pointer;
+      overflow: visible !important;
+      height: 44px;
+      border-radius: 10px;
+      border: 1.25px solid #E2E8F0;
+      background: #F8FAFC;
+      padding: 0 12px;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+    }
+    .snt-date-picker-wrapper:hover {
+      border-color: #CBD5E1;
+      background: #FFFFFF;
+    }
+    .snt-date-picker-wrapper:focus-within,
+    .snt-date-picker-wrapper.is-cal-open {
+      background: #FFFFFF;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(14, 104, 56, 0.1);
+    }
+    .snt-date-picker-wrapper.is-cal-open {
+      z-index: 220;
+    }
+    .snt-date-picker-wrapper .input-field {
+      cursor: pointer;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #0F172A;
+    }
+    .snt-native-date-hidden {
+      position: absolute !important;
+      opacity: 0 !important;
+      width: 0 !important;
+      height: 0 !important;
+      pointer-events: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+    }
+    .date-picker-icon-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-hint, #94A3B8);
+      padding: 4px;
+      border-radius: 7px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+    }
+    .date-picker-icon-btn:hover,
+    .snt-date-picker-wrapper.is-cal-open .date-picker-icon-btn {
+      color: var(--primary, #0E6838);
+      background: #ECFDF5;
+    }
+    .date-picker-icon-btn:active {
+      transform: scale(0.9);
+    }
+    .snt-cal-popover {
+      right: 0;
+      left: auto;
+      top: calc(100% + 8px);
+      width: 292px;
+      z-index: 250;
+    }
+    .snt-cal-popover.open-upward {
+      top: auto;
+      bottom: calc(100% + 8px);
+      transform-origin: bottom right;
+      transform: translateY(6px) scale(0.96);
+    }
+    .snt-cal-popover.open-upward.open {
+      transform: translateY(0) scale(1);
+    }
+    @media (max-width: 640px) {
+      .snt-cal-popover {
+        position: fixed !important;
+        left: 50% !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: 18px !important;
+        width: calc(100vw - 24px) !important;
+        max-width: 344px !important;
+        transform-origin: bottom center !important;
+        transform: translate(-50%, 16px) scale(0.96) !important;
+        box-shadow: 0 22px 48px -8px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(15, 23, 42, 0.06) !important;
+      }
+      .snt-cal-popover.open {
+        transform: translate(-50%, 0) scale(1) !important;
+      }
+    }
 
     /* Status Santri Switch Toggle */
     .snt-toggle-row {

@@ -1202,8 +1202,8 @@
       display: inline-flex;
       align-items: center;
       gap: 4.5px;
-      padding: 3px 8px;
-      border-radius: 5px;
+      padding: 4px 9px;
+      border-radius: 6px;
       background: #F8FAFC;
       color: var(--primary, #0E6838);
       border: 1px solid #E2E8F0;
@@ -1212,21 +1212,30 @@
       line-height: 1.25;
       white-space: nowrap;
       cursor: pointer;
-      transition: all 0.15s ease;
+      transition: background-color 0.22s ease,
+                  border-color 0.22s ease,
+                  color 0.22s ease,
+                  box-shadow 0.22s ease,
+                  transform 0.2s cubic-bezier(0.32, 0.72, 0, 1);
       user-select: none;
     }
     .btn-teaching-toggle:hover {
       background: var(--primary-light, #DCFCE7);
       border-color: #86EFAC;
       color: var(--primary-dark, #074724);
+      box-shadow: 0 2px 6px rgba(14, 104, 56, 0.12);
+    }
+    .btn-teaching-toggle:active {
+      transform: scale(0.95);
     }
     .btn-teaching-toggle.active {
       background: var(--primary-light, #DCFCE7);
       border-color: #86EFAC;
       color: var(--primary-dark, #074724);
+      box-shadow: 0 2px 8px rgba(14, 104, 56, 0.14);
     }
     .btn-teaching-toggle .chevron-arrow {
-      transition: transform 0.2s cubic-bezier(0.34, 1.25, 0.64, 1);
+      transition: transform 0.36s cubic-bezier(0.22, 1.15, 0.36, 1), color 0.22s ease;
       color: #64748B;
     }
     .btn-teaching-toggle.active .chevron-arrow {
@@ -1252,18 +1261,41 @@
       color: var(--primary, #0E6838);
     }
 
-    /* Box Jadwal Mapel yang Diampu Ustadz Hari Itu */
+    /* Box Jadwal Mapel yang Diampu Ustadz Hari Itu (Accordion Expand / Collapse) */
     .activity-teaching-box {
       margin-top: 8px;
       background: #F8FAFC;
       border: 1px solid #E2E8F0;
       border-radius: 9px;
       padding: 8px 10px;
-      animation: fadeInTeachBox 0.2s ease;
+      overflow: hidden;
+      transform-origin: top center;
+      will-change: max-height, opacity, transform;
+      transition: max-height 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+                  opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+                  margin-top 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                  padding-top 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                  padding-bottom 0.32s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    @keyframes fadeInTeachBox {
-      from { opacity: 0; transform: translateY(-4px); }
+    .activity-teaching-box.is-open .activity-teaching-item {
+      animation: teachingAccordionItemIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .activity-teaching-box.is-open .activity-teaching-item:nth-child(2) { animation-delay: 0.04s; }
+    .activity-teaching-box.is-open .activity-teaching-item:nth-child(3) { animation-delay: 0.08s; }
+    .activity-teaching-box.is-open .activity-teaching-item:nth-child(4) { animation-delay: 0.12s; }
+    @keyframes teachingAccordionItemIn {
+      from { opacity: 0; transform: translateY(-6px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .btn-teaching-toggle,
+      .btn-teaching-toggle .chevron-arrow,
+      .activity-teaching-box,
+      .activity-teaching-box.is-open .activity-teaching-item {
+        transition: none !important;
+        animation: none !important;
+      }
     }
     .activity-teaching-header {
       font-size: 11px;

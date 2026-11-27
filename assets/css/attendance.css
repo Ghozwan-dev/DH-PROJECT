@@ -332,51 +332,136 @@
     }
 
     .att-status-chips {
-      display: flex;
-      gap: 5px;
-      margin-top: 10px;
-      flex-wrap: wrap;
+      position: relative;
+      isolation: isolate;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      margin-top: 12px;
+      padding: 3px;
+      border-radius: 12px;
+      background: #F1F5F9;
+      border: 1px solid #E2E8F0;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+      box-sizing: border-box;
+    }
+    .att-status-sliding-pill {
+      position: absolute;
+      top: 3px;
+      bottom: 3px;
+      left: 3px;
+      width: calc((100% - 6px) / 4);
+      border-radius: 9px;
+      background: #FFFFFF;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.12), 0 1px 2px rgba(15, 23, 42, 0.06);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+      box-sizing: border-box;
+      backface-visibility: hidden;
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.44s cubic-bezier(0.22, 1.05, 0.36, 1),
+                  opacity 0.2s ease,
+                  background-color 0.22s ease,
+                  border-color 0.22s ease,
+                  box-shadow 0.22s ease;
+      transition-timing-function:
+        linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.6%, 1.022 21.8%, 1.01 27.2%, 1.001 34%, 1 46%, 1),
+        ease,
+        ease,
+        ease,
+        ease;
+      will-change: transform, opacity;
+    }
+    .att-status-sliding-pill.is-hadir {
+      background: #FFFFFF;
+      border-color: rgba(22, 163, 74, 0.35);
+      box-shadow: 0 3px 10px rgba(22, 163, 74, 0.18), 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .att-status-sliding-pill.is-izin {
+      background: #FFFFFF;
+      border-color: rgba(37, 99, 235, 0.35);
+      box-shadow: 0 3px 10px rgba(37, 99, 235, 0.18), 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .att-status-sliding-pill.is-sakit {
+      background: #FFFFFF;
+      border-color: rgba(217, 119, 6, 0.38);
+      box-shadow: 0 3px 10px rgba(217, 119, 6, 0.18), 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+    .att-status-sliding-pill.is-alfa {
+      background: #FFFFFF;
+      border-color: rgba(220, 38, 38, 0.38);
+      box-shadow: 0 3px 10px rgba(220, 38, 38, 0.18), 0 1px 2px rgba(15, 23, 42, 0.06);
     }
     .att-chip {
-      flex: 1;
-      min-width: 54px;
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      min-width: 0;
       text-align: center;
-      padding: 6px 4px;
-      border-radius: 8px;
-      font-size: 11.5px;
-      font-weight: 700;
-      border: 1px solid #CBD5E1;
-      background: #FFFFFF;
+      padding: 7px 4px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
       color: #64748B;
       cursor: pointer;
-      transition: all 0.15s;
+      user-select: none;
+      transition: color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.16s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .att-chip:not(:last-of-type)::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 24%;
+      height: 52%;
+      width: 1px;
+      background: rgba(148, 163, 184, 0.35);
+      pointer-events: none;
+      transition: opacity 0.18s ease;
     }
     .att-chip:hover {
-      background: #F8FAFC;
+      background: transparent;
+      color: #334155;
     }
-    .att-chip.active-hadir {
-      background: #DCFCE7;
-      color: #16A34A;
-      border-color: #16A34A;
-      box-shadow: 0 0 0 1px #16A34A;
+    .att-chip:active {
+      transform: scale(0.94);
     }
-    .att-chip.active-izin {
-      background: #DBEAFE;
-      color: #2563EB;
-      border-color: #2563EB;
-      box-shadow: 0 0 0 1px #2563EB;
-    }
-    .att-chip.active-sakit {
-      background: #FEF3C7;
-      color: #D97706;
-      border-color: #D97706;
-      box-shadow: 0 0 0 1px #D97706;
-    }
+    .att-chip.active-hadir,
+    .att-chip.active-izin,
+    .att-chip.active-sakit,
     .att-chip.active-alfa {
-      background: #FEE2E2;
-      color: #DC2626;
-      border-color: #DC2626;
-      box-shadow: 0 0 0 1px #DC2626;
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      font-weight: 700;
+      transition: color 0.22s cubic-bezier(0.22, 1, 0.36, 1) 0.04s,
+                  transform 0.16s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .att-chip.active-hadir::after,
+    .att-chip.active-izin::after,
+    .att-chip.active-sakit::after,
+    .att-chip.active-alfa::after,
+    .att-chip:has(+ .active-hadir)::after,
+    .att-chip:has(+ .active-izin)::after,
+    .att-chip:has(+ .active-sakit)::after,
+    .att-chip:has(+ .active-alfa)::after {
+      opacity: 0;
+    }
+    .att-chip.active-hadir { color: #16A34A; }
+    .att-chip.active-izin { color: #2563EB; }
+    .att-chip.active-sakit { color: #D97706; }
+    .att-chip.active-alfa { color: #DC2626; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .att-status-sliding-pill,
+      .att-chip,
+      .att-chip::after {
+        transition: none !important;
+      }
     }
 
     .att-notes-input {
@@ -428,3 +513,347 @@
     .att-mini-stat.izin { background: #DBEAFE; color: #2563EB; }
     .att-mini-stat.sakit { background: #FEF3C7; color: #D97706; }
     .att-mini-stat.alfa { background: #FEE2E2; color: #DC2626; }
+
+    /* ========================================================
+       NUMBER STEPPER CALENDAR SELECTOR (FORM ABSENSI)
+       ======================================================== */
+    .att-date-row {
+      flex-wrap: wrap;
+    }
+    .att-date-stepper-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+    .att-date-hidden-input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+    .att-date-stepper {
+      display: inline-flex;
+      align-items: center;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 3px 4px;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .att-date-stepper:focus-within {
+      border-color: var(--primary, #0E6838);
+      box-shadow: 0 0 0 3px rgba(14, 104, 56, 0.1), 0 2px 8px rgba(15, 23, 42, 0.05);
+    }
+    .att-stepper-center {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 3px 8px 3px 4px;
+      height: 30px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.18s ease, transform 0.18s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .att-stepper-center:hover {
+      background: #F8FAFC;
+    }
+    .att-stepper-center:active {
+      transform: scale(0.97);
+    }
+    .att-stepper-cal-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: #ECFDF5;
+      color: var(--primary, #0E6838);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .att-stepper-date-text {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      overflow: hidden;
+    }
+    .att-stepper-day-slot {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .att-stepper-day {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--primary, #0E6838);
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      display: inline-block;
+    }
+    .att-stepper-my {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-main, #0F172A);
+      white-space: nowrap;
+      display: inline-block;
+    }
+    .att-stepper-caret {
+      color: #94A3B8;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), color 0.18s ease;
+      flex-shrink: 0;
+    }
+    .att-stepper-center[aria-expanded="true"] .att-stepper-caret {
+      transform: rotate(180deg);
+      color: var(--primary, #0E6838);
+    }
+    .att-stepper-controls {
+      display: inline-flex;
+      align-items: center;
+      background: #F1F5F9;
+      border-radius: 9px;
+      padding: 2px;
+      gap: 1px;
+    }
+    .att-stepper-divider {
+      width: 1px;
+      height: 14px;
+      background: #CBD5E1;
+      flex-shrink: 0;
+    }
+    .att-stepper-btn {
+      width: 28px;
+      height: 26px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.16s ease,
+                  color 0.16s ease,
+                  box-shadow 0.16s ease,
+                  transform 0.18s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .att-stepper-btn:hover {
+      background: #FFFFFF;
+      color: var(--primary, #0E6838);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+    .att-stepper-btn:active {
+      transform: scale(0.88);
+    }
+
+    /* Number Roll Stepper Animations */
+    .att-step-roll-up {
+      animation: attStepRollUp 0.28s cubic-bezier(0.22, 1.15, 0.36, 1) both;
+    }
+    .att-step-roll-down {
+      animation: attStepRollDown 0.28s cubic-bezier(0.22, 1.15, 0.36, 1) both;
+    }
+    @keyframes attStepRollUp {
+      0% { opacity: 0; transform: translateY(10px) scale(0.92); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes attStepRollDown {
+      0% { opacity: 0; transform: translateY(-10px) scale(0.92); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Custom Calendar Popover with Month & Year Number Steppers */
+    .att-calendar-popover {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 8px);
+      width: 286px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: 0 18px 40px -8px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.06);
+      z-index: 80;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.96);
+      transform-origin: top right;
+      pointer-events: none;
+      transition: opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+      box-sizing: border-box;
+    }
+    .att-calendar-popover.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .att-cal-steppers-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .att-cal-mini-stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      padding: 3px;
+      flex: 1;
+      justify-content: space-between;
+    }
+    .att-cal-mini-stepper.is-year {
+      flex: 0.78;
+    }
+    .att-cal-step-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      border: none;
+      background: #FFFFFF;
+      color: #475569;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+      transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s cubic-bezier(0.32, 0.72, 0, 1);
+      flex-shrink: 0;
+    }
+    .att-cal-step-btn:hover {
+      background: var(--primary-light, #DCFCE7);
+      color: var(--primary, #0E6838);
+    }
+    .att-cal-step-btn:active {
+      transform: scale(0.88);
+    }
+    .att-cal-step-value-wrap {
+      overflow: hidden;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      min-width: 0;
+    }
+    .att-cal-step-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main, #0F172A);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      display: inline-block;
+    }
+    .att-cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #94A3B8;
+      margin-bottom: 6px;
+    }
+    .att-cal-days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+    }
+    .att-cal-day-btn {
+      height: 32px;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+      color: #1E293B;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .att-cal-day-btn:hover {
+      background: #F1F5F9;
+    }
+    .att-cal-day-btn:active {
+      transform: scale(0.9);
+    }
+    .att-cal-day-btn.is-outside {
+      color: #CBD5E1;
+      font-weight: 500;
+    }
+    .att-cal-day-btn.is-today:not(.is-selected) {
+      border: 1.5px solid var(--primary, #0E6838);
+      color: var(--primary, #0E6838);
+      font-weight: 700;
+    }
+    .att-cal-day-btn.is-selected {
+      background: var(--primary, #0E6838);
+      color: #FFFFFF;
+      font-weight: 700;
+      box-shadow: 0 3px 8px rgba(14, 104, 56, 0.28);
+    }
+    .att-cal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #F1F5F9;
+    }
+    .att-cal-footer-btn {
+      border: none;
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.15s ease, transform 0.15s ease;
+    }
+    .att-cal-footer-btn:active {
+      transform: scale(0.94);
+    }
+    .att-cal-footer-btn.subtle {
+      background: #F1F5F9;
+      color: #475569;
+    }
+    .att-cal-footer-btn.subtle:hover {
+      background: #E2E8F0;
+    }
+    .att-cal-footer-btn.primary {
+      background: var(--primary-light, #DCFCE7);
+      color: var(--primary-dark, #074724);
+    }
+    .att-cal-footer-btn.primary:hover {
+      background: #BBF7D0;
+    }
+    @media (max-width: 480px) {
+      .att-calendar-popover {
+        left: 0;
+        right: auto;
+        transform-origin: top left;
+        width: 272px;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .att-step-roll-up,
+      .att-step-roll-down,
+      .att-calendar-popover,
+      .att-stepper-btn,
+      .att-stepper-center,
+      .att-cal-day-btn {
+        animation: none !important;
+        transition: none !important;
+      }
+    }

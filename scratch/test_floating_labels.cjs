@@ -42,6 +42,26 @@ fields.forEach(f => {
   );
 });
 
+const searchFields = [
+  { id: 'schSearchInput', label: 'Cari mapel atau nama guru...' },
+  { id: 'attHistorySearchInput', label: 'Cari mata pelajaran atau nama guru...' },
+  { id: 'recapSearchInput', label: 'Cari nama santri atau NIS...' },
+  { id: 'sntSearchInput', label: 'Cari nama atau NIS santri...' }
+];
+
+searchFields.forEach(f => {
+  assert(
+    previewHtml.includes(`id="${f.id}" class="floating-input" placeholder=" "`),
+    `Search input #${f.id} uses floating-input with space placeholder`
+  );
+  assert(
+    previewHtml.includes(`<label for="${f.id}" class="floating-label">${f.label}</label>`),
+    `Floating <label> for search #${f.id} ("${f.label}") is present`
+  );
+});
+
+const studentCss = fs.readFileSync(path.join(__dirname, '..', 'assets', 'css', 'student.css'), 'utf8');
+assert(studentCss.includes('.snt-search-box.floating-field'), 'student.css defines .snt-search-box.floating-field');
 assert(authCss.includes('.input-wrapper.floating-field'), 'auth.css defines .input-wrapper.floating-field');
 assert(authCss.includes('overflow: visible;'), 'auth.css sets overflow: visible so floating label is not clipped');
 assert(authCss.includes('.floating-input:focus + .floating-label'), 'auth.css floats label on focus');

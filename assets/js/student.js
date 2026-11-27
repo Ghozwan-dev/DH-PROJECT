@@ -315,6 +315,7 @@
       }
 
       renderStudentList();
+      syncStudentFilterPills(true);
     }
 
     // Kembali dari Daftar Santri ke Halaman Sebelumnya (Beranda)
@@ -328,6 +329,113 @@
         });
         if (typeof syncActiveNav === 'function') syncActiveNav('home');
       }
+    }
+
+    function syncStudentSlidingPill(containerId, pillId, activeSelector, immediate, modifierClass) {
+      const container = document.getElementById(containerId);
+      const pill = document.getElementById(pillId);
+      if (!container || !pill) return;
+
+      container.classList.add('has-sliding-pill');
+      const activeChip = activeSelector && typeof container.querySelector === 'function'
+        ? container.querySelector(activeSelector)
+        : null;
+
+      if (!activeChip) {
+        pill.classList.remove('is-putra', 'is-putri');
+        pill.style.opacity = '0';
+        const prevTx = pill.dataset.lastTranslate || 'translate3d(0px, 0px, 0)';
+        pill.style.transform = `${prevTx} scale(0.92)`;
+        return;
+      }
+
+      const applyPosition = () => {
+        let w = 0;
+        let h = 0;
+        let left = 0;
+        let top = 0;
+
+        if (typeof activeChip.getBoundingClientRect === 'function' && typeof container.getBoundingClientRect === 'function') {
+          const chipRect = activeChip.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          if (chipRect.width > 0 && chipRect.height > 0) {
+            w = chipRect.width;
+            h = chipRect.height;
+            left = (chipRect.left - containerRect.left) - (container.clientLeft || 0) + (container.scrollLeft || 0);
+            top = (chipRect.top - containerRect.top) - (container.clientTop || 0) + (container.scrollTop || 0);
+          }
+        }
+
+        if (w <= 0 || h <= 0) {
+          w = activeChip.offsetWidth || 0;
+          h = activeChip.offsetHeight || 0;
+          left = activeChip.offsetLeft || 0;
+          top = activeChip.offsetTop || 0;
+        }
+
+        if (w <= 0 || h <= 0) return false;
+
+        const shouldSnap = immediate || pill.style.opacity !== '1';
+        const translateStr = `translate3d(${left}px, ${top}px, 0)`;
+        pill.dataset.lastTranslate = translateStr;
+
+        pill.classList.remove('is-putra', 'is-putri');
+        if (modifierClass) pill.classList.add(modifierClass);
+
+        if (shouldSnap) {
+          pill.style.transition = 'none';
+          pill.style.width = w + 'px';
+          pill.style.height = h + 'px';
+          pill.style.transform = immediate ? translateStr : `${translateStr} scale(0.94)`;
+          void pill.offsetWidth;
+          pill.style.transition = '';
+        }
+
+        pill.style.width = w + 'px';
+        pill.style.height = h + 'px';
+        pill.style.transform = translateStr;
+        pill.style.opacity = '1';
+
+        if (typeof container.scrollTo === 'function' && container.clientWidth > 0) {
+          const viewLeft = container.scrollLeft;
+          const viewRight = viewLeft + container.clientWidth;
+          if (left < viewLeft + 12) {
+            container.scrollTo({ left: Math.max(0, left - 16), behavior: shouldSnap ? 'auto' : 'smooth' });
+          } else if (left + w > viewRight - 12) {
+            container.scrollTo({ left: Math.max(0, left + w - container.clientWidth + 16), behavior: shouldSnap ? 'auto' : 'smooth' });
+          }
+        }
+        return true;
+      };
+
+      if (!applyPosition() && typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(applyPosition);
+      }
+    }
+
+    function syncStudentGradePill(immediate) {
+      syncStudentSlidingPill('sntGradeFilterRow', 'sntGradeSlidingPill', '.snt-chip.active', immediate);
+    }
+
+    function syncStudentGenderPill(immediate) {
+      const selector = selectedGenderFilter === 'Putra'
+        ? '.snt-gchip.active-putra'
+        : (selectedGenderFilter === 'Putri' ? '.snt-gchip.active-putri' : '');
+      const modClass = selectedGenderFilter === 'Putra'
+        ? 'is-putra'
+        : (selectedGenderFilter === 'Putri' ? 'is-putri' : '');
+      syncStudentSlidingPill('sntGenderFilterRow', 'sntGenderSlidingPill', selector, immediate, modClass);
+    }
+
+    function syncStudentFilterPills(immediate) {
+      syncStudentGradePill(immediate);
+      syncStudentGenderPill(immediate);
+    }
+
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+      window.addEventListener('resize', () => {
+        syncStudentFilterPills(true);
+      });
     }
 
     // Filter Kelas
@@ -349,6 +457,7 @@
           else el.classList.remove('active');
         }
       });
+      syncStudentGradePill(false);
       renderStudentList();
     }
 
@@ -365,6 +474,7 @@
       if (chipPutra) chipPutra.className = 'snt-gchip' + (selectedGenderFilter === 'Putra' ? ' active-putra' : '');
       if (chipPutri) chipPutri.className = 'snt-gchip' + (selectedGenderFilter === 'Putri' ? ' active-putri' : '');
 
+      syncStudentGenderPill(false);
       renderStudentList();
     }
 
@@ -512,7 +622,7 @@
       document.getElementById('detailEnrollVal').innerText = s.enrollmentDate;
       document.getElementById('detailStatusVal').innerText = s.isActive ? 'Aktif' : 'Nonaktif';
 
-      document.getElementById('detailGenderVal').innerText = isPutra ? 'Santri Putra' : 'Santri Putri';
+      document.getElementById('detailGenderVal').innerText = isPutra ? 'Laki-laki' : 'Perempuan';
 
       // Usia santri
       let ageStr = '';
@@ -608,39 +718,330 @@
       });
     }
 
-    // Helper Picker Tanggal Lahir (Format DD/MM/YYYY dengan placeholder 17/08/1945)
-    function triggerBirthDatePicker() {
-      const picker = document.getElementById('nativeBirthDatePicker');
-      if (picker) {
-        if (typeof picker.showPicker === 'function') {
-          try { picker.showPicker(); return; } catch(e) {}
-        }
-        picker.focus();
-        picker.click();
+    const SNT_CAL_MONTHS_FULL = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const sntCalendarState = {
+      enroll: { year: 2024, month: 6, popoverId: 'enrollCalendarPopover', wrapperId: 'formEnrollDateWrapper' },
+      birth: { year: 2011, month: 3, popoverId: 'birthCalendarPopover', wrapperId: 'formBirthDateWrapper' }
+    };
+
+    function parseStudentIsoParts(iso) {
+      if (!iso || typeof iso !== 'string') return null;
+      const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (!m) return null;
+      const y = parseInt(m[1], 10), mo = parseInt(m[2], 10), d = parseInt(m[3], 10);
+      if (!y || mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+      return { year: y, month: mo, day: d };
+    }
+
+    function formatStudentIsoParts(y, m, d) {
+      return `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    }
+
+    function getStudentTodayIso() {
+      const n = new Date();
+      return formatStudentIsoParts(n.getFullYear(), n.getMonth() + 1, n.getDate());
+    }
+
+    function isoToDisplayDmy(iso) {
+      const p = parseStudentIsoParts(iso);
+      return p ? `${String(p.day).padStart(2, '0')}/${String(p.month).padStart(2, '0')}/${String(p.year).padStart(4, '0')}` : '';
+    }
+
+    function displayDmyToIso(dmy) {
+      if (!dmy || typeof dmy !== 'string') return '';
+      const trimmed = dmy.trim();
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(trimmed)) {
+        const [d, m, y] = trimmed.split('/');
+        return `${y}-${m}-${d}`;
+      }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+      return '';
+    }
+
+    function syncEnrollDateDisplay() {
+      const hiddenEl = document.getElementById('formEnrollDate');
+      const dispEl = document.getElementById('formEnrollDisplay');
+      if (hiddenEl && dispEl) {
+        const desc = typeof HTMLInputElement !== 'undefined'
+          ? Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')
+          : null;
+        const iso = desc && desc.get ? desc.get.call(hiddenEl) : hiddenEl.value;
+        dispEl.value = isoToDisplayDmy(iso);
       }
     }
 
+    function syncEnrollDateFromDisplay(val) {
+      const iso = displayDmyToIso(val);
+      const hiddenEl = document.getElementById('formEnrollDate');
+      if (hiddenEl && iso) {
+        const desc = typeof HTMLInputElement !== 'undefined'
+          ? Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')
+          : null;
+        if (desc && desc.set) desc.set.call(hiddenEl, iso);
+        else hiddenEl.value = iso;
+        const p = parseStudentIsoParts(iso);
+        if (p) {
+          sntCalendarState.enroll.year = p.year;
+          sntCalendarState.enroll.month = p.month - 1;
+          const pop = document.getElementById('enrollCalendarPopover');
+          if (pop && pop.classList.contains('open')) renderStudentCalendarPopover('enroll');
+        }
+      }
+    }
+
+    function getStudentDateIso(type) {
+      if (type === 'enroll') {
+        const el = document.getElementById('formEnrollDate');
+        return el && el.value ? el.value : '';
+      }
+      const birthInp = document.getElementById('formBirthDate');
+      const isoFromText = birthInp ? displayDmyToIso(birthInp.value) : '';
+      if (isoFromText) return isoFromText;
+      const nativeEl = document.getElementById('nativeBirthDatePicker');
+      return nativeEl && nativeEl.value ? nativeEl.value : '';
+    }
+
+    function renderStudentCalendarPopover(type, stepDir) {
+      const st = sntCalendarState[type];
+      if (!st) return;
+      const pop = document.getElementById(st.popoverId);
+      if (!pop) return;
+
+      const selectedIso = getStudentDateIso(type);
+      const todayIso = getStudentTodayIso();
+
+      const firstWeekday = new Date(st.year, st.month, 1).getDay();
+      const daysInMonth = new Date(st.year, st.month + 1, 0).getDate();
+      const prevMonthDays = new Date(st.year, st.month, 0).getDate();
+
+      const cells = [];
+      for (let i = firstWeekday - 1; i >= 0; i--) {
+        const d = prevMonthDays - i;
+        const m = st.month === 0 ? 12 : st.month;
+        const y = st.month === 0 ? st.year - 1 : st.year;
+        cells.push({ day: d, iso: formatStudentIsoParts(y, m, d), outside: true });
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        cells.push({ day: d, iso: formatStudentIsoParts(st.year, st.month + 1, d), outside: false });
+      }
+      const trailing = (7 - (cells.length % 7)) % 7;
+      for (let d = 1; d <= trailing; d++) {
+        const m = st.month === 11 ? 1 : st.month + 2;
+        const y = st.month === 11 ? st.year + 1 : st.year;
+        cells.push({ day: d, iso: formatStudentIsoParts(y, m, d), outside: true });
+      }
+
+      const monthAnimClass = stepDir === 'month-up' ? ' att-step-roll-up' : (stepDir === 'month-down' ? ' att-step-roll-down' : '');
+      const yearAnimClass = stepDir === 'year-up' ? ' att-step-roll-up' : (stepDir === 'year-down' ? ' att-step-roll-down' : '');
+
+      pop.innerHTML = `
+        <div class="att-cal-steppers-bar">
+          <div class="att-cal-mini-stepper" aria-label="Stepper Bulan">
+            <button type="button" class="att-cal-step-btn" onclick="stepStudentCalendarMonth('${type}', -1)" title="Bulan sebelumnya" aria-label="Bulan sebelumnya">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <span class="att-cal-step-value-wrap">
+              <span class="att-cal-step-value${monthAnimClass}" id="sntCalMonthLabel_${type}">${SNT_CAL_MONTHS_FULL[st.month]}</span>
+            </span>
+            <button type="button" class="att-cal-step-btn" onclick="stepStudentCalendarMonth('${type}', 1)" title="Bulan berikutnya" aria-label="Bulan berikutnya">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+          <div class="att-cal-mini-stepper is-year" aria-label="Stepper Tahun">
+            <button type="button" class="att-cal-step-btn" onclick="stepStudentCalendarYear('${type}', -1)" title="Kurangi tahun" aria-label="Kurangi tahun">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <span class="att-cal-step-value-wrap">
+              <span class="att-cal-step-value${yearAnimClass}" id="sntCalYearLabel_${type}">${st.year}</span>
+            </span>
+            <button type="button" class="att-cal-step-btn" onclick="stepStudentCalendarYear('${type}', 1)" title="Tambah tahun" aria-label="Tambah tahun">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="att-cal-weekdays">
+          <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+        </div>
+        <div class="att-cal-days-grid">
+          ${cells.map(c => {
+            const cls = ['att-cal-day-btn'];
+            if (c.outside) cls.push('is-outside');
+            if (c.iso === todayIso) cls.push('is-today');
+            if (c.iso === selectedIso) cls.push('is-selected');
+            return `<button type="button" class="${cls.join(' ')}" data-date="${c.iso}" onclick="selectStudentCalendarDate('${type}', '${c.iso}')">${c.day}</button>`;
+          }).join('')}
+        </div>
+        <div class="att-cal-footer">
+          <button type="button" class="att-cal-footer-btn subtle" onclick="closeStudentDatePopover('${type}')">Tutup</button>
+          <button type="button" class="att-cal-footer-btn primary" onclick="selectStudentCalendarDate('${type}', '${todayIso}')">Hari Ini</button>
+        </div>
+      `;
+    }
+
+    function openStudentDatePopover(type) {
+      const otherType = type === 'enroll' ? 'birth' : 'enroll';
+      closeStudentDatePopover(otherType);
+
+      const st = sntCalendarState[type];
+      if (!st) return;
+      const pop = document.getElementById(st.popoverId);
+      const wrap = document.getElementById(st.wrapperId);
+      if (!pop) return;
+
+      const curIso = getStudentDateIso(type);
+      const parsed = parseStudentIsoParts(curIso);
+      if (parsed) {
+        st.year = parsed.year;
+        st.month = parsed.month - 1;
+      } else {
+        const def = type === 'birth' ? { y: 2011, m: 3 } : { y: new Date().getFullYear(), m: new Date().getMonth() };
+        st.year = def.y;
+        st.month = def.m;
+      }
+
+      renderStudentCalendarPopover(type);
+
+      if (wrap && typeof wrap.getBoundingClientRect === 'function' && typeof window !== 'undefined') {
+        const rect = wrap.getBoundingClientRect();
+        const spaceBelow = (window.innerHeight || 800) - rect.bottom;
+        pop.classList.toggle('open-upward', spaceBelow < 320 && rect.top > spaceBelow);
+      }
+
+      pop.classList.add('open');
+      pop.setAttribute('aria-hidden', 'false');
+      if (wrap) wrap.classList.add('is-cal-open');
+    }
+
+    function closeStudentDatePopover(type) {
+      if (!type) {
+        closeStudentDatePopover('enroll');
+        closeStudentDatePopover('birth');
+        return;
+      }
+      const st = sntCalendarState[type];
+      if (!st) return;
+      const pop = document.getElementById(st.popoverId);
+      const wrap = document.getElementById(st.wrapperId);
+      if (pop) {
+        pop.classList.remove('open', 'open-upward');
+        pop.setAttribute('aria-hidden', 'true');
+      }
+      if (wrap) wrap.classList.remove('is-cal-open');
+    }
+
+    function toggleStudentDatePopover(type) {
+      const st = sntCalendarState[type];
+      if (!st) return;
+      const pop = document.getElementById(st.popoverId);
+      if (pop && pop.classList.contains('open')) {
+        closeStudentDatePopover(type);
+      } else {
+        openStudentDatePopover(type);
+      }
+    }
+
+    function stepStudentCalendarMonth(type, delta) {
+      const st = sntCalendarState[type];
+      if (!st) return;
+      const d = new Date(st.year, st.month + delta, 1);
+      st.year = d.getFullYear();
+      st.month = d.getMonth();
+      renderStudentCalendarPopover(type, delta >= 0 ? 'month-up' : 'month-down');
+    }
+
+    function stepStudentCalendarYear(type, delta) {
+      const st = sntCalendarState[type];
+      if (!st) return;
+      st.year += delta;
+      renderStudentCalendarPopover(type, delta >= 0 ? 'year-up' : 'year-down');
+    }
+
+    function selectStudentCalendarDate(type, iso) {
+      if (type === 'enroll') {
+        const hiddenEl = document.getElementById('formEnrollDate');
+        if (hiddenEl) hiddenEl.value = iso;
+        syncEnrollDateDisplay();
+      } else {
+        const nativePicker = document.getElementById('nativeBirthDatePicker');
+        if (nativePicker) nativePicker.value = iso;
+        handleNativeBirthDateChange(iso);
+      }
+      closeStudentDatePopover(type);
+    }
+
+    // Helper Picker Tanggal Lahir (membuka kalender stepper modern)
+    function triggerBirthDatePicker() {
+      toggleStudentDatePopover('birth');
+    }
+
     function handleNativeBirthDateChange(val) {
+      const birthEl = document.getElementById('formBirthDate');
+      if (!birthEl) return;
       if (!val) {
-        document.getElementById('formBirthDate').value = '';
+        birthEl.value = '';
         return;
       }
       const parts = val.split('-');
       if (parts.length === 3) {
-        document.getElementById('formBirthDate').value = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        birthEl.value = `${parts[2]}/${parts[1]}/${parts[0]}`;
       } else {
-        document.getElementById('formBirthDate').value = val;
+        birthEl.value = val;
       }
     }
 
     function syncBirthDateToNative(val) {
       const picker = document.getElementById('nativeBirthDatePicker');
-      if (!picker) return;
-      if (/^\d{2}\/\d{2}\/\d{4}$/.test(val)) {
-        const [d, m, y] = val.split('/');
-        picker.value = `${y}-${m}-${d}`;
-      } else if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-        picker.value = val;
+      const iso = displayDmyToIso(val);
+      if (picker && iso) {
+        picker.value = iso;
+        const p = parseStudentIsoParts(iso);
+        if (p) {
+          sntCalendarState.birth.year = p.year;
+          sntCalendarState.birth.month = p.month - 1;
+          const pop = document.getElementById('birthCalendarPopover');
+          if (pop && pop.classList.contains('open')) renderStudentCalendarPopover('birth');
+        }
+      }
+    }
+
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      document.addEventListener('click', (e) => {
+        const target = e.target;
+        ['enroll', 'birth'].forEach((type) => {
+          const st = sntCalendarState[type];
+          const wrap = document.getElementById(st.wrapperId);
+          const pop = document.getElementById(st.popoverId);
+          if (pop && pop.classList.contains('open')) {
+            if (wrap && typeof wrap.contains === 'function' && !wrap.contains(target)) {
+              closeStudentDatePopover(type);
+            }
+          }
+        });
+      });
+
+      const attachEnrollHook = () => {
+        const el = document.getElementById('formEnrollDate');
+        if (el && !el.dataset.dhDateHook && typeof HTMLInputElement !== 'undefined') {
+          el.dataset.dhDateHook = '1';
+          const desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+          if (desc && desc.get && desc.set) {
+            Object.defineProperty(el, 'value', {
+              configurable: true,
+              get() { return desc.get.call(this); },
+              set(v) {
+                desc.set.call(this, v);
+                syncEnrollDateDisplay();
+              }
+            });
+          }
+          syncEnrollDateDisplay();
+        }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attachEnrollHook);
+      } else {
+        attachEnrollHook();
       }
     }
 
@@ -674,7 +1075,9 @@
       updateFormGenderStyle();
       document.getElementById('formClass').value = 'VII A';
       document.getElementById('formRoom').value = '';
-      document.getElementById('formEnrollDate').value = new Date().toISOString().split('T')[0];
+      document.getElementById('formEnrollDate').value = getStudentTodayIso();
+      if (typeof syncEnrollDateDisplay === 'function') syncEnrollDateDisplay();
+      if (typeof closeStudentDatePopover === 'function') closeStudentDatePopover();
       document.getElementById('formBirthPlace').value = '';
       document.getElementById('formBirthDate').value = '';
       const nativePicker = document.getElementById('nativeBirthDatePicker');
@@ -726,6 +1129,8 @@
       document.getElementById('formClass').value = s.className;
       document.getElementById('formRoom').value = s.room;
       document.getElementById('formEnrollDate').value = s.enrollmentDate;
+      if (typeof syncEnrollDateDisplay === 'function') syncEnrollDateDisplay();
+      if (typeof closeStudentDatePopover === 'function') closeStudentDatePopover();
       document.getElementById('formBirthPlace').value = s.birthPlace || '';
       if (s.birthDate) {
         let bVal = s.birthDate;

@@ -3,7 +3,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
 /// Widget Welcome Section (Sesuai Butir 3):
-/// - Teks sapaan: Assalamu'alaikum, Selamat Datang! di Aplikasi Absensi Santri
+/// - Teks sapaan: Assalamu'alaikum, Selamat Datang! di Aplikasi Santriya
 /// - Background hijau tua dengan foto gedung pesantren di sisi kanan
 /// - Aksen lengkungan warna hijau dan emas elegan sesuai gambar referensi
 class WelcomeHeroBanner extends StatelessWidget {
@@ -78,7 +78,7 @@ class WelcomeHeroBanner extends StatelessWidget {
                         ),
                         SizedBox(height: isDesktop ? 8 : 6),
                         Text(
-                          'di Aplikasi Absensi Santri',
+                          'Di Aplikasi SANTRIYA',
                           style: subtitleStyle,
                         ),
                       ],

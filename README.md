@@ -85,7 +85,7 @@ d:\Kiro Folder\Darul Hikmah\
 - **Foto Profil Pengguna** & **Dropdown Role**: Tombol pil interaktif di kanan atas untuk beralih mode tampilan antara **Admin** dan **Guru**, serta fungsi **Logout** yang mengarahkan kembali ke halaman Login.
 
 ### 2. Welcome Section (Sesuai Butir 3)
-- Sapaan: *"Assalamu'alaikum, Selamat Datang! di Aplikasi Absensi Santri"*.
+- Sapaan: *"Assalamu'alaikum, Selamat Datang! di Aplikasi Santriya"*.
 - Latar belakang gradasi hijau tua dengan foto arsitektur gedung pesantren di sisi kanan yang berbaur secara halus.
 - Aksen lengkungan ganda warna emas (`#E5B842`) dan latar belakang tubuh dashboard di bagian bawah.
 
