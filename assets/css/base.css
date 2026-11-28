@@ -637,6 +637,74 @@
       opacity: 1;
     }
 
+    /* macOS Genie / Dock Minimize & Silky ProMotion Emerge Window Transition */
+    .screen-page.macos-window-leaving {
+      display: block !important;
+      position: absolute !important;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 10;
+      pointer-events: none;
+      transform-origin: var(--macos-origin-x, -110px) var(--macos-origin-y, 140px);
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      contain: layout style;
+      animation:
+        macosWindowMinimize 0.30s cubic-bezier(0.36, 0, 0.66, 0.25) forwards,
+        macosWindowMinimizeFade 0.26s cubic-bezier(0.4, 0, 1, 1) forwards;
+    }
+    .screen-page.macos-window-entering {
+      position: relative;
+      z-index: 20;
+      transform-origin: var(--macos-origin-x, -110px) var(--macos-origin-y, 140px);
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      contain: layout style;
+      animation:
+        macosWindowEmerge 0.56s cubic-bezier(0.16, 1, 0.3, 1) 0.03s both,
+        macosWindowEmergeFade 0.28s cubic-bezier(0.22, 1, 0.36, 1) 0.03s both;
+    }
+    @keyframes macosWindowMinimize {
+      0% {
+        transform: perspective(1400px) translate3d(0, 0, 0) scale3d(1, 1, 1);
+      }
+      100% {
+        transform: perspective(1400px) translate3d(0, 0, 0) scale3d(0.16, 0.09, 1);
+      }
+    }
+    @keyframes macosWindowMinimizeFade {
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+    @keyframes macosWindowEmerge {
+      0% {
+        transform: perspective(1400px) translate3d(0, 0, 0) scale3d(0.26, 0.16, 1);
+      }
+      100% {
+        transform: perspective(1400px) translate3d(0, 0, 0) scale3d(1, 1, 1);
+      }
+    }
+    @keyframes macosWindowEmergeFade {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .screen-page.macos-window-leaving,
+      .screen-page.macos-window-entering {
+        animation: none !important;
+      }
+    }
+
     @media (max-width: 1023px) {
       .screen-page {
         padding: 20px 20px 60px;

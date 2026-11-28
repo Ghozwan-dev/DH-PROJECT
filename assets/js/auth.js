@@ -11,7 +11,9 @@
     // Kembali ke Halaman Login saat klik tombol kembali (<) atau teks "Masuk"
     function backToLoginPage() {
       document.querySelectorAll('.screen-page').forEach(function(p) {
-        p.classList.remove('active');
+        if (p._macosLeaveTimer) { clearTimeout(p._macosLeaveTimer); p._macosLeaveTimer = null; }
+        if (p._macosEnterTimer) { clearTimeout(p._macosEnterTimer); p._macosEnterTimer = null; }
+        p.classList.remove('active', 'macos-window-leaving', 'macos-window-entering');
       });
       document.getElementById('pageLogin').classList.remove('slide-out');
       document.getElementById('pageLogin').scrollTop = 0;
@@ -89,6 +91,76 @@
       showToast('Kredensial Guru dimuat: ustadz_ahmad / guru123', 'success');
     }
 
+    let _lastClickedNavElement = null;
+    let _lastClickedNavTime = 0;
+
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+      document.addEventListener('pointerdown', (e) => {
+        const target = e.target;
+        const navBtn = target && typeof target.closest === 'function'
+          ? target.closest('.sidebar-nav-item, .bottom-nav-item, .nav-tab-item')
+          : null;
+        if (navBtn) {
+          _lastClickedNavElement = navBtn;
+          _lastClickedNavTime = Date.now();
+        }
+      }, { passive: true });
+    }
+
+    function getNavMenuTriggerForPage(targetPageId) {
+      if (typeof document === 'undefined') return null;
+      if (_lastClickedNavElement && (Date.now() - _lastClickedNavTime) < 400) {
+        const rect = typeof _lastClickedNavElement.getBoundingClientRect === 'function'
+          ? _lastClickedNavElement.getBoundingClientRect()
+          : null;
+        if (rect && rect.width > 0 && rect.height > 0) {
+          return _lastClickedNavElement;
+        }
+      }
+
+      let navKey = 'home';
+      if (targetPageId && targetPageId.startsWith('pageStudent')) navKey = 'students';
+      else if (targetPageId && (targetPageId.startsWith('pageSchedule') || targetPageId.startsWith('pageAttendanceForm'))) navKey = 'schedule';
+      else if (targetPageId && (targetPageId.startsWith('pageAttendanceReport') || targetPageId.startsWith('pageStudentRecap'))) navKey = 'report';
+      else if (targetPageId && targetPageId.startsWith('pageSetting')) navKey = 'settings';
+
+      const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1024;
+      if (isDesktop) {
+        const sbIds = {
+          home: 'sbLinkHome',
+          students: 'sbLinkStudents',
+          schedule: 'sbLinkSchedule',
+          report: 'sbLinkReport',
+          settings: 'sbLinkSettings'
+        };
+        const sbEl = document.getElementById(sbIds[navKey]);
+        if (sbEl) return sbEl;
+      }
+
+      const tabIndices = { home: 0, schedule: 1, students: 2, report: 3, settings: 4 };
+      const pill = document.getElementById('tabPill' + tabIndices[navKey]);
+      if (pill && pill.parentElement) return pill.parentElement;
+      return null;
+    }
+
+    function applyMacosWindowOrigin(el, viewportEl, triggerEl) {
+      if (!el || !el.style || typeof el.style.setProperty !== 'function') return;
+      let ox = '-110px';
+      let oy = '140px';
+      if (viewportEl && triggerEl && typeof viewportEl.getBoundingClientRect === 'function' && typeof triggerEl.getBoundingClientRect === 'function') {
+        const vRect = viewportEl.getBoundingClientRect();
+        const tRect = triggerEl.getBoundingClientRect();
+        if (tRect.width > 0 && tRect.height > 0) {
+          const x = Math.round((tRect.left + tRect.width / 2) - vRect.left);
+          const y = Math.round((tRect.top + tRect.height / 2) - vRect.top);
+          ox = x + 'px';
+          oy = y + 'px';
+        }
+      }
+      el.style.setProperty('--macos-origin-x', ox);
+      el.style.setProperty('--macos-origin-y', oy);
+    }
+
     // Fungsi Utama Routing Antar-Halaman (Menampilkan HANYA halaman yang dipilih secara eksklusif)
     function showOnlyScreenPage(targetPageId) {
       const shell = document.querySelector('.device-shell');
@@ -114,24 +186,74 @@
         }
       }
 
-      // Sembunyikan SEMUA screen-page, hanya aktifkan targetPageId
       const allPages = document.querySelectorAll('.screen-page');
+      const isAuthTarget = targetPageId === 'pageLogin' || targetPageId === 'pageRegister';
+      let prevActivePage = null;
+      if (allPages && allPages.length > 0) {
+        allPages.forEach(function(p) {
+          if (p.classList.contains('active') && p.id !== 'pageLogin' && p.id !== 'pageRegister') {
+            prevActivePage = p;
+          }
+          if (p._macosLeaveTimer) {
+            clearTimeout(p._macosLeaveTimer);
+            p._macosLeaveTimer = null;
+          }
+          if (p._macosEnterTimer) {
+            clearTimeout(p._macosEnterTimer);
+            p._macosEnterTimer = null;
+          }
+          p.classList.remove('macos-window-leaving', 'macos-window-entering');
+        });
+      }
+
+      if (typeof window !== 'undefined' && window.scrollTo) {
+        try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
+      }
+
+      const prefersReducedMotion = typeof window !== 'undefined' &&
+        typeof window.matchMedia === 'function' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const shouldMacosAnimate = !isAuthTarget &&
+        !prefersReducedMotion &&
+        prevActivePage &&
+        prevActivePage.id !== targetPageId;
+
+      const viewportEl = shouldMacosAnimate ? document.querySelector('.flow-viewport') : null;
+      const triggerEl = shouldMacosAnimate ? getNavMenuTriggerForPage(targetPageId) : null;
+      _lastClickedNavElement = null;
+      const prevTriggerEl = shouldMacosAnimate ? (getNavMenuTriggerForPage(prevActivePage.id) || triggerEl) : null;
+
+      // Sembunyikan SEMUA screen-page, hanya aktifkan targetPageId
       if (allPages && allPages.length > 0) {
         allPages.forEach(function(p) {
           if (p.id === targetPageId) {
             p.classList.add('active');
             p.scrollTop = 0;
+            if (shouldMacosAnimate) {
+              applyMacosWindowOrigin(p, viewportEl, triggerEl);
+              if (typeof p.offsetWidth === 'number') void p.offsetWidth;
+              p.classList.add('macos-window-entering');
+              p._macosEnterTimer = setTimeout(() => {
+                p.classList.remove('macos-window-entering');
+                p._macosEnterTimer = null;
+              }, 640);
+            }
           } else {
             p.classList.remove('active');
+            if (shouldMacosAnimate && p === prevActivePage) {
+              applyMacosWindowOrigin(p, viewportEl, prevTriggerEl || triggerEl);
+              if (typeof p.offsetWidth === 'number') void p.offsetWidth;
+              p.classList.add('macos-window-leaving');
+              p._macosLeaveTimer = setTimeout(() => {
+                p.classList.remove('macos-window-leaving');
+                p._macosLeaveTimer = null;
+              }, 340);
+            }
           }
         });
       } else {
         const targetEl = document.getElementById(targetPageId);
         if (targetEl) targetEl.classList.add('active');
-      }
-
-      if (typeof window !== 'undefined' && window.scrollTo) {
-        try { window.scrollTo({ top: 0, behavior: 'instant' }); } catch(e) {}
       }
 
       // Kontrol visibilitas navbar bawah:
@@ -1620,7 +1742,9 @@
       }
 
       document.querySelectorAll('.screen-page').forEach(function(p) {
-        p.classList.remove('active');
+        if (p._macosLeaveTimer) { clearTimeout(p._macosLeaveTimer); p._macosLeaveTimer = null; }
+        if (p._macosEnterTimer) { clearTimeout(p._macosEnterTimer); p._macosEnterTimer = null; }
+        p.classList.remove('active', 'macos-window-leaving', 'macos-window-entering');
       });
 
       const pageReg = document.getElementById('pageRegister');

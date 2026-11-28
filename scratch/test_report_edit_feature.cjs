@@ -123,13 +123,13 @@ if (avgPct !== expectedAvg) {
 }
 console.log(`  ✓ [PASS] Rata-rata persentase kehadiran terhitung akurat: ${avgPct}`);
 
-// 4. Verify Export Excel includes custom overrides
-console.log('\n4. Memeriksa Kompatibilitas Ekspor Excel & PDF:');
-if (!reportJs.includes('reportCustomOverrides.studentOverrides[st.id]') || !reportJs.includes('reportCustomOverrides.kopTitle')) {
-  console.error('[FAIL] exportReportExcel tidak mengintegrasikan reportCustomOverrides');
+// 4. Verify Excel export removed & Export PDF works cleanly
+console.log('\n4. Memeriksa Ekspor PDF (tanpa Ekspor Excel):');
+if (previewHtml.includes('Ekspor Excel') || previewHtml.includes('exportReportExcel') || reportJs.includes('function exportReportExcel')) {
+  console.error('[FAIL] Tombol atau fungsi Ekspor Excel masih tersisa');
   process.exit(1);
 }
-console.log('  ✓ [PASS] exportReportExcel mengintegrasikan nilai kustomisasi kop, judul & data presensi santri!');
+console.log('  ✓ [PASS] Tombol & fungsi Ekspor Excel sudah dihapus bersih!');
 
 if (!reportJs.includes('reportPaperContainer') || !reportJs.includes('printWindow.document.write')) {
   console.error('[FAIL] exportReportPdf tidak mengikutsertakan lembar laporan');

@@ -961,88 +961,8 @@
     }
 
     // ========================================================
-    // EKSPOR LAPORAN (EXCEL & PDF MENDUKUNG KUSTOMISASI)
+    // EKSPOR LAPORAN PDF (MENDUKUNG KUSTOMISASI)
     // ========================================================
-    function exportReportExcel() {
-      const isAdmin = currentLoggedInUser && currentLoggedInUser.role === 'Admin';
-      if (!isAdmin) {
-        showToast('Akses ditolak: Hanya Admin yang dapat mengekspor laporan.', 'error');
-        return;
-      }
-
-      const data = computeReportData();
-      const { type, periodLabel, generatedDate, classVal, subVal, studentIdVal, filteredSessions } = data;
-
-      const kop = reportCustomOverrides.kopTitle || "PONDOK PESANTREN ISLAM DARUL HIKMAH";
-      const targetClass = classVal === 'Semua' ? 'VII A' : classVal;
-      const docTitle = reportCustomOverrides.reportTitle || (type === 'perSantri' ? "LAPORAN KEHADIRAN SANTRI" : `LAPORAN REKAPITULASI KEHADIRAN KELAS ${targetClass}`);
-      const dispPeriod = reportCustomOverrides.periodLabel || periodLabel;
-      const dispDate = reportCustomOverrides.generatedDate || generatedDate;
-
-      let csv = '﻿';
-      csv += `"${kop}"\n`;
-      csv += `"${docTitle}"\n`;
-      csv += `"Periode: ${dispPeriod}"\n`;
-      csv += `"Tanggal Cetak: ${dispDate}"\n\n`;
-
-      if (type === 'perSantri') {
-        let student = mockStudents.find(s => s.id === studentIdVal) || mockStudents[0];
-        csv += '"DATA SANTRI"\n';
-        csv += `"Nama Santri","${student.fullName}"\n`;
-        csv += `"NIS","'${student.nis}"\n`;
-        csv += `"Kelas","${student.className}"\n\n`;
-
-        csv += '"No","Tanggal","Mata Pelajaran","Guru Pengampu","Status","Catatan"\n';
-        let idx = 1;
-        filteredSessions.forEach(session => {
-          const item = (session.items || []).find(it => it.studentId === student.id || it.studentNis === student.nis);
-          if (item) {
-            csv += `"${idx++}","${session.date}","${session.subject}","${session.teacherName}","${item.status.toUpperCase()}","${item.note || '-'}"\n`;
-          }
-        });
-      } else {
-        const students = mockStudents.filter(s => s.className.toLowerCase() === targetClass.toLowerCase());
-        csv += `"REKAPITULASI KELAS ${targetClass}"\n\n`;
-        csv += '"No","NIS","Nama Santri","Total Pertemuan","Hadir","Izin","Sakit","Alfa","Persentase"\n';
-
-        students.forEach((st, i) => {
-          let sH = 0, sI = 0, sS = 0, sA = 0;
-          if (reportCustomOverrides.studentOverrides && reportCustomOverrides.studentOverrides[st.id]) {
-            const ov = reportCustomOverrides.studentOverrides[st.id];
-            sH = ov.hadir !== undefined ? ov.hadir : 0;
-            sI = ov.izin !== undefined ? ov.izin : 0;
-            sS = ov.sakit !== undefined ? ov.sakit : 0;
-            sA = ov.alfa !== undefined ? ov.alfa : 0;
-          } else {
-            filteredSessions.forEach(session => {
-              const item = (session.items || []).find(it => it.studentId === st.id || it.studentNis === st.nis);
-              if (item) {
-                if (item.status === 'hadir') sH++;
-                else if (item.status === 'izin') sI++;
-                else if (item.status === 'sakit') sS++;
-                else if (item.status === 'alfa') sA++;
-              }
-            });
-          }
-
-          const tot = sH + sI + sS + sA;
-          const pct = tot === 0 ? '0%' : (Math.round((sH / tot) * 1000) / 10) + '%';
-          csv += `"${i + 1}","'${st.nis}","${st.fullName}","${tot}","${sH}","${sI}","${sS}","${sA}","${pct}"\n`;
-        });
-      }
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', `Laporan_Absensi_Darul_Hikmah_${Date.now()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      showToast('Laporan Excel (.csv spreadsheet) berhasil diunduh.', 'success');
-    }
-
     function exportReportPdf() {
       const isAdmin = currentLoggedInUser && currentLoggedInUser.role === 'Admin';
       if (!isAdmin) {

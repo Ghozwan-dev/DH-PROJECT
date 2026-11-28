@@ -130,53 +130,6 @@ class _AttendanceReportViewState extends State<AttendanceReportView> {
     _generateReport();
   }
 
-  void _handleExportExcel() {
-    if (_currentReport == null) return;
-    final csvContent = AttendanceReportExportService.generateExcelCsv(_currentReport!);
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: const [
-            Icon(Icons.table_chart_rounded, color: Color(0xFF16A34A)),
-            SizedBox(width: 8),
-            Text('Ekspor Excel Berhasil', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Laporan "${_currentReport!.title}" siap diunduh dalam format Excel (.csv spreadsheet).',
-              style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Ukuran file: ${(csvContent.length / 1024).toStringAsFixed(1)} KB\nKarakter: ${csvContent.length}',
-                style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Tutup', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _handleExportPdf() {
     if (_currentReport == null) return;
     final htmlContent = AttendanceReportExportService.generatePrintableHtml(_currentReport!);
@@ -533,23 +486,6 @@ class _AttendanceReportViewState extends State<AttendanceReportView> {
             ),
             icon: const Icon(Icons.picture_as_pdf_rounded, size: 16),
             label: const Text('Ekspor PDF', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
-          ),
-        ),
-        const SizedBox(width: 8),
-
-        // Tombol Ekspor Excel
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: _handleExportExcel,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF16A34A),
-              foregroundColor: Colors.white,
-              elevation: 0,
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            icon: const Icon(Icons.table_chart_rounded, size: 16),
-            label: const Text('Ekspor Excel', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700)),
           ),
         ),
         const SizedBox(width: 8),
